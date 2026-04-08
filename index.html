@@ -6,129 +6,279 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CardTrack">
-<meta name="theme-color" content="#0d1117">
+<meta name="theme-color" content="#080c14">
 <title>CardTrack</title>
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0d1117;--bg2:#161a22;--border:#1e293b;--border2:#2a2f3a;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--accent:#60a5fa;--accent2:#3b82f6;--green:#10b981;--warn:#f59e0b;--red:#ef4444}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
-#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative}
-.header{padding:max(env(safe-area-inset-top),16px) 20px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10}
-.header-icon{font-size:22px;color:var(--accent2)}
-.header-title{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:#f1f5f9;letter-spacing:-0.5px}
-.header-sub{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);background:var(--border);padding:3px 10px;border-radius:20px}
-.content{flex:1;overflow-y:auto;padding:16px 16px 24px;-webkit-overflow-scrolling:touch}
-.tab-bar{display:flex;justify-content:space-around;background:var(--bg);border-top:1px solid var(--border);padding:8px 0 max(env(safe-area-inset-bottom),12px);position:sticky;bottom:0;z-index:20}
-.tab-btn{background:none;border:none;color:#4b5563;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:'DM Sans',sans-serif;cursor:pointer;padding:4px 12px;border-radius:8px;transition:all .15s;font-size:10px}
-.tab-btn .ico{font-size:18px;line-height:1}
-.tab-btn.active{color:var(--accent);background:#1e293b40}
-.section-hint{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);margin-bottom:12px;letter-spacing:-0.3px}
-.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#080c14;--bg2:#0f1520;--bg3:#141c2a;--bg4:#1a2235;
+  --border:#1e2d45;--border2:#243350;
+  --text:#e8eef8;--text2:#8fa3c0;--text3:#506180;
+  --accent:#38bdf8;--accent2:#0ea5e9;--accentD:#0c4a6e;
+  --green:#34d399;--greenD:#064e3b;
+  --warn:#fbbf24;--warnD:#78350f;
+  --red:#f87171;--redD:#7f1d1d;
+  --purple:#a78bfa;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 12px 3px var(--warn)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
 
-/* Select card */
-.sel-card{display:flex;align-items:center;padding:12px 14px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;transition:all .15s;margin-bottom:8px}
-.sel-card.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 8%,transparent)}
-.net-badge{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0}
-.net-badge-sm{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
-.sel-name{font-weight:600;font-size:14px;color:var(--text)}
-.sel-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+/* ─── HEADER ─── */
+.header{padding:max(env(safe-area-inset-top),16px) 20px 14px;display:flex;align-items:center;gap:10px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.header-logo{width:28px;height:28px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.header-title{font-family:'Space Mono',monospace;font-weight:700;font-size:16px;color:var(--text);letter-spacing:-0.5px}
+.header-badges{margin-left:auto;display:flex;gap:6px;align-items:center}
+.hbadge{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border)}
+.hbadge.event{color:var(--warn);border-color:var(--warnD);background:#78350f20}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:14px 14px 20px;-webkit-overflow-scrolling:touch;animation:fadeIn .2s ease}
+
+/* ─── TAB BAR ─── */
+.tab-bar{display:flex;justify-content:space-around;background:var(--bg2);border-top:1px solid var(--border);padding:8px 0 max(env(safe-area-inset-bottom),10px);position:sticky;bottom:0;z-index:20}
+.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px;border-radius:10px;transition:all .15s;font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;min-width:52px}
+.tab-btn .ico{font-size:17px;line-height:1}
+.tab-btn.active{color:var(--accent)}
+.tab-dot{width:4px;height:4px;border-radius:50%;background:var(--warn);position:absolute;top:-1px;right:-1px}
+.tab-btn-wrap{position:relative;display:inline-block}
+
+/* ─── MONO ─── */
+.mono{font-family:'Space Mono',monospace}
+
+/* ─── SECTION HINT ─── */
+.section-hint{font-family:'Space Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:-.2px}
+
+/* ─── NET BADGE ─── */
+.net-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:'Space Mono',monospace}
+.net-badge-sm{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800;flex-shrink:0;font-family:'Space Mono',monospace}
+
+/* ─── SELECT CARD ─── */
+.sel-card{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;margin-bottom:7px}
+.sel-card.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 10%,var(--bg2))}
+.sel-info{flex:1;min-width:0}
+.sel-name{font-weight:700;font-size:13px;color:var(--text)}
+.sel-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Space Mono',monospace}
+.chk{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:11px;color:#fff}
 .chk.on{border-color:var(--card-color);background:var(--card-color)}
 
-/* Card block */
-.card-block{background:var(--bg2);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);border-left:3px solid var(--card-color)}
-.card-name{font-weight:700;font-size:14px;color:#f1f5f9}
-.card-meta{font-size:11px;color:var(--text3);margin-top:3px}
-.warn-badge{margin-left:6px;font-size:10px;background:#f59e0b20;color:var(--warn);padding:1px 6px;border-radius:4px}
-.ok-badge{margin-left:6px;font-size:10px;background:#10b98120;color:var(--green);padding:1px 6px;border-radius:4px}
-.cb-row{margin-bottom:12px}
-.cb-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.cb-cat{font-size:12px;font-weight:600;color:var(--text2)}
-.cb-amt{font-size:11px;color:var(--text3)}
-.progress-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;border-radius:3px;transition:width .4s ease}
-.cb-footer{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:11px;color:var(--text3)}
-.full-badge{font-size:10px;background:#f59e0b20;color:var(--warn);padding:2px 8px;border-radius:4px;font-weight:600}
-.shared-cap{background:#3b82f610;border:1px solid #3b82f630;border-radius:8px;padding:8px 12px;font-size:11px;color:var(--accent);margin-top:4px;font-weight:600}
-.card-note{font-size:11px;color:var(--text3);margin-top:8px;padding:6px 10px;background:#1e293b40;border-radius:6px;font-style:italic;line-height:1.5}
+/* ─── CARD BLOCK ─── */
+.card-block{background:var(--bg2);border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .15s}
+.card-block:active{transform:scale(.99)}
+.card-name{font-weight:700;font-size:13px;color:var(--text)}
+.card-meta{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Space Mono',monospace}
+.warn-badge{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:700}
+.ok-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:700}
+.cb-row{margin-bottom:10px}
+.cb-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.cb-cat{font-size:11px;font-weight:700;color:var(--text2);font-family:'Space Mono',monospace}
+.cb-amt{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
+.progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.cb-footer{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
+.full-badge{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 7px;border-radius:4px;font-weight:700}
+.shared-cap{background:#0ea5e910;border:1px solid #0ea5e930;border-radius:7px;padding:7px 10px;font-size:10px;color:var(--accent);margin-top:6px;font-weight:700;font-family:'Space Mono',monospace}
+.card-note{font-size:10px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:6px;font-style:italic;line-height:1.5;font-family:'Space Mono',monospace}
 
-/* Filters & inputs */
-.filter-row{display:flex;gap:8px;margin-bottom:12px}
-select,.month-input,.input-field{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box}
-select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px;text-overflow:ellipsis}
-.month-input{color-scheme:dark;width:155px;flex-shrink:0}
-.input-field{font-size:14px;width:100%}
-input[type=date]{color-scheme:dark}
+/* ─── CARD DETAIL ─── */
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:14px;padding:4px 0}
+.detail-stat-row{display:flex;gap:8px;margin-bottom:14px}
+.detail-stat{flex:1;background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.detail-stat-label{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:4px}
+.detail-stat-val{font-size:14px;font-weight:800;color:var(--text)}
+.detail-txn-header{font-size:11px;font-weight:700;color:var(--text2);margin:12px 0 8px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.5px}
 
-/* TXN */
-.cb-summary{display:flex;justify-content:space-between;align-items:center;background:#10b98110;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;color:var(--text2)}
-.txn-row{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid #1e293b15}
-.txn-shop{font-weight:600;font-size:14px;color:var(--text)}
-.txn-meta{display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap}
-.txn-tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
-.txn-cat{font-size:10px;color:var(--text3);background:var(--border);padding:2px 7px;border-radius:4px}
+/* ─── FILTERS ─── */
+.filter-row{display:flex;gap:8px;margin-bottom:10px}
+select,.month-input,.input-field{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text);border-radius:8px;padding:9px 11px;font-size:12px;font-family:'Syne',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s}
+select:focus,.input-field:focus{border-color:var(--accent2)}
+select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23506180'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;text-overflow:ellipsis}
+.month-input{color-scheme:dark;width:150px;flex-shrink:0}
+.input-field{font-size:13px;width:100%}
+input[type=date],input[type=month]{color-scheme:dark}
+
+/* ─── CB SUMMARY ─── */
+.cb-summary{display:flex;justify-content:space-between;align-items:center;background:var(--greenD);border:1px solid #065f4620;border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:10px;color:var(--text2)}
+
+/* ─── TXN ─── */
+.txn-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.txn-shop{font-weight:700;font-size:13px;color:var(--text)}
+.txn-meta{display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.txn-tag{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace}
+.txn-cat{font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'Space Mono',monospace}
 .txn-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.txn-amount{font-weight:700;font-size:14px;color:#f1f5f9}
-.txn-cb{font-size:11px;color:var(--green)}
-.del-btn{background:none;border:none;color:#ef444480;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;margin-top:2px}
+.txn-amount{font-weight:800;font-size:13px;color:var(--text);font-family:'Space Mono',monospace}
+.txn-cb{font-size:10px;color:var(--green);font-family:'Space Mono',monospace}
+.del-btn{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px 5px;border-radius:4px;margin-top:1px;line-height:1}
+.del-btn:active{color:var(--red);background:var(--redD)}
 
-/* Form */
-.form-group{margin-bottom:14px}
-.label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
-.suggestions{position:absolute;top:100%;left:0;right:0;z-index:20;background:#1e2530;border:1px solid var(--border2);border-radius:8px;max-height:160px;overflow:auto;margin-top:4px}
-.suggest-btn{display:block;width:100%;text-align:left;background:none;border:none;color:var(--text);padding:8px 12px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
-.suggest-btn:active{background:var(--border)}
-.suggest-btn-chip{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text2);border-radius:16px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
-.suggest-btn-chip:active{border-color:var(--accent);color:var(--accent);background:var(--border)}
-.no-cb-hint{font-size:11px;color:var(--warn);margin-top:6px}
-.cb-preview{background:#10b98110;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;color:var(--text2)}
-.submit-btn{width:100%;padding:14px;border-radius:10px;border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+/* ─── FORM ─── */
+.form-group{margin-bottom:12px}
+.label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.4px}
+.suggest-btn-chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;font-weight:600;transition:all .1s}
+.suggest-btn-chip:active{border-color:var(--accent);color:var(--accent);background:var(--accentD)}
+.no-cb-hint{font-size:10px;color:var(--warn);margin-top:5px;font-family:'Space Mono',monospace}
+.cb-preview{background:var(--greenD);border:1px solid #065f4640;border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:12px;color:var(--text2);font-family:'Space Mono',monospace}
+.submit-btn{width:100%;padding:13px;border-radius:10px;border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;letter-spacing:.3px}
 .submit-btn:active{transform:scale(.98)}
-.empty-msg{text-align:center;color:#4b5563;font-size:13px;padding:40px 0}
+.empty-msg{text-align:center;color:var(--text3);font-size:12px;padding:40px 0;font-family:'Space Mono',monospace}
 
-/* Shop tab */
-.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.cat-chip{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text2);border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
-.cat-chip.active{background:var(--border);border-color:var(--accent);color:var(--accent)}
-.shop-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+/* ─── SHOP ─── */
+.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cat-chip{background:var(--bg2);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:600;transition:all .15s;white-space:nowrap}
+.cat-chip.active{background:var(--accentD);border-color:var(--accent2);color:var(--accent)}
+.shop-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:8px}
 .shop-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.shop-icon{font-size:22px}
-.shop-name{font-weight:700;font-size:15px;color:#f1f5f9}
-.shop-cat{font-size:11px;color:var(--text3);margin-top:1px}
-.shop-recommend{border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:8px}
-.shop-cb-detail{font-size:11px;color:var(--text2);margin-bottom:4px}
-.shop-remaining{font-size:11px;color:var(--text2);margin-bottom:6px}
+.shop-icon{font-size:20px}
+.shop-name{font-weight:800;font-size:14px;color:var(--text)}
+.shop-cat{font-size:10px;color:var(--text3);margin-top:1px;font-family:'Space Mono',monospace}
+.shop-recommend{border:1px solid var(--border2);border-radius:8px;padding:9px 11px;margin-bottom:7px}
+.shop-cb-detail{font-size:10px;color:var(--text2);margin-bottom:3px;font-family:'Space Mono',monospace}
+.shop-remaining{font-size:10px;color:var(--text2);margin-bottom:5px;font-family:'Space Mono',monospace}
 .mini-progress{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.full-sm{font-size:9px;background:#f59e0b20;color:var(--warn);padding:2px 6px;border-radius:4px;font-weight:600;margin-left:auto}
+.full-sm{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 6px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace;margin-left:auto}
 
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top:3px solid var(--accent2);border-radius:50%;animation:spin 1s linear infinite}
+/* ─── EVENT ─── */
+.event-card{border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .15s}
+.event-card.urgent{background:color-mix(in srgb,var(--warn) 8%,var(--bg2));border:1.5px solid var(--warnD);animation:blink 2s ease-in-out infinite}
+.event-card.soon{background:var(--bg2);border:1px solid var(--border)}
+.event-card.normal{background:var(--bg2);border:1px solid var(--border)}
+.event-dot{width:36px;height:36px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.event-dot.urgent{background:var(--warnD);color:var(--warn)}
+.event-dot.due{background:var(--accentD);color:var(--accent)}
+.event-dot.custom{background:var(--bg3);color:var(--purple);border:1px solid var(--border)}
+.event-day{font-size:14px;font-weight:800;font-family:'Space Mono',monospace;line-height:1}
+.event-mon{font-size:8px;font-weight:700;font-family:'Space Mono',monospace;line-height:1;margin-top:2px;opacity:.8}
+.event-body{flex:1;min-width:0}
+.event-title{font-weight:700;font-size:13px;color:var(--text)}
+.event-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:'Space Mono',monospace}
+.event-urgent-label{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace;margin-top:4px;animation:pulse 1.5s ease-in-out infinite}
+.event-del{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
+.event-del:active{color:var(--red)}
+.event-section-label{font-size:10px;font-weight:800;color:var(--text3);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-left:2px}
+
+/* ─── ADD FORM TABS ─── */
+.form-tab-row{display:flex;gap:6px;margin-bottom:16px;background:var(--bg3);border-radius:10px;padding:4px}
+.form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s}
+.form-tab.active{background:var(--bg2);color:var(--accent);box-shadow:0 2px 8px #00000030}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border);margin:12px 0}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 // ─── DATA ───
-const ALL_CARDS=[{id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],minSpend:3000000},{id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},{id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},{id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],minSpend:3000000},{id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},{id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",stmtDay:20,dueDay:4,color:"#CC0028",cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},{id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",stmtDay:20,dueDay:4,color:"#0C4DA2",cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],minSpend:0,note:"Tổng max 800K, riêng BH max 400K"},{id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],minSpend:0},{id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:300000,maxSpend:3000000},{category:"Du lịch",rate:.10,maxCashback:300000,maxSpend:3000000},{category:"Vé Vietjet",rate:.10,maxCashback:500000,maxSpend:5000000}],minSpend:0},{id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],minSpend:0,sharedMaxCashback:600000,note:"Max 600K/tháng chung. Áp dụng lĩnh vực lần đổi cuối trong tháng."},{id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",stmtDay:30,dueDay:8,color:"#F26522",cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],minSpend:0},{id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},{id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],minSpend:0},{id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],minSpend:0,note:"Tổng max 800K, riêng BH max 400K"},{id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",stmtDay:4,dueDay:27,color:"#DB0011",cashbackCategories:[{category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}],minSpend:0},{id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",stmtDay:5,dueDay:27,color:"#0F7B5F",cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},{id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",stmtDay:25,dueDay:15,color:"#0A6B50",cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0}];
+const ALL_CARDS=[
+  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],minSpend:3000000},
+  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},
+  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},
+  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],minSpend:3000000},
+  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},
+  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",stmtDay:20,dueDay:4,color:"#CC0028",cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},
+  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",stmtDay:20,dueDay:4,color:"#0C4DA2",cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],minSpend:0,note:"Tổng max 800K, riêng BH max 400K"},
+  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],minSpend:0},
+  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:300000,maxSpend:3000000},{category:"Du lịch",rate:.10,maxCashback:300000,maxSpend:3000000},{category:"Vé Vietjet",rate:.10,maxCashback:500000,maxSpend:5000000}],minSpend:0},
+  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],minSpend:0,sharedMaxCashback:600000,note:"Max 600K/tháng chung"},
+  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",stmtDay:30,dueDay:8,color:"#F26522",cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],minSpend:0},
+  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},
+  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],minSpend:0},
+  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",cashbackCategories:[{category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},{category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},{category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}],minSpend:0,note:"Tổng max 800K, riêng BH max 400K"},
+  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",stmtDay:4,dueDay:27,color:"#DB0011",cashbackCategories:[{category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}],minSpend:0},
+  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",stmtDay:5,dueDay:27,color:"#0F7B5F",cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},
+  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",stmtDay:25,dueDay:15,color:"#0A6B50",cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0}
+];
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 
-const SHOP_SUGGESTIONS={"Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],"Ẩm thực":["ShopeeF","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],"Y tế":["Vinmec","Á Châu","Pharmacity"],"Giáo dục":["SSC","ReadingQ"],"Online":["Shopee","Lazada"],"Bảo hiểm":["Bảo Việt"],"Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],"Du lịch":[],"Di chuyển":["Grab","Taxi"],"Vé Vietjet":["Vietjet"],"Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],"Nước ngoài":[]};
+const SHOP_SUGGESTIONS={"Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],"Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],"Y tế":["Vinmec","Á Châu","Pharmacity","VNVC","Long Chau"],"Giáo dục":["SSC","ReadingQ"],"Online":["Shopee","Lazada"],"Bảo hiểm":["Bảo Việt"],"Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],"Du lịch":["Agoda","Traveloka","Booking"],"Di chuyển":["Grab","Taxi"],"Vé Vietjet":["Vietjet"],"Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],"Nước ngoài":[]};
 
-const SHOP_CARD_MAP=[{shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"MM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},{shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Manwah",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202"]},{shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"Highlands",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"Katinat",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"Domino Pizza",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"KFC",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-4232"]},{shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},{shop:"Á Châu",category:"Y tế",cardIds:["mb-4887"]},{shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887"]},{shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},{shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},{shop:"Shopee",category:"Online",cardIds:["msb-1712","tcb-5166","seabank-6891"]},{shop:"Lazada",category:"Online",cardIds:["msb-1712","tcb-5166"]},{shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887"]},{shop:"Uniqlo",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},{shop:"H&M",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},{shop:"Adidas",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},{shop:"Zara",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},{shop:"Decathlon",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},{shop:"Điện nước (Shopee)",category:"Online",cardIds:["msb-1712"]},{shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},{shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]}];
+const SHOP_CARD_MAP=[
+  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"MM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
+  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Domino",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"KFC",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887"]},
+  {shop:"Long Chau",category:"Y tế",cardIds:["mb-4887"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
+  {shop:"Shopee",category:"Online",cardIds:["msb-1712","tcb-5166","seabank-6891","vib-4549"]},
+  {shop:"Lazada",category:"Online",cardIds:["msb-1712","tcb-5166","vib-4549"]},
+  {shop:"Điện nước (Shopee)",category:"Online",cardIds:["msb-1712"]},
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"Uniqlo",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"H&M",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Adidas",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Zara",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Decathlon",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4549"]},
+  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4549"]},
+  {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
+  {shop:"Taxi",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
+  {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
+  {shop:"CGV",category:"Giải trí",cardIds:["bvb-0202"]},
+  {shop:"Galaxy Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
+  {shop:"Lotte Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
+];
 
-const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈","Online":"🛍","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"✈","Nước ngoài":"🌏","Khác":"📦"};
-const NET_ICONS={Visa:"𝗩",MC:"Ⓜ",JCB:"𝗝",Amex:"𝗔"};
+const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
+const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
+const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
 // ─── HELPERS ───
 const fmt=n=>new Intl.NumberFormat("vi-VN").format(Math.round(n));
 const fmtK=n=>{if(n>=1e6)return`${(n/1e6).toFixed(n%1e6===0?0:1)}tr`;if(n>=1e3)return`${Math.round(n/1e3)}K`;return fmt(n)};
 
-function cycleStart(card,ref){const d=new Date(ref),day=card.stmtDay;let y=d.getFullYear(),m=d.getMonth();return d.getDate()>=day?new Date(y,m,day):new Date(y,m-1,day)}
-function daysUntilDue(card){const t=new Date(),y=t.getFullYear(),m=t.getMonth();let d=new Date(y,m,card.dueDay);if(d<t)d=new Date(y,m+1,card.dueDay);return Math.ceil((d-t)/864e5)}
+function cycleStart(card,ref){
+  const d=new Date(ref),day=card.stmtDay;
+  let y=d.getFullYear(),m=d.getMonth();
+  return d.getDate()>=day?new Date(y,m,day):new Date(y,m-1,day);
+}
+function daysUntilDue(card,from){
+  const t=from||new Date(),y=t.getFullYear(),m=t.getMonth();
+  let d=new Date(y,m,card.dueDay);
+  if(d<=t)d=new Date(y,m+1,card.dueDay);
+  return Math.ceil((d-t)/864e5);
+}
+function nextDueDate(card){
+  const t=new Date(),y=t.getFullYear(),m=t.getMonth();
+  let d=new Date(y,m,card.dueDay);
+  if(d<=t)d=new Date(y,m+1,card.dueDay);
+  return d;
+}
 
 // ─── STORAGE ───
 function load(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch{return fallback}}
@@ -137,10 +287,15 @@ function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}
 // ─── STATE ───
 let state={
   tab:"cards",
-  selectedCardIds:load("cc-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
-  transactions:load("cc-txns",[]),
+  selectedCardIds:load("ct2-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
+  transactions:load("ct2-txns",[]),
+  events:load("ct2-events",[]),
+  // detail
+  detailCardId:null,
   // add form
+  addMode:"txn",// txn | event
   addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:new Date().toISOString().slice(0,10),
+  addEventDate:"",addEventCard:"",addEventNote:"",
   // txn filters
   filterCard:"all",filterMonth:new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"),
   // shop
@@ -148,22 +303,47 @@ let state={
 };
 
 function setState(patch){Object.assign(state,patch);render();persist()}
-function setQ(patch){Object.assign(state,patch)} // quiet update, no re-render
-function persist(){save("cc-sel",state.selectedCardIds);save("cc-txns",state.transactions)}
+function setQ(patch){Object.assign(state,patch)}
+function persist(){save("ct2-sel",state.selectedCardIds);save("ct2-txns",state.transactions);save("ct2-events",state.events)}
 
-// Auto-purge old cycle transactions
-function getActiveTxns(){
+// Purge old cycle transactions
+function purgeOldTxns(){
   const now=new Date();
-  return state.transactions.filter(tx=>{
+  const before=state.transactions.length;
+  state.transactions=state.transactions.filter(tx=>{
     const card=ALL_CARDS.find(c=>c.id===tx.cardId);
     if(!card)return false;
     return new Date(tx.date)>=cycleStart(card,now);
   });
+  if(state.transactions.length!==before)persist();
 }
 
 function selectedCards(){return ALL_CARDS.filter(c=>state.selectedCardIds.includes(c.id))}
 
-// ─── RENDER ───
+// Upcoming due events auto-generated (14 days)
+function getAutoEvents(){
+  const now=new Date();
+  const events=[];
+  state.selectedCardIds.forEach(id=>{
+    const card=ALL_CARDS.find(c=>c.id===id);
+    if(!card)return;
+    const due=nextDueDate(card);
+    const diff=Math.ceil((due-now)/864e5);
+    if(diff>=0&&diff<=14){
+      events.push({id:"auto-"+card.id,isAuto:true,date:due.toISOString().slice(0,10),title:`Đến hạn: ${card.name} ****${card.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:card.id,cardColor:card.color,diff});
+    }
+  });
+  return events;
+}
+
+// Count urgent events for badge
+function urgentEventCount(){
+  const now=new Date();
+  const all=[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((new Date(e.date)-now)/864e5)}))];
+  return all.filter(e=>e.diff>=0&&e.diff<=3).length;
+}
+
+// ─── RENDER ENGINE ───
 function h(tag,attrs,...children){
   const el=document.createElement(tag);
   let deferValue=undefined;
@@ -183,65 +363,73 @@ function h(tag,attrs,...children){
 }
 
 function render(){
-  // Purge
-  const active=getActiveTxns();
-  if(active.length!==state.transactions.length){state.transactions=active;persist()}
-
-  // Save scroll position
+  purgeOldTxns();
   const oldContent=document.querySelector(".content");
   const scrollTop=oldContent?oldContent.scrollTop:0;
-
   const app=document.getElementById("app");
   app.innerHTML="";
   app.appendChild(renderHeader());
   const content=h("div",{className:"content"});
   if(state.tab==="select")content.appendChild(renderSelectTab());
-  else if(state.tab==="cards")content.appendChild(renderCardsTab());
+  else if(state.tab==="cards"){
+    if(state.detailCardId)content.appendChild(renderCardDetail());
+    else content.appendChild(renderCardsTab());
+  }
   else if(state.tab==="shop")content.appendChild(renderShopTab());
   else if(state.tab==="txns")content.appendChild(renderTxnTab());
   else if(state.tab==="add")content.appendChild(renderAddTab());
+  else if(state.tab==="events")content.appendChild(renderEventsTab());
   app.appendChild(content);
   app.appendChild(renderTabBar());
-
-  // Restore scroll position
   content.scrollTop=scrollTop;
 }
 
 function renderHeader(){
+  const uc=urgentEventCount();
   return h("div",{className:"header"},
-    h("span",{className:"header-icon"},"◈"),
+    h("div",{className:"header-logo"},"CT"),
     h("span",{className:"header-title"},"CardTrack"),
-    h("span",{className:"header-sub mono"},selectedCards().length+" thẻ")
+    h("div",{className:"header-badges"},
+      h("span",{className:"hbadge mono"},selectedCards().length+" thẻ"),
+      uc>0?h("span",{className:"hbadge event mono"},uc+" sắp đến"):null
+    )
   );
 }
 
 function renderTabBar(){
-  const tabs=[{key:"select",label:"Chọn thẻ",icon:"◎"},{key:"cards",label:"Thẻ",icon:"▦"},{key:"shop",label:"Shop",icon:"⌘"},{key:"txns",label:"Giao dịch",icon:"≡"},{key:"add",label:"Thêm",icon:"＋"}];
+  const tabs=[
+    {key:"select",label:"Chọn",icon:"◎"},
+    {key:"cards",label:"Thẻ",icon:"▦"},
+    {key:"shop",label:"Shop",icon:"⌘"},
+    {key:"txns",label:"GD",icon:"≡"},
+    {key:"events",label:"Events",icon:"◷"},
+    {key:"add",label:"Thêm",icon:"＋"},
+  ];
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
-    bar.appendChild(h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>setState({tab:t.key})},
+    const uc=(t.key==="events")?urgentEventCount():0;
+    const inner=h("span",{className:"tab-btn-wrap"},
       h("span",{className:"ico"},t.icon),
-      h("span",null,t.label)
-    ));
+      uc>0?h("span",{className:"tab-dot"}):null
+    );
+    bar.appendChild(h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>setState({tab:t.key,detailCardId:null})},inner,h("span",null,t.label)));
   });
   return bar;
 }
 
 // ─── SELECT TAB ───
 function renderSelectTab(){
-  const wrap=h("div",null,h("p",{className:"section-hint mono"},"Chọn thẻ cần theo dõi"));
+  const wrap=h("div",null,h("p",{className:"section-hint"},"// chọn thẻ cần theo dõi"));
   ALL_CARDS.forEach(c=>{
     const on=state.selectedCardIds.includes(c.id);
     const card=h("div",{className:"sel-card"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
       const ids=on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id];
       setState({selectedCardIds:ids});
     }},
-      h("div",{style:{display:"flex",alignItems:"center",gap:"10px",flex:"1"}},
-        h("span",{className:"net-badge",style:{background:c.color}},NET_ICONS[c.network]),
-        h("div",null,
-          h("div",{className:"sel-name"},c.name),
-          h("div",{className:"sel-sub mono"},`****${c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)
-        )
+      h("span",{className:"net-badge",style:{background:c.color}},NET_ICONS[c.network]),
+      h("div",{className:"sel-info"},
+        h("div",{className:"sel-name"},c.name),
+        h("div",{className:"sel-sub"},`****${c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)
       ),
       h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")
     );
@@ -254,25 +442,25 @@ function renderSelectTab(){
 function renderCardsTab(){
   const wrap=h("div",null);
   const cards=selectedCards();
+  if(!cards.length)return h("p",{className:"empty-msg"},"// chưa chọn thẻ nào");
   const now=new Date();
   const txns=state.transactions;
-  if(!cards.length)return h("p",{className:"empty-msg mono"},"Chưa chọn thẻ nào.");
   cards.forEach(card=>{
     const cs=cycleStart(card,now);
     const cycleTxns=txns.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
     const dl=daysUntilDue(card);
     const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
-    const block=h("div",{className:"card-block",style:{"--card-color":card.color}},
-      h("div",{style:{marginBottom:"14px"}},
-        h("div",{style:{display:"flex",alignItems:"center",gap:"8px"}},
-          h("span",{className:"net-badge",style:{background:card.color}},NET_ICONS[card.network]),
-          h("div",null,
-            h("div",{className:"card-name"},`${card.name} ****${card.last4}`),
-            h("div",{className:"card-meta mono"},
-              `Hạn ${dl}d · Tổng chi ${fmtK(totalSpend)}`,
-              card.minSpend>0?(totalSpend<card.minSpend?h("span",{className:"warn-badge"},`Chưa đủ min ${fmtK(card.minSpend)}`):h("span",{className:"ok-badge"},"✓ Đã đủ min")):"")
+    const block=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id,tab:"cards"})},
+      h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"12px"}},
+        h("span",{className:"net-badge",style:{background:card.color}},NET_ICONS[card.network]),
+        h("div",{style:{flex:1}},
+          h("div",{className:"card-name"},`${card.name} ****${card.last4}`),
+          h("div",{className:"card-meta"},
+            `Hạn ${dl}d · Chi ${fmtK(totalSpend)}`,
+            card.minSpend>0?(totalSpend<card.minSpend?h("span",{className:"warn-badge"},`!Min`):h("span",{className:"ok-badge"},"✓Min")):null
           )
-        )
+        ),
+        h("span",{style:{color:"var(--text3)",fontSize:"14px"}},"›")
       )
     );
     card.cashbackCategories.forEach(cb=>{
@@ -283,17 +471,75 @@ function renderCardsTab(){
       const pct=Math.min((catSpend/cb.maxSpend)*100,100);
       const isFull=pct>=100||(card.sharedMaxCashback&&sharedTotal>=card.sharedMaxCashback);
       block.appendChild(h("div",{className:"cb-row"},
-        h("div",{className:"cb-label"},h("span",{className:"cb-cat mono"},`${cb.category} ${Math.round(cb.rate*100)}%`),h("span",{className:"cb-amt mono"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
+        h("div",{className:"cb-label"},
+          h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),
+          h("span",{className:"cb-amt"},`${fmtK(catSpend)}/${fmtK(cb.maxSpend)}`)
+        ),
         h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
-        h("div",{className:"cb-footer mono"},h("span",null,`CB ≈ ${fmtK(earnedCb)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"full-badge"},"⚠ Đã đạt mức tối ưu"):"")
+        h("div",{className:"cb-footer"},
+          h("span",null,`CB ≈${fmtK(earnedCb)}/${fmtK(cb.maxCashback)}`),
+          isFull?h("span",{className:"full-badge"},"⚠ Tối ưu"):null
+        )
       ));
     });
     if(card.sharedMaxCashback){
       const total=card.cashbackCategories.reduce((sum,c2)=>{const sp=cycleTxns.filter(tx=>tx.category===c2.category).reduce((s,t)=>s+t.amount,0);return sum+Math.min(sp*c2.rate,c2.maxCashback)},0);
-      block.appendChild(h("div",{className:"shared-cap mono"},`Tổng CB chung: ${fmtK(total)} / ${fmtK(card.sharedMaxCashback)}`));
+      block.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(total)} / ${fmtK(card.sharedMaxCashback)}`));
     }
     if(card.note)block.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
     wrap.appendChild(block);
+  });
+  return wrap;
+}
+
+// ─── CARD DETAIL ───
+function renderCardDetail(){
+  const card=ALL_CARDS.find(c=>c.id===state.detailCardId);
+  if(!card)return h("div",null,"Không tìm thấy thẻ");
+  const now=new Date();
+  const cs=cycleStart(card,now);
+  const cycleTxns=state.transactions.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
+  const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
+  const totalCb=cycleTxns.reduce((s,t)=>s+(t.cashback||0),0);
+  const dl=daysUntilDue(card);
+  const wrap=h("div",null);
+  wrap.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},
+    "‹ ",`${card.name} ****${card.last4}`
+  ));
+  // Stats
+  wrap.appendChild(h("div",{className:"detail-stat-row"},
+    h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Tổng chi kỳ"),h("div",{className:"detail-stat-val",style:{color:"var(--text)"}},fmtK(totalSpend)+"₫")),
+    h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"CB ước tính"),h("div",{className:"detail-stat-val",style:{color:"var(--green)"}},fmtK(totalCb)+"₫")),
+    h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Hạn TT"),h("div",{className:"detail-stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))
+  ));
+  // CB bars
+  card.cashbackCategories.forEach(cb=>{
+    const catSpend=cycleTxns.filter(tx=>tx.category===cb.category).reduce((s,t)=>s+t.amount,0);
+    const earnedCb=Math.min(catSpend*cb.rate,cb.maxCashback);
+    const pct=Math.min((catSpend/cb.maxSpend)*100,100);
+    const isFull=pct>=100;
+    wrap.appendChild(h("div",{className:"cb-row"},
+      h("div",{className:"cb-label"},h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),h("span",{className:"cb-amt"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
+      h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
+      h("div",{className:"cb-footer"},h("span",null,`CB ≈ ${fmtK(earnedCb)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"full-badge"},"⚠ Đã đạt tối ưu"):null)
+    ));
+  });
+  if(card.note)wrap.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+  // Transactions this cycle
+  wrap.appendChild(h("div",{className:"detail-txn-header"},"Giao dịch kỳ này"));
+  if(!cycleTxns.length){wrap.appendChild(h("p",{className:"empty-msg",style:{padding:"20px 0"}},"// chưa có giao dịch"));return wrap}
+  cycleTxns.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx=>{
+    wrap.appendChild(h("div",{className:"txn-row"},
+      h("div",{style:{flex:"1"}},
+        h("div",{className:"txn-shop"},tx.shop),
+        h("div",{className:"txn-meta"},h("span",{className:"txn-cat"},tx.category),h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date))
+      ),
+      h("div",{className:"txn-right"},
+        h("div",{className:"txn-amount"},fmt(tx.amount)+"₫"),
+        tx.cashback>0?h("div",{className:"txn-cb"},"CB +"+fmtK(tx.cashback)):null,
+        h("button",{className:"del-btn",onClick:e=>{e.stopPropagation();state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕")
+      )
+    ));
   });
   return wrap;
 }
@@ -304,33 +550,26 @@ function renderShopTab(){
   const selIds=state.selectedCardIds;
   const now=new Date();
   const txns=state.transactions;
-
-  // Search
-  let searchTimer;
-  const searchInput=h("input",{className:"input-field",placeholder:"🔍  Tìm shop...",value:state.shopSearch,onInput:e=>{setQ({shopSearch:e.target.value});clearTimeout(searchTimer);const v=e.target.value;searchTimer=setTimeout(()=>{state.shopSearch=v;render();const el=document.querySelector('.content input');if(el){el.focus();el.setSelectionRange(v.length,v.length)}},300)}});
+  const searchInput=h("input",{className:"input-field",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
+    onInput:e=>{const v=e.target.value;setQ({shopSearch:v});const el=document.querySelector('.content .input-field');setTimeout(()=>render(),300)}
+  });
   wrap.appendChild(h("div",{style:{marginBottom:"10px"}},searchInput));
-
-  // Category chips
   const cats=[...new Set(SHOP_CARD_MAP.map(s=>s.category))];
-  const filterWrap=h("div",{className:"cat-filter"});
-  filterWrap.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter==="all"?" active":""),onClick:()=>setState({shopCatFilter:"all"})},"Tất cả"));
-  cats.forEach(c=>filterWrap.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter===c?" active":""),onClick:()=>setState({shopCatFilter:c})},(CAT_ICONS[c]||"📦")+" "+c)));
-  wrap.appendChild(filterWrap);
-
-  // Filtered shops
+  const fw=h("div",{className:"cat-filter"});
+  fw.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter==="all"?" active":""),onClick:()=>setState({shopCatFilter:"all"})},"All"));
+  cats.forEach(c=>fw.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter===c?" active":""),onClick:()=>setState({shopCatFilter:c})},(CAT_ICONS[c]||"📦")+" "+c)));
+  wrap.appendChild(fw);
   const filtered=SHOP_CARD_MAP
     .filter(s=>state.shopCatFilter==="all"||s.category===state.shopCatFilter)
     .filter(s=>!state.shopSearch||s.shop.toLowerCase().includes(state.shopSearch.toLowerCase()))
     .map(s=>({...s,cardIds:s.cardIds.filter(id=>selIds.includes(id))}))
     .filter(s=>s.cardIds.length>0);
-
-  if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg mono"},"Không tìm thấy shop phù hợp"));return wrap}
-
+  if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không tìm thấy shop"));return wrap}
   filtered.forEach(s=>{
     const shopEl=h("div",{className:"shop-card"},
       h("div",{className:"shop-header"},
         h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),
-        h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat mono"},s.category))
+        h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))
       )
     );
     s.cardIds.forEach(cardId=>{
@@ -347,14 +586,14 @@ function renderShopTab(){
         remainCb=Math.max(card.sharedMaxCashback-totalCb,0);
         if(totalCb>=card.sharedMaxCashback)isFull=true;
       }
-      const rec=h("div",{className:"shop-recommend",style:{borderColor:isFull?"#f59e0b40":`${card.color}50`,background:isFull?"#f59e0b08":`${card.color}08`}},
-        h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"6px"}},
+      const rec=h("div",{className:"shop-recommend",style:{borderColor:isFull?"#f59e0b40":`${card.color}50`,background:isFull?"#78350f10":`${card.color}08`}},
+        h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"5px"}},
           h("span",{className:"net-badge-sm",style:{background:card.color}},NET_ICONS[card.network]),
-          h("span",{style:{fontWeight:600,fontSize:"12px",color:"var(--text)"}},`${card.name} ****${card.last4}`),
-          isFull?h("span",{className:"full-sm"},"⚠ Full"):""
+          h("span",{style:{fontWeight:700,fontSize:"12px",color:"var(--text)"}},`${card.name} ****${card.last4}`),
+          isFull?h("span",{className:"full-sm"},"⚠ Full"):null
         ),
-        h("div",{className:"shop-cb-detail mono"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
-        !isFull?h("div",{className:"shop-remaining mono"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remainSpend)),` chi tiêu → CB còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remainCb))):h("div",{className:"shop-remaining",style:{color:"var(--warn)"}},"Đã dùng hết cashback kỳ này"),
+        h("div",{className:"shop-cb-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
+        !isFull?h("div",{className:"shop-remaining"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remainSpend)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remainCb))):h("div",{className:"shop-remaining",style:{color:"var(--warn)"}},"Đã hết cashback kỳ này"),
         h("div",{className:"mini-progress"},h("div",{style:{height:"100%",borderRadius:"2px",width:pct+"%",background:isFull?"var(--warn)":card.color,transition:"width .3s"}}))
       );
       shopEl.appendChild(rec);
@@ -369,130 +608,211 @@ function renderTxnTab(){
   const wrap=h("div",null);
   const cards=selectedCards();
   const txns=state.transactions;
-
-  // Filters
-  const selCard=h("select",{onChange:e=>{setState({filterCard:e.target.value})}});
+  const selCard=h("select",{onChange:e=>setState({filterCard:e.target.value})});
   selCard.appendChild(h("option",{value:"all"},"Tất cả thẻ"));
   cards.forEach(c=>selCard.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
   selCard.value=state.filterCard;
   const monthIn=h("input",{type:"month",className:"month-input",onChange:e=>setState({filterMonth:e.target.value})});
   monthIn.value=state.filterMonth;
   wrap.appendChild(h("div",{className:"filter-row"},selCard,monthIn));
-
   const filtered=txns
     .filter(tx=>state.filterCard==="all"||tx.cardId===state.filterCard)
     .filter(tx=>tx.date.startsWith(state.filterMonth))
     .sort((a,b)=>new Date(b.date)-new Date(a.date));
   const totalCb=filtered.reduce((s,tx)=>s+(tx.cashback||0),0);
-
-  wrap.appendChild(h("div",{className:"cb-summary mono"},h("span",null,"Cashback ước tính tháng này"),h("span",{style:{color:"var(--green)",fontWeight:"700"}},fmt(totalCb)+"₫")));
-  if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg mono"},"Chưa có giao dịch"));return wrap}
-
+  const totalSpend=filtered.reduce((s,tx)=>s+tx.amount,0);
+  wrap.appendChild(h("div",{className:"cb-summary mono"},
+    h("span",null,`Chi: ${fmtK(totalSpend)}₫`),
+    h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB: +${fmtK(totalCb)}₫`)
+  ));
+  if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg"},"// chưa có giao dịch"));return wrap}
   filtered.forEach(tx=>{
     const card=ALL_CARDS.find(c=>c.id===tx.cardId);
-    const row=h("div",{className:"txn-row"},
+    wrap.appendChild(h("div",{className:"txn-row"},
       h("div",{style:{flex:"1"}},
         h("div",{className:"txn-shop"},tx.shop),
         h("div",{className:"txn-meta"},
-          h("span",{className:"txn-tag",style:{background:`${card?.color||"#555"}30`,color:card?.color||"#aaa"}},card?`${card.name} ****${card.last4}`:"?"),
+          h("span",{className:"txn-tag",style:{background:`${card?.color||"#555"}25`,color:card?.color||"#aaa"}},card?`****${card.last4}`:"?"),
           h("span",{className:"txn-cat"},tx.category),
-          h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date)
+          h("span",{style:{fontSize:"9px",color:"var(--text3)"}},tx.date)
         )
       ),
       h("div",{className:"txn-right"},
-        h("div",{className:"txn-amount mono"},fmt(tx.amount)+"₫"),
-        tx.cashback>0?h("div",{className:"txn-cb mono"},"CB +"+fmtK(tx.cashback)):"",
+        h("div",{className:"txn-amount"},fmt(tx.amount)+"₫"),
+        tx.cashback>0?h("div",{className:"txn-cb"},"+"+fmtK(tx.cashback)):null,
         h("button",{className:"del-btn",onClick:()=>{state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕")
       )
-    );
-    wrap.appendChild(row);
+    ));
   });
   return wrap;
+}
+
+// ─── EVENTS TAB ───
+function renderEventsTab(){
+  const wrap=h("div",null);
+  const now=new Date();
+  const nowStr=now.toISOString().slice(0,10);
+  const autoEvs=getAutoEvents();
+  const userEvs=state.events
+    .filter(e=>e.date>=nowStr)
+    .map(e=>({...e,isAuto:false,diff:Math.ceil((new Date(e.date)-now)/864e5),cardColor:e.cardId?ALL_CARDS.find(c=>c.id===e.cardId)?.color:null}));
+  const all=[...autoEvs,...userEvs].sort((a,b)=>a.date.localeCompare(b.date));
+  if(!all.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không có sự kiện nào trong 14 ngày tới"));return wrap}
+  const urgent=all.filter(e=>e.diff>=0&&e.diff<=3);
+  const later=all.filter(e=>e.diff>3);
+  if(urgent.length){
+    wrap.appendChild(h("div",{className:"event-section-label"},"⚡ Trong 3 ngày tới"));
+    urgent.forEach(e=>wrap.appendChild(renderEventCard(e,true)));
+  }
+  if(later.length){
+    wrap.appendChild(h("div",{className:"event-section-label"},"📅 Sắp tới"));
+    later.forEach(e=>wrap.appendChild(renderEventCard(e,false)));
+  }
+  return wrap;
+}
+
+function renderEventCard(ev,isUrgent){
+  const d=new Date(ev.date);
+  const dayN=d.getDate();
+  const monN=MONTHS_VI[d.getMonth()];
+  const dotCls=isUrgent?"urgent":(ev.isAuto?"due":"custom");
+  const cardCls=isUrgent?"urgent":"normal";
+  const card=h("div",{className:`event-card ${cardCls}`},
+    h("div",{className:`event-dot ${dotCls}`},
+      h("span",{className:"event-day"},dayN),
+      h("span",{className:"event-mon"},monN)
+    ),
+    h("div",{className:"event-body"},
+      h("div",{className:"event-title"},ev.title),
+      ev.sub?h("div",{className:"event-sub"},ev.sub):null,
+      isUrgent?h("span",{className:"event-urgent-label"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null
+    )
+  );
+  if(!ev.isAuto){
+    const del=h("button",{className:"event-del",onClick:()=>{state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕");
+    card.appendChild(del);
+  }
+  return card;
 }
 
 // ─── ADD TAB ───
 function renderAddTab(){
   const wrap=h("div",null);
+  // Mode switcher
+  const tabRow=h("div",{className:"form-tab-row"});
+  tabRow.appendChild(h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"));
+  tabRow.appendChild(h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event"));
+  wrap.appendChild(tabRow);
+  if(state.addMode==="txn")wrap.appendChild(renderAddTxnForm());
+  else wrap.appendChild(renderAddEventForm());
+  return wrap;
+}
+
+function renderAddTxnForm(){
+  const wrap=h("div",null);
   const cards=selectedCards();
   if(!state.addCardId&&cards.length)state.addCardId=cards[0].id;
   const selCard=ALL_CARDS.find(c=>c.id===state.addCardId);
-  // Auto-select first cashback category ONLY if no category chosen yet
-  if(selCard&&!state.addCategory){
-    if(selCard.cashbackCategories.length)state.addCategory=selCard.cashbackCategories[0].category;
-  }
-
-  // Card select
+  if(selCard&&!state.addCategory&&selCard.cashbackCategories.length)state.addCategory=selCard.cashbackCategories[0].category;
+  // Card
   const cardSel=h("select",{onChange:e=>{
-    const newCard=ALL_CARDS.find(c=>c.id===e.target.value);
-    const autoCat=newCard&&newCard.cashbackCategories.length?newCard.cashbackCategories[0].category:"";
-    setState({addCardId:e.target.value,addCategory:autoCat,addShop:""});
+    const nc=ALL_CARDS.find(c=>c.id===e.target.value);
+    setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""});
   }});
   cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
   cardSel.value=state.addCardId;
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label mono"},"Thẻ"),cardSel));
-
+  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ"),cardSel));
   // Category
   const catSel=h("select",{onChange:e=>setState({addCategory:e.target.value,addShop:""})});
-  catSel.appendChild(h("option",{value:""},"-- Chọn --"));
-  CATEGORIES.forEach(c=>catSel.appendChild(h("option",{value:c},c)));
+  catSel.appendChild(h("option",{value:""},"-- Chọn lĩnh vực --"));
+  CATEGORIES.forEach(c=>catSel.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
   catSel.value=state.addCategory;
-  const catGroup=h("div",{className:"form-group"},h("label",{className:"label mono"},"Lĩnh vực"),catSel);
+  const catG=h("div",{className:"form-group"},h("label",{className:"label"},"Lĩnh vực"),catSel);
   if(selCard&&state.addCategory&&!selCard.cashbackCategories.find(c=>c.category===state.addCategory)){
-    catGroup.appendChild(h("div",{className:"no-cb-hint"},`⚠ Thẻ này không có cashback cho "${state.addCategory}"`));
+    catG.appendChild(h("div",{className:"no-cb-hint"},`⚠ Không có cashback cho "${state.addCategory}"`));
   }
-  wrap.appendChild(catGroup);
-
+  wrap.appendChild(catG);
   // Shop
   const suggestions=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
   const shopWrap=h("div",null);
-  const shopInput=h("input",{className:"input-field",placeholder:"Nhập tên shop",value:state.addShop,
-    onInput:e=>{setQ({addShop:e.target.value})},
-    onBlur:e=>{setQ({addShop:e.target.value})}
-  });
-  shopWrap.appendChild(shopInput);
-  // Always show suggestions as tappable chips
+  const shopIn=h("input",{className:"input-field",placeholder:"Tên cửa hàng",value:state.addShop,onInput:e=>setQ({addShop:e.target.value}),onBlur:e=>setQ({addShop:e.target.value})});
+  shopWrap.appendChild(shopIn);
   if(suggestions.length){
-    const chipWrap=h("div",{style:{display:"flex",flexWrap:"wrap",gap:"6px",marginTop:"8px"}});
-    suggestions.forEach(s=>{
-      chipWrap.appendChild(h("button",{className:"suggest-btn-chip",onClick:()=>{state.addShop=s;render()}},s));
-    });
-    shopWrap.appendChild(chipWrap);
+    const cw=h("div",{style:{display:"flex",flexWrap:"wrap",gap:"6px",marginTop:"7px"}});
+    suggestions.forEach(s=>cw.appendChild(h("button",{className:"suggest-btn-chip",onClick:()=>{state.addShop=s;render()}},s)));
+    shopWrap.appendChild(cw);
   }
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label mono"},"Cửa hàng"),shopWrap));
-
-  // Amount + date row
-  const amtInput=h("input",{type:"text",inputmode:"decimal",className:"input-field",placeholder:"0",value:state.addAmount,onInput:e=>{setQ({addAmount:e.target.value})},onBlur:e=>{setState({addAmount:e.target.value})}});
-  const dateInput=h("input",{type:"date",className:"input-field",value:state.addDate,onChange:e=>setState({addDate:e.target.value})});
-  wrap.appendChild(h("div",{style:{display:"flex",gap:"10px"}},
-    h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label mono"},"Số tiền (₫)"),amtInput),
-    h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label mono"},"Ngày"),dateInput)
+  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Cửa hàng"),shopWrap));
+  // Amount + Date
+  const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input-field",placeholder:"0",value:state.addAmount,onInput:e=>setQ({addAmount:e.target.value}),onBlur:e=>setState({addAmount:e.target.value})});
+  const dateIn=h("input",{type:"date",className:"input-field",value:state.addDate,onChange:e=>setState({addDate:e.target.value})});
+  wrap.appendChild(h("div",{style:{display:"flex",gap:"8px"}},
+    h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Số tiền (₫)"),amtIn),
+    h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Ngày"),dateIn)
   ));
-
   // CB preview
   if(state.addAmount&&state.addCategory&&selCard){
     const cb=selCard.cashbackCategories.find(c=>c.category===state.addCategory);
     const est=cb?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
-    wrap.appendChild(h("div",{className:"cb-preview mono"},"Cashback ước tính: ",h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
+    wrap.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
   }
-
-  // Submit
   const canSubmit=state.addCardId&&state.addShop&&state.addAmount&&state.addCategory;
-  const btn=h("button",{className:"submit-btn",style:{background:selCard?.color||"#3b82f6",opacity:canSubmit?1:.4},onClick:()=>{
-    if(!state.addCardId||!state.addShop||!state.addAmount||!state.addCategory)return;
+  const btn=h("button",{className:"submit-btn",style:{background:selCard?.color||"var(--accent2)",opacity:canSubmit?1:.4},onClick:()=>{
+    if(!canSubmit)return;
     const card=ALL_CARDS.find(c=>c.id===state.addCardId);
     const cb=card?.cashbackCategories.find(c=>c.category===state.addCategory);
     const cashback=cb?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
     state.transactions.unshift({id:"tx-"+Date.now(),cardId:state.addCardId,shop:state.addShop,amount:parseFloat(state.addAmount),category:state.addCategory,date:state.addDate,cashback});
     state.addShop="";state.addAmount="";
     persist();render();
-  }},"Thêm giao dịch");
+  }},"+ Thêm giao dịch");
   wrap.appendChild(btn);
+  return wrap;
+}
+
+function renderAddEventForm(){
+  const wrap=h("div",null);
+  const cards=selectedCards();
+  // Date
+  const dateIn=h("input",{type:"date",className:"input-field",value:state.addEventDate,onChange:e=>setState({addEventDate:e.target.value})});
+  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Ngày event"),dateIn));
+  // Card (optional)
+  const cardSel=h("select",{onChange:e=>setState({addEventCard:e.target.value})});
+  cardSel.appendChild(h("option",{value:""},"-- Không gắn thẻ --"));
+  cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
+  cardSel.value=state.addEventCard;
+  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ (tuỳ chọn)"),cardSel));
+  // Note
+  const noteIn=h("input",{type:"text",className:"input-field",placeholder:"Nội dung sự kiện",value:state.addEventNote,onInput:e=>setQ({addEventNote:e.target.value}),onBlur:e=>setState({addEventNote:e.target.value})});
+  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Nội dung"),noteIn));
+  const canSubmit=state.addEventDate&&state.addEventNote;
+  const btn=h("button",{className:"submit-btn",style:{background:"var(--purple)",opacity:canSubmit?1:.4},onClick:()=>{
+    if(!canSubmit)return;
+    const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
+    state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote,sub:card?`${card.name} ****${card.last4}`:null,cardId:state.addEventCard||null});
+    state.addEventDate="";state.addEventNote="";state.addEventCard="";
+    persist();render();
+  }},"+ Thêm Event");
+  wrap.appendChild(btn);
+  // Past events list
+  const past=state.events.filter(e=>e.date<new Date().toISOString().slice(0,10));
+  if(past.length){
+    wrap.appendChild(h("div",{className:"event-section-label",style:{marginTop:"20px"}},"Đã qua"));
+    past.sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
+      wrap.appendChild(h("div",{style:{display:"flex",alignItems:"center",gap:"10px",padding:"8px 0",borderBottom:"1px solid var(--border)"}},
+        h("div",{style:{flex:1}},
+          h("div",{style:{fontSize:"12px",fontWeight:700,color:"var(--text3)"}},e.title),
+          h("div",{style:{fontSize:"10px",color:"var(--text3)",fontFamily:"'Space Mono',monospace"}},e.date+(e.sub?" · "+e.sub:""))
+        ),
+        h("button",{className:"del-btn",onClick:()=>{state.events=state.events.filter(ev=>ev.id!==e.id);persist();render()}},"✕")
+      ));
+    });
+  }
   return wrap;
 }
 
 // ─── INIT ───
 render();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 </script>
 </body>
 </html>
