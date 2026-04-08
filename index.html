@@ -9,191 +9,341 @@
 <meta name="theme-color" content="#080c14">
 <title>CardTrack</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#080c14;--bg2:#0f1520;--bg3:#141c2a;--bg4:#1a2235;
-  --border:#1e2d45;--border2:#243350;
-  --text:#e8eef8;--text2:#8fa3c0;--text3:#506180;
-  --accent:#38bdf8;--accent2:#0ea5e9;--accentD:#0c4a6e;
-  --green:#34d399;--greenD:#064e3b;
-  --warn:#fbbf24;--warnD:#78350f;
-  --red:#f87171;--redD:#7f1d1d;
-  --purple:#a78bfa;
+
+/* ─── THEME: DARK NEON ─── */
+:root,[data-theme="dark-neon"]{
+  --bg:#060a12;--bg2:#0c1322;--bg3:#121d30;--bg4:#1a2840;
+  --border:#1a2d50;--border2:#243a60;
+  --text:#e4eaf6;--text2:#8faac8;--text3:#4a6890;
+  --accent:#00e5ff;--accent2:#00b8d4;--accentD:#003d4d;
+  --green:#00ffaa;--greenD:#003d28;
+  --warn:#ffab00;--warnD:#4a3200;
+  --red:#ff5252;--redD:#4a1010;
+  --purple:#b388ff;
+  --card-bg:var(--bg2);
+  --card-border:var(--border);
+  --shadow:0 2px 12px rgba(0,229,255,.06);
+  --glow:0 0 20px rgba(0,229,255,.12);
+  --font-heading:'Syne',sans-serif;
+  --font-mono:'Space Mono',monospace;
+  --font-body:'Syne',sans-serif;
+  --header-bg:var(--bg2);
+  --header-border:var(--border);
+  --tab-bg:var(--bg2);
+  --tab-border:var(--border);
+  --progress-track:var(--border);
+  --badge-radius:4px;
+  --card-radius:12px;
+  --input-radius:8px;
+  --neon-glow:none;
+  --theme-label:"Dark Neon";
 }
+
+/* ─── THEME: NEO-MINIMAL ─── */
+[data-theme="neo-minimal"]{
+  --bg:#f5f3ef;--bg2:#ffffff;--bg3:#edeae4;--bg4:#e2dfd8;
+  --border:#d8d4cc;--border2:#c8c3ba;
+  --text:#1a1a1a;--text2:#5a5a5a;--text3:#8a8a8a;
+  --accent:#ff5733;--accent2:#e04520;--accentD:#ffe8e2;
+  --green:#2ecc71;--greenD:#e8f8ef;
+  --warn:#f39c12;--warnD:#fef5e7;
+  --red:#e74c3c;--redD:#fdedec;
+  --purple:#9b59b6;
+  --card-bg:#ffffff;
+  --card-border:#e8e4dc;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --glow:none;
+  --font-heading:'DM Sans',sans-serif;
+  --font-mono:'Space Mono',monospace;
+  --font-body:'DM Sans',sans-serif;
+  --header-bg:#ffffff;
+  --header-border:#e8e4dc;
+  --tab-bg:#ffffff;
+  --tab-border:#e8e4dc;
+  --progress-track:#e2dfd8;
+  --badge-radius:20px;
+  --card-radius:16px;
+  --input-radius:12px;
+  --neon-glow:none;
+  --theme-label:"Neo-Minimal";
+}
+
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes blink{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 12px 3px var(--warn)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
-#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;background:var(--bg);transition:background .35s}
 
 /* ─── HEADER ─── */
-.header{padding:max(env(safe-area-inset-top),16px) 20px 14px;display:flex;align-items:center;gap:10px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.header{padding:max(env(safe-area-inset-top),16px) 20px 14px;display:flex;align-items:center;gap:10px;background:var(--header-bg);border-bottom:1px solid var(--header-border);position:sticky;top:0;z-index:10;transition:background .35s,border-color .35s}
 .header-logo{width:28px;height:28px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
-.header-title{font-family:'Space Mono',monospace;font-weight:700;font-size:16px;color:var(--text);letter-spacing:-0.5px}
+.header-title{font-family:var(--font-mono);font-weight:700;font-size:16px;color:var(--text);letter-spacing:-0.5px;transition:color .35s}
 .header-badges{margin-left:auto;display:flex;gap:6px;align-items:center}
-.hbadge{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border)}
-.hbadge.event{color:var(--warn);border-color:var(--warnD);background:#78350f20}
+.hbadge{font-family:var(--font-mono);font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);transition:all .35s}
+.hbadge.event{color:var(--warn);border-color:var(--warnD);background:color-mix(in srgb,var(--warn) 8%,var(--bg3))}
+
+/* ─── THEME TOGGLE ─── */
+.theme-toggle{
+  display:flex;align-items:center;gap:0;
+  background:var(--bg3);border:1.5px solid var(--border);border-radius:22px;
+  padding:2px;cursor:pointer;flex-shrink:0;transition:all .35s;
+  margin-left:4px;
+}
+.theme-opt{
+  padding:4px 8px;border-radius:18px;font-size:13px;line-height:1;
+  transition:all .25s;color:var(--text3);position:relative;
+}
+.theme-opt.active{
+  background:var(--accent);color:#fff;
+  box-shadow:0 1px 6px color-mix(in srgb,var(--accent) 40%,transparent);
+}
+[data-theme="neo-minimal"] .theme-opt.active{
+  background:var(--accent);color:#fff;
+}
 
 /* ─── CONTENT ─── */
 .content{flex:1;overflow-y:auto;padding:14px 14px 20px;-webkit-overflow-scrolling:touch;animation:fadeIn .2s ease}
 
 /* ─── TAB BAR ─── */
-.tab-bar{display:flex;justify-content:space-around;background:var(--bg2);border-top:1px solid var(--border);padding:8px 0 max(env(safe-area-inset-bottom),10px);position:sticky;bottom:0;z-index:20}
-.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px;border-radius:10px;transition:all .15s;font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;min-width:52px}
+.tab-bar{display:flex;justify-content:space-around;background:var(--tab-bg);border-top:1px solid var(--tab-border);padding:8px 0 max(env(safe-area-inset-bottom),10px);position:sticky;bottom:0;z-index:20;transition:all .35s}
+.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px;border-radius:10px;transition:all .15s;font-family:var(--font-body);font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;min-width:52px}
 .tab-btn .ico{font-size:17px;line-height:1}
 .tab-btn.active{color:var(--accent)}
 .tab-dot{width:4px;height:4px;border-radius:50%;background:var(--warn);position:absolute;top:-1px;right:-1px}
 .tab-btn-wrap{position:relative;display:inline-block}
 
 /* ─── MONO ─── */
-.mono{font-family:'Space Mono',monospace}
+.mono{font-family:var(--font-mono)}
 
 /* ─── SECTION HINT ─── */
-.section-hint{font-family:'Space Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:-.2px}
+.section-hint{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:-.2px}
 
 /* ─── NET BADGE ─── */
-.net-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:'Space Mono',monospace}
-.net-badge-sm{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800;flex-shrink:0;font-family:'Space Mono',monospace}
+.net-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
+.net-badge-sm{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
 
 /* ─── SELECT CARD ─── */
-.sel-card{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;margin-bottom:7px}
-.sel-card.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 10%,var(--bg2))}
+.sel-card{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:var(--card-radius);cursor:pointer;transition:all .2s;margin-bottom:7px;box-shadow:var(--shadow)}
+.sel-card.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 10%,var(--card-bg))}
 .sel-info{flex:1;min-width:0}
 .sel-name{font-weight:700;font-size:13px;color:var(--text)}
-.sel-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Space Mono',monospace}
+.sel-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
 .chk{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:11px;color:#fff}
 .chk.on{border-color:var(--card-color);background:var(--card-color)}
 
 /* ─── CARD BLOCK ─── */
-.card-block{background:var(--bg2);border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .15s}
+.card-block{background:var(--card-bg);border-radius:var(--card-radius);padding:14px;margin-bottom:10px;border:1px solid var(--card-border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
 .card-block:active{transform:scale(.99)}
 .card-name{font-weight:700;font-size:13px;color:var(--text)}
-.card-meta{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Space Mono',monospace}
-.warn-badge{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:700}
-.ok-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:700}
+.card-meta{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
+.warn-badge{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:var(--badge-radius);margin-left:6px;font-weight:700}
+.ok-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:var(--badge-radius);margin-left:6px;font-weight:700}
 .cb-row{margin-bottom:10px}
 .cb-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.cb-cat{font-size:11px;font-weight:700;color:var(--text2);font-family:'Space Mono',monospace}
-.cb-amt{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
-.progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.cb-cat{font-size:11px;font-weight:700;color:var(--text2);font-family:var(--font-mono)}
+.cb-amt{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.progress-track{height:5px;background:var(--progress-track);border-radius:3px;overflow:hidden;transition:background .35s}
 .progress-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.cb-footer{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
-.full-badge{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 7px;border-radius:4px;font-weight:700}
-.shared-cap{background:#0ea5e910;border:1px solid #0ea5e930;border-radius:7px;padding:7px 10px;font-size:10px;color:var(--accent);margin-top:6px;font-weight:700;font-family:'Space Mono',monospace}
-.card-note{font-size:10px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:6px;font-style:italic;line-height:1.5;font-family:'Space Mono',monospace}
+.cb-footer{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.full-badge{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 7px;border-radius:var(--badge-radius);font-weight:700}
+.shared-cap{background:color-mix(in srgb,var(--accent) 8%,var(--bg3));border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--accent);margin-top:6px;font-weight:700;font-family:var(--font-mono);transition:all .35s}
+.card-note{font-size:10px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:6px;font-style:italic;line-height:1.5;font-family:var(--font-mono);transition:all .35s}
 
 /* ─── CARD DETAIL ─── */
 .back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:14px;padding:4px 0}
 .detail-stat-row{display:flex;gap:8px;margin-bottom:14px}
-.detail-stat{flex:1;background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
-.detail-stat-label{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:4px}
+.detail-stat{flex:1;background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border);transition:all .35s}
+.detail-stat-label{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px}
 .detail-stat-val{font-size:14px;font-weight:800;color:var(--text)}
-.detail-txn-header{font-size:11px;font-weight:700;color:var(--text2);margin:12px 0 8px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.5px}
+.detail-txn-header{font-size:11px;font-weight:700;color:var(--text2);margin:12px 0 8px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px}
 
 /* ─── FILTERS ─── */
 .filter-row{display:flex;gap:8px;margin-bottom:10px}
-select,.month-input,.input-field{background:var(--bg2);border:1.5px solid var(--border2);color:var(--text);border-radius:8px;padding:9px 11px;font-size:12px;font-family:'Syne',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s}
+select,.month-input,.input-field{background:var(--card-bg);border:1.5px solid var(--border2);color:var(--text);border-radius:var(--input-radius);padding:9px 11px;font-size:12px;font-family:var(--font-body);outline:none;box-sizing:border-box;transition:all .25s}
 select:focus,.input-field:focus{border-color:var(--accent2)}
 select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23506180'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;text-overflow:ellipsis}
-.month-input{color-scheme:dark;width:150px;flex-shrink:0}
+.month-input{width:150px;flex-shrink:0}
 .input-field{font-size:13px;width:100%}
-input[type=date],input[type=month]{color-scheme:dark}
+[data-theme="dark-neon"] input[type=date],[data-theme="dark-neon"] input[type=month]{color-scheme:dark}
+[data-theme="dark-neon"] .month-input{color-scheme:dark}
+[data-theme="neo-minimal"] input[type=date],[data-theme="neo-minimal"] input[type=month]{color-scheme:light}
+[data-theme="neo-minimal"] .month-input{color-scheme:light}
 
 /* ─── CB SUMMARY ─── */
-.cb-summary{display:flex;justify-content:space-between;align-items:center;background:var(--greenD);border:1px solid #065f4620;border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:10px;color:var(--text2)}
+.cb-summary{display:flex;justify-content:space-between;align-items:center;background:var(--greenD);border:1px solid color-mix(in srgb,var(--green) 15%,transparent);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:10px;color:var(--text2);transition:all .35s}
 
 /* ─── TXN ─── */
-.txn-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.txn-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);transition:border-color .35s}
 .txn-shop{font-weight:700;font-size:13px;color:var(--text)}
 .txn-meta{display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap}
-.txn-tag{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace}
-.txn-cat{font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'Space Mono',monospace}
+.txn-tag{font-size:9px;padding:2px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono)}
+.txn-cat{font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:var(--badge-radius);font-family:var(--font-mono);transition:all .35s}
 .txn-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.txn-amount{font-weight:800;font-size:13px;color:var(--text);font-family:'Space Mono',monospace}
-.txn-cb{font-size:10px;color:var(--green);font-family:'Space Mono',monospace}
+.txn-amount{font-weight:800;font-size:13px;color:var(--text);font-family:var(--font-mono)}
+.txn-cb{font-size:10px;color:var(--green);font-family:var(--font-mono)}
 .del-btn{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px 5px;border-radius:4px;margin-top:1px;line-height:1}
 .del-btn:active{color:var(--red);background:var(--redD)}
 
 /* ─── FORM ─── */
 .form-group{margin-bottom:12px}
-.label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.4px}
-.suggest-btn-chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;font-weight:600;transition:all .1s}
+.label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
+.suggest-btn-chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
 .suggest-btn-chip:active{border-color:var(--accent);color:var(--accent);background:var(--accentD)}
-.no-cb-hint{font-size:10px;color:var(--warn);margin-top:5px;font-family:'Space Mono',monospace}
-.cb-preview{background:var(--greenD);border:1px solid #065f4640;border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:12px;color:var(--text2);font-family:'Space Mono',monospace}
-.submit-btn{width:100%;padding:13px;border-radius:10px;border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;letter-spacing:.3px}
+.no-cb-hint{font-size:10px;color:var(--warn);margin-top:5px;font-family:var(--font-mono)}
+.cb-preview{background:var(--greenD);border:1px solid color-mix(in srgb,var(--green) 15%,transparent);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:12px;color:var(--text2);font-family:var(--font-mono);transition:all .35s}
+.submit-btn{width:100%;padding:13px;border-radius:var(--input-radius);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .15s;letter-spacing:.3px}
 .submit-btn:active{transform:scale(.98)}
-.empty-msg{text-align:center;color:var(--text3);font-size:12px;padding:40px 0;font-family:'Space Mono',monospace}
+.empty-msg{text-align:center;color:var(--text3);font-size:12px;padding:40px 0;font-family:var(--font-mono)}
 
 /* ─── SHOP ─── */
 .cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.cat-chip{background:var(--bg2);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:600;transition:all .15s;white-space:nowrap}
+.cat-chip{background:var(--card-bg);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:all .15s;white-space:nowrap}
 .cat-chip.active{background:var(--accentD);border-color:var(--accent2);color:var(--accent)}
-.shop-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:8px}
+.shop-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);padding:13px;margin-bottom:8px;box-shadow:var(--shadow);transition:all .35s}
 .shop-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .shop-icon{font-size:20px}
 .shop-name{font-weight:800;font-size:14px;color:var(--text)}
-.shop-cat{font-size:10px;color:var(--text3);margin-top:1px;font-family:'Space Mono',monospace}
-.shop-recommend{border:1px solid var(--border2);border-radius:8px;padding:9px 11px;margin-bottom:7px}
-.shop-cb-detail{font-size:10px;color:var(--text2);margin-bottom:3px;font-family:'Space Mono',monospace}
-.shop-remaining{font-size:10px;color:var(--text2);margin-bottom:5px;font-family:'Space Mono',monospace}
-.mini-progress{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.full-sm{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 6px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace;margin-left:auto}
+.shop-cat{font-size:10px;color:var(--text3);margin-top:1px;font-family:var(--font-mono)}
+.shop-recommend{border:1px solid var(--border2);border-radius:8px;padding:9px 11px;margin-bottom:7px;transition:all .35s}
+.shop-cb-detail{font-size:10px;color:var(--text2);margin-bottom:3px;font-family:var(--font-mono)}
+.shop-remaining{font-size:10px;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono)}
+.mini-progress{height:3px;background:var(--progress-track);border-radius:2px;overflow:hidden;transition:background .35s}
+.full-sm{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono);margin-left:auto}
 
 /* ─── EVENT ─── */
-.event-card{border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .15s}
-.event-card.urgent{background:color-mix(in srgb,var(--warn) 8%,var(--bg2));border:1.5px solid var(--warnD);animation:blink 2s ease-in-out infinite}
-.event-card.soon{background:var(--bg2);border:1px solid var(--border)}
-.event-card.normal{background:var(--bg2);border:1px solid var(--border)}
+.event-card{border-radius:var(--card-radius);padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .35s}
+.event-card.urgent{background:color-mix(in srgb,var(--warn) 8%,var(--card-bg));border:1.5px solid var(--warnD);animation:blink 2s ease-in-out infinite}
+.event-card.soon{background:var(--card-bg);border:1px solid var(--card-border)}
+.event-card.normal{background:var(--card-bg);border:1px solid var(--card-border)}
 .event-dot{width:36px;height:36px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .event-dot.urgent{background:var(--warnD);color:var(--warn)}
 .event-dot.due{background:var(--accentD);color:var(--accent)}
 .event-dot.custom{background:var(--bg3);color:var(--purple);border:1px solid var(--border)}
-.event-day{font-size:14px;font-weight:800;font-family:'Space Mono',monospace;line-height:1}
-.event-mon{font-size:8px;font-weight:700;font-family:'Space Mono',monospace;line-height:1;margin-top:2px;opacity:.8}
+.event-day{font-size:14px;font-weight:800;font-family:var(--font-mono);line-height:1}
+.event-mon{font-size:8px;font-weight:700;font-family:var(--font-mono);line-height:1;margin-top:2px;opacity:.8}
 .event-body{flex:1;min-width:0}
 .event-title{font-weight:700;font-size:13px;color:var(--text)}
-.event-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:'Space Mono',monospace}
-.event-urgent-label{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace;margin-top:4px;animation:pulse 1.5s ease-in-out infinite}
+.event-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
+.event-urgent-label{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono);margin-top:4px;animation:pulse 1.5s ease-in-out infinite}
 .event-del{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
 .event-del:active{color:var(--red)}
-.event-section-label{font-size:10px;font-weight:800;color:var(--text3);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-left:2px}
+.event-section-label{font-size:10px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-left:2px}
 
 /* ─── ADD FORM TABS ─── */
-.form-tab-row{display:flex;gap:6px;margin-bottom:16px;background:var(--bg3);border-radius:10px;padding:4px}
-.form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s}
-.form-tab.active{background:var(--bg2);color:var(--accent);box-shadow:0 2px 8px #00000030}
+.form-tab-row{display:flex;gap:6px;margin-bottom:16px;background:var(--bg3);border-radius:10px;padding:4px;transition:background .35s}
+.form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s}
+.form-tab.active{background:var(--card-bg);color:var(--accent);box-shadow:0 2px 8px #00000020}
 
 /* ─── DIVIDER ─── */
-.divider{height:1px;background:var(--border);margin:12px 0}
+.divider{height:1px;background:var(--border);margin:12px 0;transition:background .35s}
+
+/* ─── INACTIVE CB (firstCatOnly) ─── */
+.cb-row.inactive{opacity:.35;pointer-events:none}
+.cb-row.inactive .progress-fill{background:var(--text3)!important}
+.active-cat-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;margin-left:6px;font-family:var(--font-mono)}
+.inactive-cat-badge{display:inline-block;font-size:9px;background:var(--bg3);color:var(--text3);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;margin-left:6px;font-family:var(--font-mono)}
+
+/* ─── NEO-MINIMAL specific polish ─── */
+[data-theme="neo-minimal"] .card-block{box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.03)}
+[data-theme="neo-minimal"] .header{box-shadow:0 1px 8px rgba(0,0,0,.04)}
+[data-theme="neo-minimal"] .tab-bar{box-shadow:0 -1px 8px rgba(0,0,0,.04)}
+[data-theme="neo-minimal"] .submit-btn{border-radius:var(--input-radius)}
+[data-theme="neo-minimal"] .net-badge{border-radius:8px}
+[data-theme="neo-minimal"] .header-logo{border-radius:10px}
+[data-theme="neo-minimal"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238a8a8a'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E")}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// ─── DATA ───
+// ─── DATA (synced with CardList.txt) ───
 const ALL_CARDS=[
-  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],minSpend:3000000},
-  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},
-  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},
-  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],minSpend:3000000},
-  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},
-  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",stmtDay:20,dueDay:4,color:"#CC0028",cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},
-  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",stmtDay:20,dueDay:4,color:"#0C4DA2",cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],minSpend:0,note:"Tổng max 800K, riêng BH max 400K"},
-  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],minSpend:0},
-  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:300000,maxSpend:3000000},{category:"Du lịch",rate:.10,maxCashback:300000,maxSpend:3000000},{category:"Vé Vietjet",rate:.10,maxCashback:500000,maxSpend:5000000}],minSpend:0},
-  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],minSpend:0,sharedMaxCashback:600000,note:"Max 600K/tháng chung"},
-  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",stmtDay:30,dueDay:8,color:"#F26522",cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],minSpend:0},
-  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],minSpend:0},
-  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],minSpend:0},
-  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",cashbackCategories:[{category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},{category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},{category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}],minSpend:0,note:"Tổng max 800K, riêng BH max 400K"},
-  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",stmtDay:4,dueDay:27,color:"#DB0011",cashbackCategories:[{category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}],minSpend:0},
-  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",stmtDay:5,dueDay:27,color:"#0F7B5F",cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0},
-  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",stmtDay:25,dueDay:15,color:"#0A6B50",cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],minSpend:0}
+  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",
+    cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],
+    minSpend:3000000,
+    note:"Cashback chỉ cho giao dịch quẹt POS hoặc Apple-Pay tại Siêu thị; Có mức chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
+
+  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",
+    cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
+    minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
+    note:"Đổi Danh mục CB tháng này → áp dụng tháng kế tiếp. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
+
+  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",
+    cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
+    minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
+    note:"Đổi Danh mục CB tháng này → áp dụng tháng kế tiếp. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
+
+  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",
+    cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
+    minSpend:3000000,
+    note:"Online: Shopee, Lazada, Tiktok; Có mức chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
+
+  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",
+    cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
+    minSpend:0,note:"Mọi giao dịch Online"},
+
+  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",stmtDay:20,dueDay:4,color:"#CC0028",
+    cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
+    minSpend:0,note:"Mọi giao dịch Online"},
+
+  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",stmtDay:20,dueDay:4,color:"#0C4DA2",
+    cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],
+    minSpend:0,sharedMaxCashback:800000,
+    note:"Tổng max 800K chung BH & Y tế & GD, riêng BH max 400K"},
+
+  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",
+    cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],
+    minSpend:0,
+    note:"Online hoàn 6% max 200K và Ẩm thực nhà hàng (không bao gồm Fastfood) hoàn 4% max 100K — 2 lĩnh vực CB độc lập"},
+
+  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",
+    cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Du lịch",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Vé Vietjet",rate:.10,maxCashback:300000,maxSpend:3000000}],
+    minSpend:0,sharedMaxCashback:200000,sharedCats:["Ẩm thực","Du lịch"],
+    note:"Ẩm thực (không bao gồm Fastfood) & Du lịch: max CB 200K chung; Vé Vietjet tính riêng max 300K"},
+
+  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",
+    cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],
+    minSpend:0,sharedMaxCashback:600000,firstCatOnly:true,
+    note:"Max 600K/tháng chung. Lĩnh vực CB = lần đổi cuối cùng trong tháng; trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
+
+  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",stmtDay:30,dueDay:8,color:"#F26522",
+    cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],
+    minSpend:0,note:"Áp dụng mọi giao dịch tại Shopee"},
+
+  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",
+    cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
+    minSpend:0,sharedMaxCashback:1000000,
+    note:"Max hoàn 1tr/tháng tổng tất cả danh mục; mỗi danh mục max 500K. Chạm 1tr total → hết CB"},
+
+  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",
+    cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],
+    minSpend:0,note:"Max CB 1tr/tháng chung cho Du lịch (gồm Agoda, hotel, Vé máy bay)"},
+
+  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",
+    cashbackCategories:[{category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},{category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},{category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}],
+    minSpend:0,sharedMaxCashback:800000,
+    note:"Tổng max 800K chung BH & Y tế & GD, riêng BH max 400K"},
+
+  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",stmtDay:4,dueDay:27,color:"#DB0011",
+    cashbackCategories:[{category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}],
+    minSpend:0,sharedMaxCashback:200000,
+    note:"Max CB 200K tính chung Ẩm thực & Thời trang"},
+
+  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",stmtDay:5,dueDay:27,color:"#0F7B5F",
+    cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],
+    minSpend:0,sharedMaxCashback:300000,
+    note:"Max CB 300K tính chung Siêu thị & Di chuyển"},
+
+  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",stmtDay:25,dueDay:15,color:"#0A6B50",
+    cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],
+    minSpend:0,sharedMaxCashback:300000,
+    note:"Max CB 300K tính chung Siêu thị & Di chuyển"}
 ];
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
@@ -280,9 +430,48 @@ function nextDueDate(card){
   return d;
 }
 
+// ─── FIRST-CAT-ONLY LOGIC ───
+// For cards with firstCatOnly=true, only the category of the earliest transaction in the cycle gets CB
+function getActiveCat(card, cycleTxns){
+  if(!card.firstCatOnly) return null;
+  const sorted=[...cycleTxns].sort((a,b)=>a.id.localeCompare(b.id)); // id is "tx-{timestamp}", so sorts by input order
+  const first=sorted.find(tx=>card.cashbackCategories.some(c=>c.category===tx.category));
+  return first?first.category:null;
+}
+
+// Is this category eligible for CB on this card given the firstCatOnly rule?
+function isCatActive(card, cycleTxns, category){
+  if(!card.firstCatOnly) return true;
+  const active=getActiveCat(card, cycleTxns);
+  if(!active) return true; // no transactions yet → all categories still eligible
+  return category===active;
+}
+
+// ─── SHARED CB CALC ───
+function calcSharedCb(card, cycleTxns){
+  if(!card.sharedMaxCashback) return null;
+  const cats = card.sharedCats || card.cashbackCategories.map(c=>c.category);
+  const total = card.cashbackCategories
+    .filter(c=>cats.includes(c.category))
+    .reduce((sum,c2)=>{
+      if(!isCatActive(card, cycleTxns, c2.category)) return sum;
+      const sp=cycleTxns.filter(tx=>tx.category===c2.category).reduce((s,t)=>s+t.amount,0);
+      return sum+Math.min(sp*c2.rate,c2.maxCashback);
+    },0);
+  return {total, max:card.sharedMaxCashback, isFull:total>=card.sharedMaxCashback, cats, activeCat:getActiveCat(card,cycleTxns)};
+}
+
 // ─── STORAGE ───
 function load(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch{return fallback}}
 function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}}
+
+// ─── THEME ───
+function getTheme(){return load("ct2-theme","dark-neon")}
+function setTheme(t){save("ct2-theme",t);document.documentElement.setAttribute("data-theme",t);
+  document.querySelector('meta[name="theme-color"]').content=t==="neo-minimal"?"#f5f3ef":"#060a12";
+  render();
+}
+document.documentElement.setAttribute("data-theme",getTheme());
 
 // ─── STATE ───
 let state={
@@ -290,15 +479,11 @@ let state={
   selectedCardIds:load("ct2-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
   transactions:load("ct2-txns",[]),
   events:load("ct2-events",[]),
-  // detail
   detailCardId:null,
-  // add form
-  addMode:"txn",// txn | event
+  addMode:"txn",
   addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:new Date().toISOString().slice(0,10),
   addEventDate:"",addEventCard:"",addEventNote:"",
-  // txn filters
   filterCard:"all",filterMonth:new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"),
-  // shop
   shopSearch:"",shopCatFilter:"all",
 };
 
@@ -306,7 +491,6 @@ function setState(patch){Object.assign(state,patch);render();persist()}
 function setQ(patch){Object.assign(state,patch)}
 function persist(){save("ct2-sel",state.selectedCardIds);save("ct2-txns",state.transactions);save("ct2-events",state.events)}
 
-// Purge old cycle transactions
 function purgeOldTxns(){
   const now=new Date();
   const before=state.transactions.length;
@@ -320,7 +504,6 @@ function purgeOldTxns(){
 
 function selectedCards(){return ALL_CARDS.filter(c=>state.selectedCardIds.includes(c.id))}
 
-// Upcoming due events auto-generated (14 days)
 function getAutoEvents(){
   const now=new Date();
   const events=[];
@@ -336,7 +519,6 @@ function getAutoEvents(){
   return events;
 }
 
-// Count urgent events for badge
 function urgentEventCount(){
   const now=new Date();
   const all=[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((new Date(e.date)-now)/864e5)}))];
@@ -386,12 +568,20 @@ function render(){
 
 function renderHeader(){
   const uc=urgentEventCount();
+  const theme=getTheme();
+  const toggle=h("div",{className:"theme-toggle"});
+  const darkOpt=h("span",{className:"theme-opt"+(theme==="dark-neon"?" active":""),onClick:e=>{e.stopPropagation();setTheme("dark-neon")}},"🌙");
+  const lightOpt=h("span",{className:"theme-opt"+(theme==="neo-minimal"?" active":""),onClick:e=>{e.stopPropagation();setTheme("neo-minimal")}},"☀️");
+  toggle.appendChild(darkOpt);
+  toggle.appendChild(lightOpt);
+
   return h("div",{className:"header"},
     h("div",{className:"header-logo"},"CT"),
     h("span",{className:"header-title"},"CardTrack"),
     h("div",{className:"header-badges"},
       h("span",{className:"hbadge mono"},selectedCards().length+" thẻ"),
-      uc>0?h("span",{className:"hbadge event mono"},uc+" sắp đến"):null
+      uc>0?h("span",{className:"hbadge event mono"},uc+" sắp đến"):null,
+      toggle
     )
   );
 }
@@ -450,6 +640,7 @@ function renderCardsTab(){
     const cycleTxns=txns.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
     const dl=daysUntilDue(card);
     const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
+    const shared=calcSharedCb(card,cycleTxns);
     const block=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id,tab:"cards"})},
       h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"12px"}},
         h("span",{className:"net-badge",style:{background:card.color}},NET_ICONS[card.network]),
@@ -464,15 +655,21 @@ function renderCardsTab(){
       )
     );
     card.cashbackCategories.forEach(cb=>{
+      const active=isCatActive(card, cycleTxns, cb.category);
       const catSpend=cycleTxns.filter(tx=>tx.category===cb.category).reduce((s,t)=>s+t.amount,0);
-      const earnedCb=Math.min(catSpend*cb.rate,cb.maxCashback);
-      let sharedTotal=0;
-      if(card.sharedMaxCashback){sharedTotal=card.cashbackCategories.reduce((sum,c2)=>{const sp=cycleTxns.filter(tx=>tx.category===c2.category).reduce((s,t)=>s+t.amount,0);return sum+Math.min(sp*c2.rate,c2.maxCashback)},0)}
-      const pct=Math.min((catSpend/cb.maxSpend)*100,100);
-      const isFull=pct>=100||(card.sharedMaxCashback&&sharedTotal>=card.sharedMaxCashback);
-      block.appendChild(h("div",{className:"cb-row"},
+      const earnedCb=active?Math.min(catSpend*cb.rate,cb.maxCashback):0;
+      const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
+      const isFull=active&&(pct>=100||(shared&&shared.cats.includes(cb.category)&&shared.isFull));
+      const activeCat=getActiveCat(card, cycleTxns);
+      const catLabel=h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`);
+      const badges=[];
+      if(card.firstCatOnly && activeCat){
+        if(active) badges.push(h("span",{className:"active-cat-badge"},"✓ Active"));
+        else badges.push(h("span",{className:"inactive-cat-badge"},"✗ No CB"));
+      }
+      block.appendChild(h("div",{className:"cb-row"+(active?"":" inactive")},
         h("div",{className:"cb-label"},
-          h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),
+          h("span",null,catLabel,...badges),
           h("span",{className:"cb-amt"},`${fmtK(catSpend)}/${fmtK(cb.maxSpend)}`)
         ),
         h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
@@ -482,9 +679,8 @@ function renderCardsTab(){
         )
       ));
     });
-    if(card.sharedMaxCashback){
-      const total=card.cashbackCategories.reduce((sum,c2)=>{const sp=cycleTxns.filter(tx=>tx.category===c2.category).reduce((s,t)=>s+t.amount,0);return sum+Math.min(sp*c2.rate,c2.maxCashback)},0);
-      block.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(total)} / ${fmtK(card.sharedMaxCashback)}`));
+    if(shared){
+      block.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
     }
     if(card.note)block.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
     wrap.appendChild(block);
@@ -502,30 +698,39 @@ function renderCardDetail(){
   const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
   const totalCb=cycleTxns.reduce((s,t)=>s+(t.cashback||0),0);
   const dl=daysUntilDue(card);
+  const shared=calcSharedCb(card,cycleTxns);
   const wrap=h("div",null);
   wrap.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},
     "‹ ",`${card.name} ****${card.last4}`
   ));
-  // Stats
   wrap.appendChild(h("div",{className:"detail-stat-row"},
     h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Tổng chi kỳ"),h("div",{className:"detail-stat-val",style:{color:"var(--text)"}},fmtK(totalSpend)+"₫")),
     h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"CB ước tính"),h("div",{className:"detail-stat-val",style:{color:"var(--green)"}},fmtK(totalCb)+"₫")),
     h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Hạn TT"),h("div",{className:"detail-stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))
   ));
-  // CB bars
   card.cashbackCategories.forEach(cb=>{
+    const active=isCatActive(card, cycleTxns, cb.category);
     const catSpend=cycleTxns.filter(tx=>tx.category===cb.category).reduce((s,t)=>s+t.amount,0);
-    const earnedCb=Math.min(catSpend*cb.rate,cb.maxCashback);
-    const pct=Math.min((catSpend/cb.maxSpend)*100,100);
-    const isFull=pct>=100;
-    wrap.appendChild(h("div",{className:"cb-row"},
-      h("div",{className:"cb-label"},h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),h("span",{className:"cb-amt"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
+    const earnedCb=active?Math.min(catSpend*cb.rate,cb.maxCashback):0;
+    const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
+    const isFull=active&&(pct>=100||(shared&&shared.cats.includes(cb.category)&&shared.isFull));
+    const activeCat=getActiveCat(card, cycleTxns);
+    const catLabel=h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`);
+    const badges=[];
+    if(card.firstCatOnly && activeCat){
+      if(active) badges.push(h("span",{className:"active-cat-badge"},"✓ Active"));
+      else badges.push(h("span",{className:"inactive-cat-badge"},"✗ No CB"));
+    }
+    wrap.appendChild(h("div",{className:"cb-row"+(active?"":" inactive")},
+      h("div",{className:"cb-label"},h("span",null,catLabel,...badges),h("span",{className:"cb-amt"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
       h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
       h("div",{className:"cb-footer"},h("span",null,`CB ≈ ${fmtK(earnedCb)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"full-badge"},"⚠ Đã đạt tối ưu"):null)
     ));
   });
+  if(shared){
+    wrap.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
+  }
   if(card.note)wrap.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
-  // Transactions this cycle
   wrap.appendChild(h("div",{className:"detail-txn-header"},"Giao dịch kỳ này"));
   if(!cycleTxns.length){wrap.appendChild(h("p",{className:"empty-msg",style:{padding:"20px 0"}},"// chưa có giao dịch"));return wrap}
   cycleTxns.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx=>{
@@ -576,24 +781,27 @@ function renderShopTab(){
       const card=ALL_CARDS.find(c=>c.id===cardId);if(!card)return;
       const cb=card.cashbackCategories.find(c=>c.category===s.category);if(!cb)return;
       const cs=cycleStart(card,now);
-      const catSpend=txns.filter(tx=>tx.cardId===cardId&&tx.category===s.category&&new Date(tx.date)>=cs).reduce((sm,t)=>sm+t.amount,0);
-      const pct=Math.min((catSpend/cb.maxSpend)*100,100);
-      const remainSpend=Math.max(cb.maxSpend-catSpend,0);
-      let remainCb=Math.max(cb.maxCashback-Math.min(catSpend*cb.rate,cb.maxCashback),0);
-      let isFull=pct>=100;
-      if(card.sharedMaxCashback){
-        const totalCb=card.cashbackCategories.reduce((sum,c2)=>{const sp=txns.filter(tx=>tx.cardId===cardId&&tx.category===c2.category&&new Date(tx.date)>=cs).reduce((sm,t)=>sm+t.amount,0);return sum+Math.min(sp*c2.rate,c2.maxCashback)},0);
-        remainCb=Math.max(card.sharedMaxCashback-totalCb,0);
-        if(totalCb>=card.sharedMaxCashback)isFull=true;
+      const cardCycleTxns=txns.filter(tx=>tx.cardId===cardId&&new Date(tx.date)>=cs);
+      const active=isCatActive(card, cardCycleTxns, s.category);
+      const catSpend=cardCycleTxns.filter(tx=>tx.category===s.category).reduce((sm,t)=>sm+t.amount,0);
+      const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
+      const remainSpend=active?Math.max(cb.maxSpend-catSpend,0):0;
+      let remainCb=active?Math.max(cb.maxCashback-Math.min(catSpend*cb.rate,cb.maxCashback),0):0;
+      let isFull=!active||(active&&pct>=100);
+      const shared=calcSharedCb(card,cardCycleTxns);
+      if(active&&shared&&shared.cats.includes(s.category)){
+        remainCb=Math.max(shared.max-shared.total,0);
+        if(shared.isFull)isFull=true;
       }
-      const rec=h("div",{className:"shop-recommend",style:{borderColor:isFull?"#f59e0b40":`${card.color}50`,background:isFull?"#78350f10":`${card.color}08`}},
+      const inactiveNote=(!active&&card.firstCatOnly)?getActiveCat(card,cardCycleTxns):null;
+      const rec=h("div",{className:"shop-recommend",style:{borderColor:isFull?"#f59e0b40":`${card.color}50`,background:isFull?`color-mix(in srgb,var(--warn) 5%,var(--bg3))`:`color-mix(in srgb,${card.color} 5%,var(--bg3))`,opacity:active?1:.45}},
         h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"5px"}},
           h("span",{className:"net-badge-sm",style:{background:card.color}},NET_ICONS[card.network]),
           h("span",{style:{fontWeight:700,fontSize:"12px",color:"var(--text)"}},`${card.name} ****${card.last4}`),
-          isFull?h("span",{className:"full-sm"},"⚠ Full"):null
+          isFull?(inactiveNote?h("span",{className:"full-sm"},`🔒 ${inactiveNote}`):h("span",{className:"full-sm"},"⚠ Full")):null
         ),
         h("div",{className:"shop-cb-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
-        !isFull?h("div",{className:"shop-remaining"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remainSpend)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remainCb))):h("div",{className:"shop-remaining",style:{color:"var(--warn)"}},"Đã hết cashback kỳ này"),
+        active&&!isFull?h("div",{className:"shop-remaining"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remainSpend)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remainCb))):h("div",{className:"shop-remaining",style:{color:"var(--warn)"}},inactiveNote?`Kỳ này đang active "${inactiveNote}"`:"Đã hết cashback kỳ này"),
         h("div",{className:"mini-progress"},h("div",{style:{height:"100%",borderRadius:"2px",width:pct+"%",background:isFull?"var(--warn)":card.color,transition:"width .3s"}}))
       );
       shopEl.appendChild(rec);
@@ -698,7 +906,6 @@ function renderEventCard(ev,isUrgent){
 // ─── ADD TAB ───
 function renderAddTab(){
   const wrap=h("div",null);
-  // Mode switcher
   const tabRow=h("div",{className:"form-tab-row"});
   tabRow.appendChild(h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"));
   tabRow.appendChild(h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event"));
@@ -714,7 +921,6 @@ function renderAddTxnForm(){
   if(!state.addCardId&&cards.length)state.addCardId=cards[0].id;
   const selCard=ALL_CARDS.find(c=>c.id===state.addCardId);
   if(selCard&&!state.addCategory&&selCard.cashbackCategories.length)state.addCategory=selCard.cashbackCategories[0].category;
-  // Card
   const cardSel=h("select",{onChange:e=>{
     const nc=ALL_CARDS.find(c=>c.id===e.target.value);
     setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""});
@@ -722,7 +928,6 @@ function renderAddTxnForm(){
   cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
   cardSel.value=state.addCardId;
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ"),cardSel));
-  // Category
   const catSel=h("select",{onChange:e=>setState({addCategory:e.target.value,addShop:""})});
   catSel.appendChild(h("option",{value:""},"-- Chọn lĩnh vực --"));
   CATEGORIES.forEach(c=>catSel.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
@@ -732,7 +937,6 @@ function renderAddTxnForm(){
     catG.appendChild(h("div",{className:"no-cb-hint"},`⚠ Không có cashback cho "${state.addCategory}"`));
   }
   wrap.appendChild(catG);
-  // Shop
   const suggestions=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
   const shopWrap=h("div",null);
   const shopIn=h("input",{className:"input-field",placeholder:"Tên cửa hàng",value:state.addShop,onInput:e=>setQ({addShop:e.target.value}),onBlur:e=>setQ({addShop:e.target.value})});
@@ -743,25 +947,38 @@ function renderAddTxnForm(){
     shopWrap.appendChild(cw);
   }
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Cửa hàng"),shopWrap));
-  // Amount + Date
   const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input-field",placeholder:"0",value:state.addAmount,onInput:e=>setQ({addAmount:e.target.value}),onBlur:e=>setState({addAmount:e.target.value})});
   const dateIn=h("input",{type:"date",className:"input-field",value:state.addDate,onChange:e=>setState({addDate:e.target.value})});
   wrap.appendChild(h("div",{style:{display:"flex",gap:"8px"}},
     h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Số tiền (₫)"),amtIn),
     h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Ngày"),dateIn)
   ));
-  // CB preview
   if(state.addAmount&&state.addCategory&&selCard){
     const cb=selCard.cashbackCategories.find(c=>c.category===state.addCategory);
-    const est=cb?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
-    wrap.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
+    // Check firstCatOnly: get existing cycle txns for this card
+    const now=new Date();
+    const cs=cycleStart(selCard,now);
+    const existingCycleTxns=state.transactions.filter(tx=>tx.cardId===selCard.id&&new Date(tx.date)>=cs);
+    const willBeActive=isCatActive(selCard, existingCycleTxns, state.addCategory);
+    const est=(cb&&willBeActive)?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
+    if(!willBeActive && selCard.firstCatOnly){
+      const activeCat=getActiveCat(selCard, existingCycleTxns);
+      wrap.appendChild(h("div",{className:"no-cb-hint",style:{marginBottom:"12px"}},`⚠ Kỳ này đang active "${activeCat}" → "${state.addCategory}" sẽ không có CB`));
+    } else {
+      wrap.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
+    }
   }
   const canSubmit=state.addCardId&&state.addShop&&state.addAmount&&state.addCategory;
   const btn=h("button",{className:"submit-btn",style:{background:selCard?.color||"var(--accent2)",opacity:canSubmit?1:.4},onClick:()=>{
     if(!canSubmit)return;
     const card=ALL_CARDS.find(c=>c.id===state.addCardId);
     const cb=card?.cashbackCategories.find(c=>c.category===state.addCategory);
-    const cashback=cb?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
+    // Respect firstCatOnly: check if this category will be active after adding
+    const now2=new Date();
+    const cs2=cycleStart(card,now2);
+    const existingTxns2=state.transactions.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs2);
+    const willBeActive2=isCatActive(card, existingTxns2, state.addCategory);
+    const cashback=(cb&&willBeActive2)?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
     state.transactions.unshift({id:"tx-"+Date.now(),cardId:state.addCardId,shop:state.addShop,amount:parseFloat(state.addAmount),category:state.addCategory,date:state.addDate,cashback});
     state.addShop="";state.addAmount="";
     persist();render();
@@ -773,16 +990,13 @@ function renderAddTxnForm(){
 function renderAddEventForm(){
   const wrap=h("div",null);
   const cards=selectedCards();
-  // Date
   const dateIn=h("input",{type:"date",className:"input-field",value:state.addEventDate,onChange:e=>setState({addEventDate:e.target.value})});
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Ngày event"),dateIn));
-  // Card (optional)
   const cardSel=h("select",{onChange:e=>setState({addEventCard:e.target.value})});
   cardSel.appendChild(h("option",{value:""},"-- Không gắn thẻ --"));
   cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
   cardSel.value=state.addEventCard;
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ (tuỳ chọn)"),cardSel));
-  // Note
   const noteIn=h("input",{type:"text",className:"input-field",placeholder:"Nội dung sự kiện",value:state.addEventNote,onInput:e=>setQ({addEventNote:e.target.value}),onBlur:e=>setState({addEventNote:e.target.value})});
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Nội dung"),noteIn));
   const canSubmit=state.addEventDate&&state.addEventNote;
@@ -794,7 +1008,6 @@ function renderAddEventForm(){
     persist();render();
   }},"+ Thêm Event");
   wrap.appendChild(btn);
-  // Past events list
   const past=state.events.filter(e=>e.date<new Date().toISOString().slice(0,10));
   if(past.length){
     wrap.appendChild(h("div",{className:"event-section-label",style:{marginTop:"20px"}},"Đã qua"));
@@ -802,7 +1015,7 @@ function renderAddEventForm(){
       wrap.appendChild(h("div",{style:{display:"flex",alignItems:"center",gap:"10px",padding:"8px 0",borderBottom:"1px solid var(--border)"}},
         h("div",{style:{flex:1}},
           h("div",{style:{fontSize:"12px",fontWeight:700,color:"var(--text3)"}},e.title),
-          h("div",{style:{fontSize:"10px",color:"var(--text3)",fontFamily:"'Space Mono',monospace"}},e.date+(e.sub?" · "+e.sub:""))
+          h("div",{style:{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--font-mono)"}},e.date+(e.sub?" · "+e.sub:""))
         ),
         h("button",{className:"del-btn",onClick:()=>{state.events=state.events.filter(ev=>ev.id!==e.id);persist();render()}},"✕")
       ));
