@@ -13,7 +13,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
-/* ─── THEME: DARK NEON ─── */
 :root,[data-theme="dark-neon"]{
   --bg:#060a12;--bg2:#0c1322;--bg3:#121d30;--bg4:#1a2840;
   --border:#1a2d50;--border2:#243a60;
@@ -23,26 +22,15 @@
   --warn:#ffab00;--warnD:#4a3200;
   --red:#ff5252;--redD:#4a1010;
   --purple:#b388ff;
-  --card-bg:var(--bg2);
-  --card-border:var(--border);
+  --card-bg:var(--bg2);--card-border:var(--border);
   --shadow:0 2px 12px rgba(0,229,255,.06);
   --glow:0 0 20px rgba(0,229,255,.12);
-  --font-heading:'Syne',sans-serif;
-  --font-mono:'Space Mono',monospace;
-  --font-body:'Syne',sans-serif;
-  --header-bg:var(--bg2);
-  --header-border:var(--border);
-  --tab-bg:var(--bg2);
-  --tab-border:var(--border);
+  --font-heading:'Syne',sans-serif;--font-mono:'Space Mono',monospace;--font-body:'Syne',sans-serif;
+  --header-bg:var(--bg2);--header-border:var(--border);
+  --tab-bg:var(--bg2);--tab-border:var(--border);
   --progress-track:var(--border);
-  --badge-radius:4px;
-  --card-radius:12px;
-  --input-radius:8px;
-  --neon-glow:none;
-  --theme-label:"Dark Neon";
+  --badge-radius:4px;--card-radius:12px;--input-radius:8px;
 }
-
-/* ─── THEME: NEO-MINIMAL ─── */
 [data-theme="neo-minimal"]{
   --bg:#f5f3ef;--bg2:#ffffff;--bg3:#edeae4;--bg4:#e2dfd8;
   --border:#d8d4cc;--border2:#c8c3ba;
@@ -52,35 +40,23 @@
   --warn:#f39c12;--warnD:#fef5e7;
   --red:#e74c3c;--redD:#fdedec;
   --purple:#9b59b6;
-  --card-bg:#ffffff;
-  --card-border:#e8e4dc;
+  --card-bg:#ffffff;--card-border:#e8e4dc;
   --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
   --glow:none;
-  --font-heading:'DM Sans',sans-serif;
-  --font-mono:'Space Mono',monospace;
-  --font-body:'DM Sans',sans-serif;
-  --header-bg:#ffffff;
-  --header-border:#e8e4dc;
-  --tab-bg:#ffffff;
-  --tab-border:#e8e4dc;
+  --font-heading:'DM Sans',sans-serif;--font-mono:'Space Mono',monospace;--font-body:'DM Sans',sans-serif;
+  --header-bg:#ffffff;--header-border:#e8e4dc;
+  --tab-bg:#ffffff;--tab-border:#e8e4dc;
   --progress-track:#e2dfd8;
-  --badge-radius:20px;
-  --card-radius:16px;
-  --input-radius:12px;
-  --neon-glow:none;
-  --theme-label:"Neo-Minimal";
+  --badge-radius:20px;--card-radius:16px;--input-radius:12px;
 }
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes blink{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 12px 3px var(--warn)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
 #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;background:var(--bg);transition:background .35s}
 
-/* ─── HEADER ─── */
 .header{padding:max(env(safe-area-inset-top),16px) 20px 14px;display:flex;align-items:center;gap:10px;background:var(--header-bg);border-bottom:1px solid var(--header-border);position:sticky;top:0;z-index:10;transition:background .35s,border-color .35s}
 .header-logo{width:28px;height:28px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
 .header-title{font-family:var(--font-mono);font-weight:700;font-size:16px;color:var(--text);letter-spacing:-0.5px;transition:color .35s}
@@ -88,47 +64,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .hbadge{font-family:var(--font-mono);font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);transition:all .35s}
 .hbadge.event{color:var(--warn);border-color:var(--warnD);background:color-mix(in srgb,var(--warn) 8%,var(--bg3))}
 
-/* ─── THEME TOGGLE ─── */
-.theme-toggle{
-  display:flex;align-items:center;gap:0;
-  background:var(--bg3);border:1.5px solid var(--border);border-radius:22px;
-  padding:2px;cursor:pointer;flex-shrink:0;transition:all .35s;
-  margin-left:4px;
-}
-.theme-opt{
-  padding:4px 8px;border-radius:18px;font-size:13px;line-height:1;
-  transition:all .25s;color:var(--text3);position:relative;
-}
-.theme-opt.active{
-  background:var(--accent);color:#fff;
-  box-shadow:0 1px 6px color-mix(in srgb,var(--accent) 40%,transparent);
-}
-[data-theme="neo-minimal"] .theme-opt.active{
-  background:var(--accent);color:#fff;
-}
+.theme-toggle{display:flex;align-items:center;gap:0;background:var(--bg3);border:1.5px solid var(--border);border-radius:22px;padding:2px;cursor:pointer;flex-shrink:0;transition:all .35s;margin-left:4px}
+.theme-opt{padding:4px 8px;border-radius:18px;font-size:13px;line-height:1;transition:all .25s;color:var(--text3);position:relative}
+.theme-opt.active{background:var(--accent);color:#fff;box-shadow:0 1px 6px color-mix(in srgb,var(--accent) 40%,transparent)}
 
-/* ─── CONTENT ─── */
 .content{flex:1;overflow-y:auto;padding:14px 14px 20px;-webkit-overflow-scrolling:touch;animation:fadeIn .2s ease}
 
-/* ─── TAB BAR ─── */
 .tab-bar{display:flex;justify-content:space-around;background:var(--tab-bg);border-top:1px solid var(--tab-border);padding:8px 0 max(env(safe-area-inset-bottom),10px);position:sticky;bottom:0;z-index:20;transition:all .35s}
 .tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px;border-radius:10px;transition:all .15s;font-family:var(--font-body);font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;min-width:52px}
 .tab-btn .ico{font-size:17px;line-height:1}
 .tab-btn.active{color:var(--accent)}
 .tab-dot{width:4px;height:4px;border-radius:50%;background:var(--warn);position:absolute;top:-1px;right:-1px}
 .tab-btn-wrap{position:relative;display:inline-block}
-
-/* ─── MONO ─── */
 .mono{font-family:var(--font-mono)}
-
-/* ─── SECTION HINT ─── */
 .section-hint{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:-.2px}
 
-/* ─── NET BADGE ─── */
 .net-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
 .net-badge-sm{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
 
-/* ─── SELECT CARD ─── */
 .sel-card{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:var(--card-radius);cursor:pointer;transition:all .2s;margin-bottom:7px;box-shadow:var(--shadow)}
 .sel-card.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 10%,var(--card-bg))}
 .sel-info{flex:1;min-width:0}
@@ -137,7 +90,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .chk{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:11px;color:#fff}
 .chk.on{border-color:var(--card-color);background:var(--card-color)}
 
-/* ─── CARD BLOCK ─── */
 .card-block{background:var(--card-bg);border-radius:var(--card-radius);padding:14px;margin-bottom:10px;border:1px solid var(--card-border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
 .card-block:active{transform:scale(.99)}
 .card-name{font-weight:700;font-size:13px;color:var(--text)}
@@ -155,7 +107,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .shared-cap{background:color-mix(in srgb,var(--accent) 8%,var(--bg3));border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--accent);margin-top:6px;font-weight:700;font-family:var(--font-mono);transition:all .35s}
 .card-note{font-size:10px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:6px;font-style:italic;line-height:1.5;font-family:var(--font-mono);transition:all .35s}
 
-/* ─── CARD DETAIL ─── */
 .back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:14px;padding:4px 0}
 .detail-stat-row{display:flex;gap:8px;margin-bottom:14px}
 .detail-stat{flex:1;background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border);transition:all .35s}
@@ -163,7 +114,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .detail-stat-val{font-size:14px;font-weight:800;color:var(--text)}
 .detail-txn-header{font-size:11px;font-weight:700;color:var(--text2);margin:12px 0 8px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px}
 
-/* ─── FILTERS ─── */
 .filter-row{display:flex;gap:8px;margin-bottom:10px}
 select,.month-input,.input-field{background:var(--card-bg);border:1.5px solid var(--border2);color:var(--text);border-radius:var(--input-radius);padding:9px 11px;font-size:12px;font-family:var(--font-body);outline:none;box-sizing:border-box;transition:all .25s}
 select:focus,.input-field:focus{border-color:var(--accent2)}
@@ -174,11 +124,13 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 [data-theme="dark-neon"] .month-input{color-scheme:dark}
 [data-theme="neo-minimal"] input[type=date],[data-theme="neo-minimal"] input[type=month]{color-scheme:light}
 [data-theme="neo-minimal"] .month-input{color-scheme:light}
+[data-theme="neo-minimal"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238a8a8a'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E")}
+[data-theme="neo-minimal"] .card-block{box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.03)}
+[data-theme="neo-minimal"] .header{box-shadow:0 1px 8px rgba(0,0,0,.04)}
+[data-theme="neo-minimal"] .tab-bar{box-shadow:0 -1px 8px rgba(0,0,0,.04)}
 
-/* ─── CB SUMMARY ─── */
 .cb-summary{display:flex;justify-content:space-between;align-items:center;background:var(--greenD);border:1px solid color-mix(in srgb,var(--green) 15%,transparent);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:10px;color:var(--text2);transition:all .35s}
 
-/* ─── TXN ─── */
 .txn-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);transition:border-color .35s}
 .txn-shop{font-weight:700;font-size:13px;color:var(--text)}
 .txn-meta{display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap}
@@ -190,7 +142,6 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .del-btn{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px 5px;border-radius:4px;margin-top:1px;line-height:1}
 .del-btn:active{color:var(--red);background:var(--redD)}
 
-/* ─── FORM ─── */
 .form-group{margin-bottom:12px}
 .label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
 .suggest-btn-chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
@@ -201,7 +152,6 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .submit-btn:active{transform:scale(.98)}
 .empty-msg{text-align:center;color:var(--text3);font-size:12px;padding:40px 0;font-family:var(--font-mono)}
 
-/* ─── SHOP ─── */
 .cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .cat-chip{background:var(--card-bg);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:all .15s;white-space:nowrap}
 .cat-chip.active{background:var(--accentD);border-color:var(--accent2);color:var(--accent)}
@@ -216,10 +166,8 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .mini-progress{height:3px;background:var(--progress-track);border-radius:2px;overflow:hidden;transition:background .35s}
 .full-sm{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono);margin-left:auto}
 
-/* ─── EVENT ─── */
 .event-card{border-radius:var(--card-radius);padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .35s}
 .event-card.urgent{background:color-mix(in srgb,var(--warn) 8%,var(--card-bg));border:1.5px solid var(--warnD);animation:blink 2s ease-in-out infinite}
-.event-card.soon{background:var(--card-bg);border:1px solid var(--card-border)}
 .event-card.normal{background:var(--card-bg);border:1px solid var(--card-border)}
 .event-dot{width:36px;height:36px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .event-dot.urgent{background:var(--warnD);color:var(--warn)}
@@ -235,54 +183,42 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .event-del:active{color:var(--red)}
 .event-section-label{font-size:10px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-left:2px}
 
-/* ─── ADD FORM TABS ─── */
 .form-tab-row{display:flex;gap:6px;margin-bottom:16px;background:var(--bg3);border-radius:10px;padding:4px;transition:background .35s}
 .form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s}
 .form-tab.active{background:var(--card-bg);color:var(--accent);box-shadow:0 2px 8px #00000020}
 
-/* ─── DIVIDER ─── */
-.divider{height:1px;background:var(--border);margin:12px 0;transition:background .35s}
-
-/* ─── INACTIVE CB (firstCatOnly) ─── */
 .cb-row.inactive{opacity:.35;pointer-events:none}
 .cb-row.inactive .progress-fill{background:var(--text3)!important}
 .active-cat-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;margin-left:6px;font-family:var(--font-mono)}
 .inactive-cat-badge{display:inline-block;font-size:9px;background:var(--bg3);color:var(--text3);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;margin-left:6px;font-family:var(--font-mono)}
-
-/* ─── NEO-MINIMAL specific polish ─── */
-[data-theme="neo-minimal"] .card-block{box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.03)}
-[data-theme="neo-minimal"] .header{box-shadow:0 1px 8px rgba(0,0,0,.04)}
-[data-theme="neo-minimal"] .tab-bar{box-shadow:0 -1px 8px rgba(0,0,0,.04)}
-[data-theme="neo-minimal"] .submit-btn{border-radius:var(--input-radius)}
-[data-theme="neo-minimal"] .net-badge{border-radius:8px}
-[data-theme="neo-minimal"] .header-logo{border-radius:10px}
-[data-theme="neo-minimal"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238a8a8a'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E")}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// ─── DATA (synced with CardList.txt) ───
+// ═══════════════════════════════════════════════
+// DATA — synced with CardList.txt & Shops.txt
+// ═══════════════════════════════════════════════
 const ALL_CARDS=[
   {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",
     cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:3000000,
-    note:"Cashback chỉ cho giao dịch quẹt POS hoặc Apple-Pay tại Siêu thị; Có mức chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
+    note:"CB chỉ cho giao dịch quẹt POS hoặc Apple-Pay tại Siêu thị; chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
 
   {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
-    note:"Đổi Danh mục CB tháng này → áp dụng tháng kế tiếp. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
+    note:"Đổi danh mục CB tháng này → áp dụng tháng kế. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
 
   {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
-    note:"Đổi Danh mục CB tháng này → áp dụng tháng kế tiếp. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
+    note:"Đổi danh mục CB tháng này → áp dụng tháng kế. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
 
   {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:3000000,
-    note:"Online: Shopee, Lazada, Tiktok; Có mức chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
+    note:"Online: Shopee, Lazada, Tiktok; chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
 
   {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
@@ -300,12 +236,12 @@ const ALL_CARDS=[
   {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",
     cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],
     minSpend:0,
-    note:"Online hoàn 6% max 200K và Ẩm thực nhà hàng (không bao gồm Fastfood) hoàn 4% max 100K — 2 lĩnh vực CB độc lập"},
+    note:"Online 6% max 200K & Ẩm thực nhà hàng (ko Fastfood) 4% max 100K — 2 lĩnh vực CB độc lập"},
 
   {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",
     cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Du lịch",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Vé Vietjet",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:0,sharedMaxCashback:200000,sharedCats:["Ẩm thực","Du lịch"],
-    note:"Ẩm thực (không bao gồm Fastfood) & Du lịch: max CB 200K chung; Vé Vietjet tính riêng max 300K"},
+    note:"Ẩm thực (ko Fastfood) & Du lịch: max CB 200K chung; Vé Vietjet riêng max 300K"},
 
   {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",
     cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],
@@ -319,11 +255,11 @@ const ALL_CARDS=[
   {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",
     cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
     minSpend:0,sharedMaxCashback:1000000,
-    note:"Max hoàn 1tr/tháng tổng tất cả danh mục; mỗi danh mục max 500K. Chạm 1tr total → hết CB"},
+    note:"Max hoàn 1tr/tháng tổng; mỗi danh mục max 500K. Chạm 1tr total → hết CB"},
 
   {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",
     cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],
-    minSpend:0,note:"Max CB 1tr/tháng chung cho Du lịch (gồm Agoda, hotel, Vé máy bay)"},
+    minSpend:0,note:"Max CB 1tr/tháng cho Du lịch (Agoda, hotel, Vé máy bay)"},
 
   {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",
     cashbackCategories:[{category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},{category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},{category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}],
@@ -348,7 +284,20 @@ const ALL_CARDS=[
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 
-const SHOP_SUGGESTIONS={"Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],"Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],"Y tế":["Vinmec","Á Châu","Pharmacity","VNVC","Long Chau"],"Giáo dục":["SSC","ReadingQ"],"Online":["Shopee","Lazada"],"Bảo hiểm":["Bảo Việt"],"Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],"Du lịch":["Agoda","Traveloka","Booking"],"Di chuyển":["Grab","Taxi"],"Vé Vietjet":["Vietjet"],"Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],"Nước ngoài":[]};
+const SHOP_SUGGESTIONS={
+  "Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],
+  "Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],
+  "Y tế":["VNVC","Hai Yen EYE-CARE","TaimuihongSG","Choray","ĐH YD","Vinmec","Tâm Anh","Á Châu","Pharmacity","MATSUKIYO","Long Chau"],
+  "Giáo dục":["SSC","ReadingQ"],
+  "Online":["Shopee","Lazada","Tiktok"],
+  "Bảo hiểm":["Bảo Việt"],
+  "Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],
+  "Du lịch":["Agoda","Traveloka","Booking"],
+  "Di chuyển":["Grab","Taxi"],
+  "Vé Vietjet":["Vietjet"],
+  "Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],
+  "Nước ngoài":[]
+};
 
 const SHOP_CARD_MAP=[
   {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
@@ -358,18 +307,18 @@ const SHOP_CARD_MAP=[
   {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
   {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
   {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
   {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
@@ -378,10 +327,16 @@ const SHOP_CARD_MAP=[
   {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"KFC",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"Hai Yen EYE-CARE",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"TaimuihongSG",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"ĐH YD",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
+  {shop:"Tâm Anh",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887"]},
   {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887"]},
+  {shop:"MATSUKIYO",category:"Y tế",cardIds:["mb-4887"]},
   {shop:"Long Chau",category:"Y tế",cardIds:["mb-4887"]},
   {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
   {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
@@ -408,77 +363,162 @@ const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️",
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
-// ─── HELPERS ───
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
 const fmt=n=>new Intl.NumberFormat("vi-VN").format(Math.round(n));
-const fmtK=n=>{if(n>=1e6)return`${(n/1e6).toFixed(n%1e6===0?0:1)}tr`;if(n>=1e3)return`${Math.round(n/1e3)}K`;return fmt(n)};
+const fmtK=n=>{if(n>=1e6)return (n/1e6).toFixed(n%1e6===0?0:1)+"tr";if(n>=1e3)return Math.round(n/1e3)+"K";return fmt(n)};
 
 function cycleStart(card,ref){
-  const d=new Date(ref),day=card.stmtDay;
-  let y=d.getFullYear(),m=d.getMonth();
-  return d.getDate()>=day?new Date(y,m,day):new Date(y,m-1,day);
+  const d=new Date(ref);
+  const day=card.stmtDay;
+  let y=d.getFullYear(), m=d.getMonth();
+  if(d.getDate()>=day) return new Date(y,m,day);
+  return new Date(y,m-1,day);
 }
+
 function daysUntilDue(card,from){
-  const t=from||new Date(),y=t.getFullYear(),m=t.getMonth();
+  const t=from||new Date(), y=t.getFullYear(), m=t.getMonth();
   let d=new Date(y,m,card.dueDay);
-  if(d<=t)d=new Date(y,m+1,card.dueDay);
+  if(d<=t) d=new Date(y,m+1,card.dueDay);
   return Math.ceil((d-t)/864e5);
 }
+
 function nextDueDate(card){
-  const t=new Date(),y=t.getFullYear(),m=t.getMonth();
+  const t=new Date(), y=t.getFullYear(), m=t.getMonth();
   let d=new Date(y,m,card.dueDay);
-  if(d<=t)d=new Date(y,m+1,card.dueDay);
+  if(d<=t) d=new Date(y,m+1,card.dueDay);
   return d;
 }
 
-// ─── FIRST-CAT-ONLY LOGIC ───
-// For cards with firstCatOnly=true, only the category of the earliest transaction in the cycle gets CB
+// ═══════════════════════════════════════════════
+// FIRST-CAT-ONLY LOGIC (BVB, MSB)
+// ═══════════════════════════════════════════════
 function getActiveCat(card, cycleTxns){
   if(!card.firstCatOnly) return null;
-  const sorted=[...cycleTxns].sort((a,b)=>a.id.localeCompare(b.id)); // id is "tx-{timestamp}", so sorts by input order
+  // Sort by date first, then by id (creation order) for same-date txns
+  const sorted=[...cycleTxns].sort((a,b)=>{
+    const dd=a.date.localeCompare(b.date);
+    if(dd!==0) return dd;
+    return (a.ts||0)-(b.ts||0);
+  });
   const first=sorted.find(tx=>card.cashbackCategories.some(c=>c.category===tx.category));
   return first?first.category:null;
 }
 
-// Is this category eligible for CB on this card given the firstCatOnly rule?
 function isCatActive(card, cycleTxns, category){
   if(!card.firstCatOnly) return true;
-  const active=getActiveCat(card, cycleTxns);
-  if(!active) return true; // no transactions yet → all categories still eligible
+  const active=getActiveCat(card,cycleTxns);
+  if(!active) return true;
   return category===active;
 }
 
-// ─── SHARED CB CALC ───
+// ═══════════════════════════════════════════════
+// DYNAMIC CASHBACK CALCULATION (FIX: recalc every render)
+// ═══════════════════════════════════════════════
+function calcCategorySpend(cycleTxns, category){
+  return cycleTxns.filter(tx=>tx.category===category).reduce((s,t)=>s+t.amount,0);
+}
+
+// Calculate CB for a single category on a card, respecting caps
+function calcCatCb(card, cycleTxns, cbDef){
+  if(!isCatActive(card, cycleTxns, cbDef.category)) return 0;
+  const spend=calcCategorySpend(cycleTxns, cbDef.category);
+  return Math.min(spend*cbDef.rate, cbDef.maxCashback);
+}
+
+// Calculate shared CB info
 function calcSharedCb(card, cycleTxns){
   if(!card.sharedMaxCashback) return null;
-  const cats = card.sharedCats || card.cashbackCategories.map(c=>c.category);
-  const total = card.cashbackCategories
-    .filter(c=>cats.includes(c.category))
-    .reduce((sum,c2)=>{
-      if(!isCatActive(card, cycleTxns, c2.category)) return sum;
-      const sp=cycleTxns.filter(tx=>tx.category===c2.category).reduce((s,t)=>s+t.amount,0);
-      return sum+Math.min(sp*c2.rate,c2.maxCashback);
-    },0);
-  return {total, max:card.sharedMaxCashback, isFull:total>=card.sharedMaxCashback, cats, activeCat:getActiveCat(card,cycleTxns)};
+  const cats=card.sharedCats||card.cashbackCategories.map(c=>c.category);
+  let total=0;
+  card.cashbackCategories.forEach(c=>{
+    if(cats.includes(c.category)){
+      total+=calcCatCb(card,cycleTxns,c);
+    }
+  });
+  const capped=Math.min(total,card.sharedMaxCashback);
+  return {total:capped, max:card.sharedMaxCashback, isFull:total>=card.sharedMaxCashback, cats, raw:total};
 }
 
-// ─── STORAGE ───
-function load(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch{return fallback}}
-function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}}
-
-// ─── THEME ───
-function getTheme(){return load("ct2-theme","dark-neon")}
-function setTheme(t){save("ct2-theme",t);document.documentElement.setAttribute("data-theme",t);
-  document.querySelector('meta[name="theme-color"]').content=t==="neo-minimal"?"#f5f3ef":"#060a12";
-  render();
+// Calculate total CB earned for a card in the cycle, respecting all caps
+function calcTotalCb(card, cycleTxns){
+  const shared=calcSharedCb(card,cycleTxns);
+  if(shared){
+    // For cards with sharedMaxCashback: sum all cats, cap at shared max
+    // But also need to add non-shared cats (e.g. Vé Vietjet for HDB-1541)
+    const sharedCats=shared.cats;
+    let sharedTotal=shared.total;
+    let nonSharedTotal=0;
+    card.cashbackCategories.forEach(c=>{
+      if(!sharedCats.includes(c.category)){
+        nonSharedTotal+=calcCatCb(card,cycleTxns,c);
+      }
+    });
+    return sharedTotal+nonSharedTotal;
+  }
+  // No shared cap: just sum each category CB independently
+  return card.cashbackCategories.reduce((sum,c)=>sum+calcCatCb(card,cycleTxns,c),0);
 }
+
+// Calculate CB for a single transaction (for display in txn list)
+function calcTxnCb(card, allCycleTxns, tx){
+  const cbDef=card.cashbackCategories.find(c=>c.category===tx.category);
+  if(!cbDef) return 0;
+  if(!isCatActive(card, allCycleTxns, tx.category)) return 0;
+
+  // Get all txns in this category, sorted by date then creation time
+  const catTxns=allCycleTxns
+    .filter(t=>t.category===tx.category)
+    .sort((a,b)=>{const dd=a.date.localeCompare(b.date);return dd!==0?dd:(a.ts||0)-(b.ts||0)});
+
+  // Calculate cumulative spend before this txn
+  let spendBefore=0;
+  for(const t of catTxns){
+    if(t.id===tx.id) break;
+    spendBefore+=t.amount;
+  }
+
+  const cbBefore=Math.min(spendBefore*cbDef.rate, cbDef.maxCashback);
+  const cbAfter=Math.min((spendBefore+tx.amount)*cbDef.rate, cbDef.maxCashback);
+  let thisTxCb=cbAfter-cbBefore;
+
+  // Check shared cap
+  const shared=calcSharedCb(card, allCycleTxns);
+  if(shared && (card.sharedCats||card.cashbackCategories.map(c=>c.category)).includes(tx.category)){
+    if(shared.isFull){
+      // Recalculate: how much shared CB was earned from txns before this one
+      const txnsBefore=allCycleTxns.filter(t=>{
+        const dd=t.date.localeCompare(tx.date);
+        return dd<0||(dd===0&&(t.ts||0)<(tx.ts||0));
+      });
+      const sharedBefore=calcSharedCb(card, txnsBefore);
+      const remainBefore=shared.max-(sharedBefore?sharedBefore.total:0);
+      thisTxCb=Math.max(0,Math.min(thisTxCb,remainBefore));
+    }
+  }
+  return Math.max(0, thisTxCb);
+}
+
+// ═══════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════
+function load(key,fb){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fb}catch{return fb}}
+function save(key,v){try{localStorage.setItem(key,JSON.stringify(v))}catch{}}
+
+function getTheme(){return load("ct4-theme","dark-neon")}
+function setTheme(t){save("ct4-theme",t);document.documentElement.setAttribute("data-theme",t);
+  document.querySelector('meta[name="theme-color"]').content=t==="neo-minimal"?"#f5f3ef":"#060a12";render();}
 document.documentElement.setAttribute("data-theme",getTheme());
 
-// ─── STATE ───
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
 let state={
   tab:"cards",
-  selectedCardIds:load("ct2-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
-  transactions:load("ct2-txns",[]),
-  events:load("ct2-events",[]),
+  selectedCardIds:load("ct4-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
+  transactions:load("ct4-txns",[]),
+  events:load("ct4-events",[]),
   detailCardId:null,
   addMode:"txn",
   addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:new Date().toISOString().slice(0,10),
@@ -489,27 +529,32 @@ let state={
 
 function setState(patch){Object.assign(state,patch);render();persist()}
 function setQ(patch){Object.assign(state,patch)}
-function persist(){save("ct2-sel",state.selectedCardIds);save("ct2-txns",state.transactions);save("ct2-events",state.events)}
+function persist(){save("ct4-sel",state.selectedCardIds);save("ct4-txns",state.transactions);save("ct4-events",state.events)}
 
 function purgeOldTxns(){
   const now=new Date();
   const before=state.transactions.length;
   state.transactions=state.transactions.filter(tx=>{
     const card=ALL_CARDS.find(c=>c.id===tx.cardId);
-    if(!card)return false;
-    return new Date(tx.date)>=cycleStart(card,now);
+    if(!card) return false;
+    const txDate=new Date(tx.date);
+    const cs=cycleStart(card,now);
+    return txDate>=cs;
   });
-  if(state.transactions.length!==before)persist();
+  if(state.transactions.length!==before) persist();
 }
 
 function selectedCards(){return ALL_CARDS.filter(c=>state.selectedCardIds.includes(c.id))}
 
+function getCycleTxns(card){
+  const cs=cycleStart(card,new Date());
+  return state.transactions.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
+}
+
 function getAutoEvents(){
-  const now=new Date();
-  const events=[];
+  const now=new Date(), events=[];
   state.selectedCardIds.forEach(id=>{
-    const card=ALL_CARDS.find(c=>c.id===id);
-    if(!card)return;
+    const card=ALL_CARDS.find(c=>c.id===id);if(!card)return;
     const due=nextDueDate(card);
     const diff=Math.ceil((due-now)/864e5);
     if(diff>=0&&diff<=14){
@@ -525,22 +570,24 @@ function urgentEventCount(){
   return all.filter(e=>e.diff>=0&&e.diff<=3).length;
 }
 
-// ─── RENDER ENGINE ───
+// ═══════════════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════════════
 function h(tag,attrs,...children){
   const el=document.createElement(tag);
-  let deferValue=undefined;
-  if(attrs)for(const[k,v]of Object.entries(attrs)){
-    if(k==="style"&&typeof v==="object"){Object.assign(el.style,v)}
-    else if(k.startsWith("on")){el.addEventListener(k.slice(2).toLowerCase(),v)}
-    else if(k==="className"){el.className=v}
+  let deferValue;
+  if(attrs) for(const[k,v] of Object.entries(attrs)){
+    if(k==="style"&&typeof v==="object") Object.assign(el.style,v);
+    else if(k.startsWith("on")) el.addEventListener(k.slice(2).toLowerCase(),v);
+    else if(k==="className") el.className=v;
     else if(k==="value"){deferValue=v}
     else el.setAttribute(k,v);
   }
   for(const c of children.flat()){
-    if(c==null||c===false)continue;
+    if(c==null||c===false) continue;
     el.appendChild(typeof c==="string"||typeof c==="number"?document.createTextNode(c):c);
   }
-  if(deferValue!==undefined)el.value=deferValue;
+  if(deferValue!==undefined) el.value=deferValue;
   return el;
 }
 
@@ -552,15 +599,14 @@ function render(){
   app.innerHTML="";
   app.appendChild(renderHeader());
   const content=h("div",{className:"content"});
-  if(state.tab==="select")content.appendChild(renderSelectTab());
+  if(state.tab==="select") content.appendChild(renderSelectTab());
   else if(state.tab==="cards"){
-    if(state.detailCardId)content.appendChild(renderCardDetail());
-    else content.appendChild(renderCardsTab());
+    content.appendChild(state.detailCardId?renderCardDetail():renderCardsTab());
   }
-  else if(state.tab==="shop")content.appendChild(renderShopTab());
-  else if(state.tab==="txns")content.appendChild(renderTxnTab());
-  else if(state.tab==="add")content.appendChild(renderAddTab());
-  else if(state.tab==="events")content.appendChild(renderEventsTab());
+  else if(state.tab==="shop") content.appendChild(renderShopTab());
+  else if(state.tab==="txns") content.appendChild(renderTxnTab());
+  else if(state.tab==="add") content.appendChild(renderAddTab());
+  else if(state.tab==="events") content.appendChild(renderEventsTab());
   app.appendChild(content);
   app.appendChild(renderTabBar());
   content.scrollTop=scrollTop;
@@ -569,12 +615,10 @@ function render(){
 function renderHeader(){
   const uc=urgentEventCount();
   const theme=getTheme();
-  const toggle=h("div",{className:"theme-toggle"});
-  const darkOpt=h("span",{className:"theme-opt"+(theme==="dark-neon"?" active":""),onClick:e=>{e.stopPropagation();setTheme("dark-neon")}},"🌙");
-  const lightOpt=h("span",{className:"theme-opt"+(theme==="neo-minimal"?" active":""),onClick:e=>{e.stopPropagation();setTheme("neo-minimal")}},"☀️");
-  toggle.appendChild(darkOpt);
-  toggle.appendChild(lightOpt);
-
+  const toggle=h("div",{className:"theme-toggle"},
+    h("span",{className:"theme-opt"+(theme==="dark-neon"?" active":""),onClick:e=>{e.stopPropagation();setTheme("dark-neon")}},"🌙"),
+    h("span",{className:"theme-opt"+(theme==="neo-minimal"?" active":""),onClick:e=>{e.stopPropagation();setTheme("neo-minimal")}},"☀️")
+  );
   return h("div",{className:"header"},
     h("div",{className:"header-logo"},"CT"),
     h("span",{className:"header-title"},"CardTrack"),
@@ -607,12 +651,14 @@ function renderTabBar(){
   return bar;
 }
 
-// ─── SELECT TAB ───
+// ═══════════════════════════════════════════════
+// TAB: SELECT
+// ═══════════════════════════════════════════════
 function renderSelectTab(){
   const wrap=h("div",null,h("p",{className:"section-hint"},"// chọn thẻ cần theo dõi"));
   ALL_CARDS.forEach(c=>{
     const on=state.selectedCardIds.includes(c.id);
-    const card=h("div",{className:"sel-card"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
+    wrap.appendChild(h("div",{className:"sel-card"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
       const ids=on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id];
       setState({selectedCardIds:ids});
     }},
@@ -622,54 +668,54 @@ function renderSelectTab(){
         h("div",{className:"sel-sub"},`****${c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)
       ),
       h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")
-    );
-    wrap.appendChild(card);
+    ));
   });
   return wrap;
 }
 
-// ─── CARDS TAB ───
+// ═══════════════════════════════════════════════
+// TAB: CARDS
+// ═══════════════════════════════════════════════
 function renderCardsTab(){
   const wrap=h("div",null);
   const cards=selectedCards();
-  if(!cards.length)return h("p",{className:"empty-msg"},"// chưa chọn thẻ nào");
-  const now=new Date();
-  const txns=state.transactions;
+  if(!cards.length) return h("p",{className:"empty-msg"},"// chưa chọn thẻ nào");
+
   cards.forEach(card=>{
-    const cs=cycleStart(card,now);
-    const cycleTxns=txns.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
+    const cycleTxns=getCycleTxns(card);
     const dl=daysUntilDue(card);
     const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
+    const totalCb=calcTotalCb(card,cycleTxns);
     const shared=calcSharedCb(card,cycleTxns);
+
     const block=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id,tab:"cards"})},
       h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"12px"}},
         h("span",{className:"net-badge",style:{background:card.color}},NET_ICONS[card.network]),
         h("div",{style:{flex:1}},
           h("div",{className:"card-name"},`${card.name} ****${card.last4}`),
           h("div",{className:"card-meta"},
-            `Hạn ${dl}d · Chi ${fmtK(totalSpend)}`,
-            card.minSpend>0?(totalSpend<card.minSpend?h("span",{className:"warn-badge"},`!Min`):h("span",{className:"ok-badge"},"✓Min")):null
+            `Hạn ${dl}d · Chi ${fmtK(totalSpend)} · CB ${fmtK(totalCb)}`,
+            card.minSpend>0?(totalSpend<card.minSpend?h("span",{className:"warn-badge"},"!Min"):h("span",{className:"ok-badge"},"✓Min")):null
           )
         ),
         h("span",{style:{color:"var(--text3)",fontSize:"14px"}},"›")
       )
     );
+
     card.cashbackCategories.forEach(cb=>{
       const active=isCatActive(card, cycleTxns, cb.category);
-      const catSpend=cycleTxns.filter(tx=>tx.category===cb.category).reduce((s,t)=>s+t.amount,0);
-      const earnedCb=active?Math.min(catSpend*cb.rate,cb.maxCashback):0;
+      const catSpend=calcCategorySpend(cycleTxns, cb.category);
+      const earnedCb=active?calcCatCb(card,cycleTxns,cb):0;
       const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
       const isFull=active&&(pct>=100||(shared&&shared.cats.includes(cb.category)&&shared.isFull));
-      const activeCat=getActiveCat(card, cycleTxns);
-      const catLabel=h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`);
+      const activeCat=getActiveCat(card,cycleTxns);
       const badges=[];
-      if(card.firstCatOnly && activeCat){
-        if(active) badges.push(h("span",{className:"active-cat-badge"},"✓ Active"));
-        else badges.push(h("span",{className:"inactive-cat-badge"},"✗ No CB"));
+      if(card.firstCatOnly&&activeCat){
+        badges.push(active?h("span",{className:"active-cat-badge"},"✓ Active"):h("span",{className:"inactive-cat-badge"},"✗ No CB"));
       }
       block.appendChild(h("div",{className:"cb-row"+(active?"":" inactive")},
         h("div",{className:"cb-label"},
-          h("span",null,catLabel,...badges),
+          h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),
           h("span",{className:"cb-amt"},`${fmtK(catSpend)}/${fmtK(cb.maxSpend)}`)
         ),
         h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
@@ -679,61 +725,59 @@ function renderCardsTab(){
         )
       ));
     });
-    if(shared){
-      block.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
-    }
-    if(card.note)block.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+    if(shared) block.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
+    if(card.note) block.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
     wrap.appendChild(block);
   });
   return wrap;
 }
 
-// ─── CARD DETAIL ───
+// ═══════════════════════════════════════════════
+// TAB: CARD DETAIL
+// ═══════════════════════════════════════════════
 function renderCardDetail(){
   const card=ALL_CARDS.find(c=>c.id===state.detailCardId);
-  if(!card)return h("div",null,"Không tìm thấy thẻ");
-  const now=new Date();
-  const cs=cycleStart(card,now);
-  const cycleTxns=state.transactions.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
+  if(!card) return h("div",null,"Không tìm thấy thẻ");
+  const cycleTxns=getCycleTxns(card);
   const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
-  const totalCb=cycleTxns.reduce((s,t)=>s+(t.cashback||0),0);
+  const totalCb=calcTotalCb(card,cycleTxns);
   const dl=daysUntilDue(card);
   const shared=calcSharedCb(card,cycleTxns);
+
   const wrap=h("div",null);
-  wrap.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},
-    "‹ ",`${card.name} ****${card.last4}`
-  ));
+  wrap.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},"‹ ",`${card.name} ****${card.last4}`));
   wrap.appendChild(h("div",{className:"detail-stat-row"},
     h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Tổng chi kỳ"),h("div",{className:"detail-stat-val",style:{color:"var(--text)"}},fmtK(totalSpend)+"₫")),
     h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"CB ước tính"),h("div",{className:"detail-stat-val",style:{color:"var(--green)"}},fmtK(totalCb)+"₫")),
     h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Hạn TT"),h("div",{className:"detail-stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))
   ));
+
   card.cashbackCategories.forEach(cb=>{
-    const active=isCatActive(card, cycleTxns, cb.category);
-    const catSpend=cycleTxns.filter(tx=>tx.category===cb.category).reduce((s,t)=>s+t.amount,0);
-    const earnedCb=active?Math.min(catSpend*cb.rate,cb.maxCashback):0;
+    const active=isCatActive(card,cycleTxns,cb.category);
+    const catSpend=calcCategorySpend(cycleTxns,cb.category);
+    const earnedCb=active?calcCatCb(card,cycleTxns,cb):0;
     const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
     const isFull=active&&(pct>=100||(shared&&shared.cats.includes(cb.category)&&shared.isFull));
-    const activeCat=getActiveCat(card, cycleTxns);
-    const catLabel=h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`);
+    const activeCat=getActiveCat(card,cycleTxns);
     const badges=[];
-    if(card.firstCatOnly && activeCat){
-      if(active) badges.push(h("span",{className:"active-cat-badge"},"✓ Active"));
-      else badges.push(h("span",{className:"inactive-cat-badge"},"✗ No CB"));
+    if(card.firstCatOnly&&activeCat){
+      badges.push(active?h("span",{className:"active-cat-badge"},"✓ Active"):h("span",{className:"inactive-cat-badge"},"✗ No CB"));
     }
     wrap.appendChild(h("div",{className:"cb-row"+(active?"":" inactive")},
-      h("div",{className:"cb-label"},h("span",null,catLabel,...badges),h("span",{className:"cb-amt"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
+      h("div",{className:"cb-label"},h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),h("span",{className:"cb-amt"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
       h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
       h("div",{className:"cb-footer"},h("span",null,`CB ≈ ${fmtK(earnedCb)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"full-badge"},"⚠ Đã đạt tối ưu"):null)
     ));
   });
-  if(shared){
-    wrap.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
-  }
-  if(card.note)wrap.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+  if(shared) wrap.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
+  if(card.note) wrap.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+
   wrap.appendChild(h("div",{className:"detail-txn-header"},"Giao dịch kỳ này"));
   if(!cycleTxns.length){wrap.appendChild(h("p",{className:"empty-msg",style:{padding:"20px 0"}},"// chưa có giao dịch"));return wrap}
-  cycleTxns.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx=>{
+
+  const sorted=[...cycleTxns].sort((a,b)=>{const dd=b.date.localeCompare(a.date);return dd!==0?dd:(b.ts||0)-(a.ts||0)});
+  sorted.forEach(tx=>{
+    const txCb=calcTxnCb(card,cycleTxns,tx);
     wrap.appendChild(h("div",{className:"txn-row"},
       h("div",{style:{flex:"1"}},
         h("div",{className:"txn-shop"},tx.shop),
@@ -741,7 +785,7 @@ function renderCardDetail(){
       ),
       h("div",{className:"txn-right"},
         h("div",{className:"txn-amount"},fmt(tx.amount)+"₫"),
-        tx.cashback>0?h("div",{className:"txn-cb"},"CB +"+fmtK(tx.cashback)):null,
+        txCb>0?h("div",{className:"txn-cb"},"CB +"+fmtK(txCb)):null,
         h("button",{className:"del-btn",onClick:e=>{e.stopPropagation();state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕")
       )
     ));
@@ -749,27 +793,32 @@ function renderCardDetail(){
   return wrap;
 }
 
-// ─── SHOP TAB ───
+// ═══════════════════════════════════════════════
+// TAB: SHOP
+// ═══════════════════════════════════════════════
 function renderShopTab(){
   const wrap=h("div",null);
   const selIds=state.selectedCardIds;
-  const now=new Date();
-  const txns=state.transactions;
+
   const searchInput=h("input",{className:"input-field",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
-    onInput:e=>{const v=e.target.value;setQ({shopSearch:v});const el=document.querySelector('.content .input-field');setTimeout(()=>render(),300)}
+    onInput:e=>{setQ({shopSearch:e.target.value});clearTimeout(window._shopTimer);window._shopTimer=setTimeout(render,250)}
   });
   wrap.appendChild(h("div",{style:{marginBottom:"10px"}},searchInput));
+
   const cats=[...new Set(SHOP_CARD_MAP.map(s=>s.category))];
   const fw=h("div",{className:"cat-filter"});
   fw.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter==="all"?" active":""),onClick:()=>setState({shopCatFilter:"all"})},"All"));
   cats.forEach(c=>fw.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter===c?" active":""),onClick:()=>setState({shopCatFilter:c})},(CAT_ICONS[c]||"📦")+" "+c)));
   wrap.appendChild(fw);
+
   const filtered=SHOP_CARD_MAP
     .filter(s=>state.shopCatFilter==="all"||s.category===state.shopCatFilter)
     .filter(s=>!state.shopSearch||s.shop.toLowerCase().includes(state.shopSearch.toLowerCase()))
     .map(s=>({...s,cardIds:s.cardIds.filter(id=>selIds.includes(id))}))
     .filter(s=>s.cardIds.length>0);
+
   if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không tìm thấy shop"));return wrap}
+
   filtered.forEach(s=>{
     const shopEl=h("div",{className:"shop-card"},
       h("div",{className:"shop-header"},
@@ -780,20 +829,20 @@ function renderShopTab(){
     s.cardIds.forEach(cardId=>{
       const card=ALL_CARDS.find(c=>c.id===cardId);if(!card)return;
       const cb=card.cashbackCategories.find(c=>c.category===s.category);if(!cb)return;
-      const cs=cycleStart(card,now);
-      const cardCycleTxns=txns.filter(tx=>tx.cardId===cardId&&new Date(tx.date)>=cs);
-      const active=isCatActive(card, cardCycleTxns, s.category);
-      const catSpend=cardCycleTxns.filter(tx=>tx.category===s.category).reduce((sm,t)=>sm+t.amount,0);
+      const cycleTxns=getCycleTxns(card);
+      const active=isCatActive(card,cycleTxns,s.category);
+      const catSpend=calcCategorySpend(cycleTxns,s.category);
       const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
       const remainSpend=active?Math.max(cb.maxSpend-catSpend,0):0;
-      let remainCb=active?Math.max(cb.maxCashback-Math.min(catSpend*cb.rate,cb.maxCashback),0):0;
+      let remainCb=active?Math.max(cb.maxCashback-calcCatCb(card,cycleTxns,cb),0):0;
       let isFull=!active||(active&&pct>=100);
-      const shared=calcSharedCb(card,cardCycleTxns);
-      if(active&&shared&&shared.cats.includes(s.category)){
+      const shared=calcSharedCb(card,cycleTxns);
+      if(active&&shared&&(card.sharedCats||card.cashbackCategories.map(c=>c.category)).includes(s.category)){
         remainCb=Math.max(shared.max-shared.total,0);
-        if(shared.isFull)isFull=true;
+        if(shared.isFull) isFull=true;
       }
-      const inactiveNote=(!active&&card.firstCatOnly)?getActiveCat(card,cardCycleTxns):null;
+      const inactiveNote=(!active&&card.firstCatOnly)?getActiveCat(card,cycleTxns):null;
+
       const rec=h("div",{className:"shop-recommend",style:{borderColor:isFull?"#f59e0b40":`${card.color}50`,background:isFull?`color-mix(in srgb,var(--warn) 5%,var(--bg3))`:`color-mix(in srgb,${card.color} 5%,var(--bg3))`,opacity:active?1:.45}},
         h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"5px"}},
           h("span",{className:"net-badge-sm",style:{background:card.color}},NET_ICONS[card.network]),
@@ -811,11 +860,13 @@ function renderShopTab(){
   return wrap;
 }
 
-// ─── TXN TAB ───
+// ═══════════════════════════════════════════════
+// TAB: TRANSACTIONS
+// ═══════════════════════════════════════════════
 function renderTxnTab(){
   const wrap=h("div",null);
   const cards=selectedCards();
-  const txns=state.transactions;
+
   const selCard=h("select",{onChange:e=>setState({filterCard:e.target.value})});
   selCard.appendChild(h("option",{value:"all"},"Tất cả thẻ"));
   cards.forEach(c=>selCard.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
@@ -823,19 +874,30 @@ function renderTxnTab(){
   const monthIn=h("input",{type:"month",className:"month-input",onChange:e=>setState({filterMonth:e.target.value})});
   monthIn.value=state.filterMonth;
   wrap.appendChild(h("div",{className:"filter-row"},selCard,monthIn));
-  const filtered=txns
+
+  const filtered=state.transactions
     .filter(tx=>state.filterCard==="all"||tx.cardId===state.filterCard)
     .filter(tx=>tx.date.startsWith(state.filterMonth))
-    .sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const totalCb=filtered.reduce((s,tx)=>s+(tx.cashback||0),0);
-  const totalSpend=filtered.reduce((s,tx)=>s+tx.amount,0);
+    .sort((a,b)=>{const dd=b.date.localeCompare(a.date);return dd!==0?dd:(b.ts||0)-(a.ts||0)});
+
+  // Calculate CB dynamically
+  let totalCb=0, totalSpend=0;
+  filtered.forEach(tx=>{
+    totalSpend+=tx.amount;
+    const card=ALL_CARDS.find(c=>c.id===tx.cardId);
+    if(card) totalCb+=calcTxnCb(card,getCycleTxns(card),tx);
+  });
+
   wrap.appendChild(h("div",{className:"cb-summary mono"},
     h("span",null,`Chi: ${fmtK(totalSpend)}₫`),
     h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB: +${fmtK(totalCb)}₫`)
   ));
+
   if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg"},"// chưa có giao dịch"));return wrap}
+
   filtered.forEach(tx=>{
     const card=ALL_CARDS.find(c=>c.id===tx.cardId);
+    const txCb=card?calcTxnCb(card,getCycleTxns(card),tx):0;
     wrap.appendChild(h("div",{className:"txn-row"},
       h("div",{style:{flex:"1"}},
         h("div",{className:"txn-shop"},tx.shop),
@@ -847,7 +909,7 @@ function renderTxnTab(){
       ),
       h("div",{className:"txn-right"},
         h("div",{className:"txn-amount"},fmt(tx.amount)+"₫"),
-        tx.cashback>0?h("div",{className:"txn-cb"},"+"+fmtK(tx.cashback)):null,
+        txCb>0?h("div",{className:"txn-cb"},"+"+fmtK(txCb)):null,
         h("button",{className:"del-btn",onClick:()=>{state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕")
       )
     ));
@@ -855,7 +917,9 @@ function renderTxnTab(){
   return wrap;
 }
 
-// ─── EVENTS TAB ───
+// ═══════════════════════════════════════════════
+// TAB: EVENTS
+// ═══════════════════════════════════════════════
 function renderEventsTab(){
   const wrap=h("div",null);
   const now=new Date();
@@ -865,7 +929,7 @@ function renderEventsTab(){
     .filter(e=>e.date>=nowStr)
     .map(e=>({...e,isAuto:false,diff:Math.ceil((new Date(e.date)-now)/864e5),cardColor:e.cardId?ALL_CARDS.find(c=>c.id===e.cardId)?.color:null}));
   const all=[...autoEvs,...userEvs].sort((a,b)=>a.date.localeCompare(b.date));
-  if(!all.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không có sự kiện nào trong 14 ngày tới"));return wrap}
+  if(!all.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không có sự kiện nào"));return wrap}
   const urgent=all.filter(e=>e.diff>=0&&e.diff<=3);
   const later=all.filter(e=>e.diff>3);
   if(urgent.length){
@@ -881,14 +945,11 @@ function renderEventsTab(){
 
 function renderEventCard(ev,isUrgent){
   const d=new Date(ev.date);
-  const dayN=d.getDate();
-  const monN=MONTHS_VI[d.getMonth()];
   const dotCls=isUrgent?"urgent":(ev.isAuto?"due":"custom");
-  const cardCls=isUrgent?"urgent":"normal";
-  const card=h("div",{className:`event-card ${cardCls}`},
+  const card=h("div",{className:`event-card ${isUrgent?"urgent":"normal"}`},
     h("div",{className:`event-dot ${dotCls}`},
-      h("span",{className:"event-day"},dayN),
-      h("span",{className:"event-mon"},monN)
+      h("span",{className:"event-day"},d.getDate()),
+      h("span",{className:"event-mon"},MONTHS_VI[d.getMonth()])
     ),
     h("div",{className:"event-body"},
       h("div",{className:"event-title"},ev.title),
@@ -896,31 +957,36 @@ function renderEventCard(ev,isUrgent){
       isUrgent?h("span",{className:"event-urgent-label"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null
     )
   );
-  if(!ev.isAuto){
-    const del=h("button",{className:"event-del",onClick:()=>{state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕");
-    card.appendChild(del);
-  }
+  if(!ev.isAuto) card.appendChild(h("button",{className:"event-del",onClick:()=>{state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
   return card;
 }
 
-// ─── ADD TAB ───
+// ═══════════════════════════════════════════════
+// TAB: ADD (Transaction + Event)
+// ═══════════════════════════════════════════════
 function renderAddTab(){
   const wrap=h("div",null);
-  const tabRow=h("div",{className:"form-tab-row"});
-  tabRow.appendChild(h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"));
-  tabRow.appendChild(h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event"));
+  const tabRow=h("div",{className:"form-tab-row"},
+    h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"),
+    h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event")
+  );
   wrap.appendChild(tabRow);
-  if(state.addMode==="txn")wrap.appendChild(renderAddTxnForm());
-  else wrap.appendChild(renderAddEventForm());
+  wrap.appendChild(state.addMode==="txn"?renderAddTxnForm():renderAddEventForm());
   return wrap;
 }
 
 function renderAddTxnForm(){
   const wrap=h("div",null);
   const cards=selectedCards();
-  if(!state.addCardId&&cards.length)state.addCardId=cards[0].id;
+  if(!cards.length) return h("p",{className:"empty-msg"},"// chưa chọn thẻ nào");
+
+  // FIX: ensure addCardId is valid and in selected cards
+  if(!state.addCardId||!cards.find(c=>c.id===state.addCardId)) state.addCardId=cards[0].id;
   const selCard=ALL_CARDS.find(c=>c.id===state.addCardId);
-  if(selCard&&!state.addCategory&&selCard.cashbackCategories.length)state.addCategory=selCard.cashbackCategories[0].category;
+
+  // FIX: auto-set category to first CB category of selected card
+  if(selCard&&(!state.addCategory||!CATEGORIES.includes(state.addCategory))) state.addCategory=selCard.cashbackCategories[0]?.category||"";
+
   const cardSel=h("select",{onChange:e=>{
     const nc=ALL_CARDS.find(c=>c.id===e.target.value);
     setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""});
@@ -928,18 +994,26 @@ function renderAddTxnForm(){
   cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
   cardSel.value=state.addCardId;
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ"),cardSel));
+
   const catSel=h("select",{onChange:e=>setState({addCategory:e.target.value,addShop:""})});
   catSel.appendChild(h("option",{value:""},"-- Chọn lĩnh vực --"));
   CATEGORIES.forEach(c=>catSel.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
   catSel.value=state.addCategory;
   const catG=h("div",{className:"form-group"},h("label",{className:"label"},"Lĩnh vực"),catSel);
-  if(selCard&&state.addCategory&&!selCard.cashbackCategories.find(c=>c.category===state.addCategory)){
+
+  const hasCb=selCard&&selCard.cashbackCategories.find(c=>c.category===state.addCategory);
+  if(selCard&&state.addCategory&&!hasCb){
     catG.appendChild(h("div",{className:"no-cb-hint"},`⚠ Không có cashback cho "${state.addCategory}"`));
   }
   wrap.appendChild(catG);
+
+  // Shop suggestions
   const suggestions=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
   const shopWrap=h("div",null);
-  const shopIn=h("input",{className:"input-field",placeholder:"Tên cửa hàng",value:state.addShop,onInput:e=>setQ({addShop:e.target.value}),onBlur:e=>setQ({addShop:e.target.value})});
+  const shopIn=h("input",{className:"input-field",placeholder:"Tên cửa hàng",value:state.addShop,
+    onInput:e=>setQ({addShop:e.target.value}),
+    onBlur:e=>setQ({addShop:e.target.value})
+  });
   shopWrap.appendChild(shopIn);
   if(suggestions.length){
     const cw=h("div",{style:{display:"flex",flexWrap:"wrap",gap:"6px",marginTop:"7px"}});
@@ -947,39 +1021,60 @@ function renderAddTxnForm(){
     shopWrap.appendChild(cw);
   }
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Cửa hàng"),shopWrap));
-  const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input-field",placeholder:"0",value:state.addAmount,onInput:e=>setQ({addAmount:e.target.value}),onBlur:e=>setState({addAmount:e.target.value})});
+
+  const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input-field",placeholder:"0",value:state.addAmount,
+    onInput:e=>setQ({addAmount:e.target.value}),
+    onBlur:e=>setState({addAmount:e.target.value})
+  });
   const dateIn=h("input",{type:"date",className:"input-field",value:state.addDate,onChange:e=>setState({addDate:e.target.value})});
   wrap.appendChild(h("div",{style:{display:"flex",gap:"8px"}},
     h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Số tiền (₫)"),amtIn),
     h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Ngày"),dateIn)
   ));
+
+  // CB Preview
   if(state.addAmount&&state.addCategory&&selCard){
-    const cb=selCard.cashbackCategories.find(c=>c.category===state.addCategory);
-    // Check firstCatOnly: get existing cycle txns for this card
-    const now=new Date();
-    const cs=cycleStart(selCard,now);
-    const existingCycleTxns=state.transactions.filter(tx=>tx.cardId===selCard.id&&new Date(tx.date)>=cs);
-    const willBeActive=isCatActive(selCard, existingCycleTxns, state.addCategory);
-    const est=(cb&&willBeActive)?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
-    if(!willBeActive && selCard.firstCatOnly){
-      const activeCat=getActiveCat(selCard, existingCycleTxns);
-      wrap.appendChild(h("div",{className:"no-cb-hint",style:{marginBottom:"12px"}},`⚠ Kỳ này đang active "${activeCat}" → "${state.addCategory}" sẽ không có CB`));
-    } else {
-      wrap.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
+    const parsedAmt=parseFloat(state.addAmount);
+    if(!isNaN(parsedAmt)&&parsedAmt>0){
+      const cb=selCard.cashbackCategories.find(c=>c.category===state.addCategory);
+      const cycleTxns=getCycleTxns(selCard);
+      const willBeActive=isCatActive(selCard,cycleTxns,state.addCategory);
+
+      if(!willBeActive&&selCard.firstCatOnly){
+        const activeCat=getActiveCat(selCard,cycleTxns);
+        wrap.appendChild(h("div",{className:"no-cb-hint",style:{marginBottom:"12px"}},`⚠ Kỳ này đang active "${activeCat}" → "${state.addCategory}" sẽ không có CB`));
+      } else if(cb){
+        // Calculate remaining CB capacity
+        const catSpend=calcCategorySpend(cycleTxns,state.addCategory);
+        const catCbSoFar=Math.min(catSpend*cb.rate,cb.maxCashback);
+        const catCbAfter=Math.min((catSpend+parsedAmt)*cb.rate,cb.maxCashback);
+        let est=catCbAfter-catCbSoFar;
+        // Also check shared cap
+        const shared=calcSharedCb(selCard,cycleTxns);
+        if(shared&&(selCard.sharedCats||selCard.cashbackCategories.map(c=>c.category)).includes(state.addCategory)){
+          const remainShared=Math.max(shared.max-shared.total,0);
+          est=Math.min(est,remainShared);
+        }
+        est=Math.max(0,est);
+        wrap.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
+      }
     }
   }
-  const canSubmit=state.addCardId&&state.addShop&&state.addAmount&&state.addCategory;
+
+  const canSubmit=state.addCardId&&state.addShop&&state.addAmount&&!isNaN(parseFloat(state.addAmount))&&parseFloat(state.addAmount)>0&&state.addCategory;
   const btn=h("button",{className:"submit-btn",style:{background:selCard?.color||"var(--accent2)",opacity:canSubmit?1:.4},onClick:()=>{
-    if(!canSubmit)return;
-    const card=ALL_CARDS.find(c=>c.id===state.addCardId);
-    const cb=card?.cashbackCategories.find(c=>c.category===state.addCategory);
-    // Respect firstCatOnly: check if this category will be active after adding
-    const now2=new Date();
-    const cs2=cycleStart(card,now2);
-    const existingTxns2=state.transactions.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs2);
-    const willBeActive2=isCatActive(card, existingTxns2, state.addCategory);
-    const cashback=(cb&&willBeActive2)?Math.min(parseFloat(state.addAmount)*cb.rate,cb.maxCashback):0;
-    state.transactions.unshift({id:"tx-"+Date.now(),cardId:state.addCardId,shop:state.addShop,amount:parseFloat(state.addAmount),category:state.addCategory,date:state.addDate,cashback});
+    if(!canSubmit) return;
+    const amt=parseFloat(state.addAmount);
+    // FIX: don't store cashback statically — it's calculated dynamically now
+    state.transactions.unshift({
+      id:"tx-"+Date.now(),
+      ts:Date.now(), // FIX: store creation timestamp for proper ordering
+      cardId:state.addCardId,
+      shop:state.addShop,
+      amount:amt,
+      category:state.addCategory,
+      date:state.addDate
+    });
     state.addShop="";state.addAmount="";
     persist();render();
   }},"+ Thêm giao dịch");
@@ -997,17 +1092,22 @@ function renderAddEventForm(){
   cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
   cardSel.value=state.addEventCard;
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ (tuỳ chọn)"),cardSel));
-  const noteIn=h("input",{type:"text",className:"input-field",placeholder:"Nội dung sự kiện",value:state.addEventNote,onInput:e=>setQ({addEventNote:e.target.value}),onBlur:e=>setState({addEventNote:e.target.value})});
+  const noteIn=h("input",{type:"text",className:"input-field",placeholder:"Nội dung sự kiện",value:state.addEventNote,
+    onInput:e=>setQ({addEventNote:e.target.value}),
+    onBlur:e=>setState({addEventNote:e.target.value})
+  });
   wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Nội dung"),noteIn));
   const canSubmit=state.addEventDate&&state.addEventNote;
   const btn=h("button",{className:"submit-btn",style:{background:"var(--purple)",opacity:canSubmit?1:.4},onClick:()=>{
-    if(!canSubmit)return;
+    if(!canSubmit) return;
     const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
     state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote,sub:card?`${card.name} ****${card.last4}`:null,cardId:state.addEventCard||null});
     state.addEventDate="";state.addEventNote="";state.addEventCard="";
     persist();render();
   }},"+ Thêm Event");
   wrap.appendChild(btn);
+
+  // Past events
   const past=state.events.filter(e=>e.date<new Date().toISOString().slice(0,10));
   if(past.length){
     wrap.appendChild(h("div",{className:"event-section-label",style:{marginTop:"20px"}},"Đã qua"));
@@ -1024,7 +1124,9 @@ function renderAddEventForm(){
   return wrap;
 }
 
-// ─── INIT ───
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
 render();
 </script>
 </body>
