@@ -7,297 +7,265 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#080c14">
-<title>CardTrack</title>
+<title>CardTrack v5</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
-:root,[data-theme="dark-neon"]{
-  --bg:#060a12;--bg2:#0c1322;--bg3:#121d30;--bg4:#1a2840;
-  --border:#1a2d50;--border2:#243a60;
-  --text:#e4eaf6;--text2:#8faac8;--text3:#4a6890;
-  --accent:#00e5ff;--accent2:#00b8d4;--accentD:#003d4d;
-  --green:#00ffaa;--greenD:#003d28;
-  --warn:#ffab00;--warnD:#4a3200;
-  --red:#ff5252;--redD:#4a1010;
-  --purple:#b388ff;
-  --card-bg:var(--bg2);--card-border:var(--border);
-  --shadow:0 2px 12px rgba(0,229,255,.06);
-  --glow:0 0 20px rgba(0,229,255,.12);
-  --font-heading:'Syne',sans-serif;--font-mono:'Space Mono',monospace;--font-body:'Syne',sans-serif;
-  --header-bg:var(--bg2);--header-border:var(--border);
-  --tab-bg:var(--bg2);--tab-border:var(--border);
-  --progress-track:var(--border);
-  --badge-radius:4px;--card-radius:12px;--input-radius:8px;
+:root,[data-theme="dark"]{
+  --bg:#07090f;--bg2:#0d1117;--bg3:#151b27;--bg4:#1c2535;
+  --border:#1e293b;--border2:#2a3a52;
+  --text:#eaf0fb;--text2:#8b9dc3;--text3:#4b6085;
+  --accent:#38bdf8;--accent2:#0ea5e9;--accentBg:rgba(56,189,248,.08);--accentBorder:rgba(56,189,248,.2);
+  --green:#34d399;--greenBg:rgba(52,211,153,.08);--greenBorder:rgba(52,211,153,.15);
+  --warn:#fbbf24;--warnBg:rgba(251,191,36,.08);--warnBorder:rgba(251,191,36,.2);
+  --red:#f87171;--redBg:rgba(248,113,113,.08);
+  --purple:#a78bfa;
+  --card-bg:#0d1117;--card-border:#1e293b;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 20px rgba(0,0,0,.2);
+  --font-head:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;--font-body:'Plus Jakarta Sans',sans-serif;
+  --radius:14px;--radius-sm:8px;--radius-xs:6px;
 }
-[data-theme="neo-minimal"]{
-  --bg:#f5f3ef;--bg2:#ffffff;--bg3:#edeae4;--bg4:#e2dfd8;
-  --border:#d8d4cc;--border2:#c8c3ba;
-  --text:#1a1a1a;--text2:#5a5a5a;--text3:#8a8a8a;
-  --accent:#ff5733;--accent2:#e04520;--accentD:#ffe8e2;
-  --green:#2ecc71;--greenD:#e8f8ef;
-  --warn:#f39c12;--warnD:#fef5e7;
-  --red:#e74c3c;--redD:#fdedec;
-  --purple:#9b59b6;
-  --card-bg:#ffffff;--card-border:#e8e4dc;
+[data-theme="light"]{
+  --bg:#f8f9fc;--bg2:#ffffff;--bg3:#f0f2f5;--bg4:#e5e8ed;
+  --border:#e2e5eb;--border2:#d0d5dd;
+  --text:#111827;--text2:#4b5563;--text3:#9ca3af;
+  --accent:#0284c7;--accent2:#0369a1;--accentBg:rgba(2,132,199,.06);--accentBorder:rgba(2,132,199,.15);
+  --green:#059669;--greenBg:rgba(5,150,105,.06);--greenBorder:rgba(5,150,105,.12);
+  --warn:#d97706;--warnBg:rgba(217,119,6,.06);--warnBorder:rgba(217,119,6,.15);
+  --red:#dc2626;--redBg:rgba(220,38,38,.06);
+  --purple:#7c3aed;
+  --card-bg:#ffffff;--card-border:#e5e7eb;
   --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
-  --glow:none;
-  --font-heading:'DM Sans',sans-serif;--font-mono:'Space Mono',monospace;--font-body:'DM Sans',sans-serif;
-  --header-bg:#ffffff;--header-border:#e8e4dc;
-  --tab-bg:#ffffff;--tab-border:#e8e4dc;
-  --progress-track:#e2dfd8;
-  --badge-radius:20px;--card-radius:16px;--input-radius:12px;
+  --font-head:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;--font-body:'Plus Jakarta Sans',sans-serif;
+  --radius:14px;--radius-sm:8px;--radius-xs:6px;
 }
 
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes blink{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 12px 3px var(--warn)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-glow{0%,100%{opacity:1;box-shadow:0 0 0 0 transparent}50%{opacity:.85;box-shadow:0 0 16px 4px var(--warnBorder)}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
 
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
-#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;background:var(--bg);transition:background .35s}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;background:var(--bg);transition:background .3s}
 
-.header{padding:max(env(safe-area-inset-top),16px) 20px 14px;display:flex;align-items:center;gap:10px;background:var(--header-bg);border-bottom:1px solid var(--header-border);position:sticky;top:0;z-index:10;transition:background .35s,border-color .35s}
-.header-logo{width:28px;height:28px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
-.header-title{font-family:var(--font-mono);font-weight:700;font-size:16px;color:var(--text);letter-spacing:-0.5px;transition:color .35s}
-.header-badges{margin-left:auto;display:flex;gap:6px;align-items:center}
-.hbadge{font-family:var(--font-mono);font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);transition:all .35s}
-.hbadge.event{color:var(--warn);border-color:var(--warnD);background:color-mix(in srgb,var(--warn) 8%,var(--bg3))}
+/* Header */
+.header{padding:max(env(safe-area-inset-top),14px) 16px 12px;display:flex;align-items:center;gap:10px;background:var(--bg2);border-bottom:1px solid var(--card-border);position:sticky;top:0;z-index:10;transition:all .3s}
+.header-logo{width:30px;height:30px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;font-family:var(--font-mono)}
+.header-title{font-family:var(--font-mono);font-weight:700;font-size:15px;color:var(--text);letter-spacing:-.5px}
+.header-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.hbadge{font-family:var(--font-mono);font-size:10px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600;transition:all .3s}
+.hbadge.warn{color:var(--warn);border-color:var(--warnBorder);background:var(--warnBg)}
+.theme-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .2s}
+.theme-btn:active{transform:scale(.92)}
 
-.theme-toggle{display:flex;align-items:center;gap:0;background:var(--bg3);border:1.5px solid var(--border);border-radius:22px;padding:2px;cursor:pointer;flex-shrink:0;transition:all .35s;margin-left:4px}
-.theme-opt{padding:4px 8px;border-radius:18px;font-size:13px;line-height:1;transition:all .25s;color:var(--text3);position:relative}
-.theme-opt.active{background:var(--accent);color:#fff;box-shadow:0 1px 6px color-mix(in srgb,var(--accent) 40%,transparent)}
+/* Content */
+.content{flex:1;overflow-y:auto;padding:12px 12px 16px;-webkit-overflow-scrolling:touch}
+.content>*{animation:fadeSlide .2s ease}
 
-.content{flex:1;overflow-y:auto;padding:14px 14px 20px;-webkit-overflow-scrolling:touch;animation:fadeIn .2s ease}
-
-.tab-bar{display:flex;justify-content:space-around;background:var(--tab-bg);border-top:1px solid var(--tab-border);padding:8px 0 max(env(safe-area-inset-bottom),10px);position:sticky;bottom:0;z-index:20;transition:all .35s}
-.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px;border-radius:10px;transition:all .15s;font-family:var(--font-body);font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;min-width:52px}
-.tab-btn .ico{font-size:17px;line-height:1}
+/* Tab Bar */
+.tab-bar{display:flex;justify-content:space-around;background:var(--bg2);border-top:1px solid var(--card-border);padding:6px 4px max(env(safe-area-inset-bottom),8px);position:sticky;bottom:0;z-index:20;transition:all .3s}
+.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 6px;border-radius:10px;transition:all .15s;font-family:var(--font-body);font-size:9px;font-weight:700;letter-spacing:.2px;min-width:48px;position:relative}
+.tab-btn .ico{font-size:18px;line-height:1}
 .tab-btn.active{color:var(--accent)}
-.tab-dot{width:4px;height:4px;border-radius:50%;background:var(--warn);position:absolute;top:-1px;right:-1px}
-.tab-btn-wrap{position:relative;display:inline-block}
+.tab-btn.active::after{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--accent);border-radius:2px}
+.tab-dot{width:5px;height:5px;border-radius:50%;background:var(--warn);position:absolute;top:-2px;right:-3px;animation:shimmer 1.5s infinite}
+
+/* Common */
 .mono{font-family:var(--font-mono)}
-.section-hint{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:-.2px}
+.hint{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:10px;letter-spacing:-.2px}
+.empty{text-align:center;color:var(--text3);font-size:12px;padding:40px 0;font-family:var(--font-mono)}
 
-.net-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
-.net-badge-sm{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
+/* Network badges */
+.net{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
+.net-sm{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
 
-.sel-card{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:var(--card-radius);cursor:pointer;transition:all .2s;margin-bottom:7px;box-shadow:var(--shadow)}
-.sel-card.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 10%,var(--card-bg))}
-.sel-info{flex:1;min-width:0}
-.sel-name{font-weight:700;font-size:13px;color:var(--text)}
+/* Select Tab */
+.sel-item{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:var(--radius);cursor:pointer;transition:all .2s;margin-bottom:6px;box-shadow:var(--shadow)}
+.sel-item.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 6%,var(--card-bg))}
+.sel-name{font-weight:700;font-size:13px}
 .sel-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
-.chk{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:11px;color:#fff}
+.chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:11px;color:#fff}
 .chk.on{border-color:var(--card-color);background:var(--card-color)}
 
-.card-block{background:var(--card-bg);border-radius:var(--card-radius);padding:14px;margin-bottom:10px;border:1px solid var(--card-border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
-.card-block:active{transform:scale(.99)}
-.card-name{font-weight:700;font-size:13px;color:var(--text)}
+/* Card Block */
+.card-block{background:var(--card-bg);border-radius:var(--radius);padding:14px;margin-bottom:8px;border:1px solid var(--card-border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
+.card-block:active{transform:scale(.985);opacity:.9}
+.card-name{font-weight:700;font-size:13px}
 .card-meta{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
-.warn-badge{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:var(--badge-radius);margin-left:6px;font-weight:700}
-.ok-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:var(--badge-radius);margin-left:6px;font-weight:700}
-.cb-row{margin-bottom:10px}
-.cb-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+
+/* Badges */
+.badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono)}
+.badge-warn{background:var(--warnBg);color:var(--warn);border:1px solid var(--warnBorder)}
+.badge-ok{background:var(--greenBg);color:var(--green);border:1px solid var(--greenBorder)}
+.badge-muted{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.badge-active{background:var(--greenBg);color:var(--green);border:1px solid var(--greenBorder)}
+
+/* Cashback rows */
+.cb-row{margin-bottom:8px}
+.cb-row.off{opacity:.3;pointer-events:none}
+.cb-row.off .bar-fill{background:var(--text3)!important}
+.cb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
 .cb-cat{font-size:11px;font-weight:700;color:var(--text2);font-family:var(--font-mono)}
 .cb-amt{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
-.progress-track{height:5px;background:var(--progress-track);border-radius:3px;overflow:hidden;transition:background .35s}
-.progress-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.cb-footer{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:10px;color:var(--text3);font-family:var(--font-mono)}
-.full-badge{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 7px;border-radius:var(--badge-radius);font-weight:700}
-.shared-cap{background:color-mix(in srgb,var(--accent) 8%,var(--bg3));border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:7px;padding:7px 10px;font-size:10px;color:var(--accent);margin-top:6px;font-weight:700;font-family:var(--font-mono);transition:all .35s}
-.card-note{font-size:10px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:6px;font-style:italic;line-height:1.5;font-family:var(--font-mono);transition:all .35s}
+.bar-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;transition:background .3s}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.cb-foot{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.shared-info{background:var(--accentBg);border:1px solid var(--accentBorder);border-radius:var(--radius-sm);padding:7px 10px;font-size:10px;color:var(--accent);margin-top:6px;font-weight:600;font-family:var(--font-mono);transition:all .3s}
+.card-note{font-size:10px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-xs);font-style:italic;line-height:1.5;font-family:var(--font-mono);transition:all .3s}
 
-.back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:14px;padding:4px 0}
-.detail-stat-row{display:flex;gap:8px;margin-bottom:14px}
-.detail-stat{flex:1;background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border);transition:all .35s}
-.detail-stat-label{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px}
-.detail-stat-val{font-size:14px;font-weight:800;color:var(--text)}
-.detail-txn-header{font-size:11px;font-weight:700;color:var(--text2);margin:12px 0 8px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px}
+/* Detail */
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px;padding:4px 0}
+.stat-row{display:flex;gap:6px;margin-bottom:12px}
+.stat-box{flex:1;background:var(--bg3);border-radius:var(--radius-sm);padding:10px;border:1px solid var(--border);transition:all .3s}
+.stat-label{font-size:9px;color:var(--text3);font-family:var(--font-mono);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.stat-val{font-size:15px;font-weight:800}
+.detail-section{font-size:11px;font-weight:700;color:var(--text2);margin:14px 0 8px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
 
-.filter-row{display:flex;gap:8px;margin-bottom:10px}
-select,.month-input,.input-field{background:var(--card-bg);border:1.5px solid var(--border2);color:var(--text);border-radius:var(--input-radius);padding:9px 11px;font-size:12px;font-family:var(--font-body);outline:none;box-sizing:border-box;transition:all .25s}
-select:focus,.input-field:focus{border-color:var(--accent2)}
-select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23506180'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;text-overflow:ellipsis}
-.month-input{width:150px;flex-shrink:0}
-.input-field{font-size:13px;width:100%}
-[data-theme="dark-neon"] input[type=date],[data-theme="dark-neon"] input[type=month]{color-scheme:dark}
-[data-theme="dark-neon"] .month-input{color-scheme:dark}
-[data-theme="neo-minimal"] input[type=date],[data-theme="neo-minimal"] input[type=month]{color-scheme:light}
-[data-theme="neo-minimal"] .month-input{color-scheme:light}
-[data-theme="neo-minimal"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238a8a8a'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E")}
-[data-theme="neo-minimal"] .card-block{box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.03)}
-[data-theme="neo-minimal"] .header{box-shadow:0 1px 8px rgba(0,0,0,.04)}
-[data-theme="neo-minimal"] .tab-bar{box-shadow:0 -1px 8px rgba(0,0,0,.04)}
+/* Filters */
+.filter-row{display:flex;gap:6px;margin-bottom:10px}
+select,.input,.month-in{background:var(--card-bg);border:1.5px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:9px 10px;font-size:12px;font-family:var(--font-body);outline:none;box-sizing:border-box;transition:all .2s;width:100%}
+select:focus,.input:focus{border-color:var(--accent2)}
+select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%234b6085'%3E%3Cpath d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;text-overflow:ellipsis}
+.month-in{width:140px;flex-shrink:0}
+[data-theme="dark"] input[type=date],[data-theme="dark"] input[type=month],[data-theme="dark"] .month-in{color-scheme:dark}
+[data-theme="light"] input[type=date],[data-theme="light"] input[type=month],[data-theme="light"] .month-in{color-scheme:light}
+[data-theme="light"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%239ca3af'%3E%3Cpath d='M5 7L0 2h10z'/%3E%3C/svg%3E")}
 
-.cb-summary{display:flex;justify-content:space-between;align-items:center;background:var(--greenD);border:1px solid color-mix(in srgb,var(--green) 15%,transparent);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:10px;color:var(--text2);transition:all .35s}
+/* Summary bar */
+.summary-bar{display:flex;justify-content:space-between;align-items:center;background:var(--greenBg);border:1px solid var(--greenBorder);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;margin-bottom:10px;font-family:var(--font-mono);font-weight:600;transition:all .3s}
 
-.txn-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);transition:border-color .35s}
-.txn-shop{font-weight:700;font-size:13px;color:var(--text)}
-.txn-meta{display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap}
-.txn-tag{font-size:9px;padding:2px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono)}
-.txn-cat{font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:var(--badge-radius);font-family:var(--font-mono);transition:all .35s}
-.txn-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.txn-amount{font-weight:800;font-size:13px;color:var(--text);font-family:var(--font-mono)}
-.txn-cb{font-size:10px;color:var(--green);font-family:var(--font-mono)}
-.del-btn{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px 5px;border-radius:4px;margin-top:1px;line-height:1}
-.del-btn:active{color:var(--red);background:var(--redD)}
+/* Transaction row */
+.tx-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);transition:border-color .3s}
+.tx-shop{font-weight:700;font-size:13px}
+.tx-meta{display:flex;gap:4px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.tx-tag{font-size:9px;padding:2px 6px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono)}
+.tx-cat{font-size:9px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:var(--radius-xs);font-family:var(--font-mono)}
+.tx-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tx-amount{font-weight:800;font-size:13px;font-family:var(--font-mono)}
+.tx-cb{font-size:10px;color:var(--green);font-family:var(--font-mono)}
+.del{background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:2px 4px;border-radius:4px;line-height:1}
+.del:active{color:var(--red);background:var(--redBg)}
 
-.form-group{margin-bottom:12px}
-.label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
-.suggest-btn-chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
-.suggest-btn-chip:active{border-color:var(--accent);color:var(--accent);background:var(--accentD)}
-.no-cb-hint{font-size:10px;color:var(--warn);margin-top:5px;font-family:var(--font-mono)}
-.cb-preview{background:var(--greenD);border:1px solid color-mix(in srgb,var(--green) 15%,transparent);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:12px;color:var(--text2);font-family:var(--font-mono);transition:all .35s}
-.submit-btn{width:100%;padding:13px;border-radius:var(--input-radius);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .15s;letter-spacing:.3px}
-.submit-btn:active{transform:scale(.98)}
-.empty-msg{text-align:center;color:var(--text3);font-size:12px;padding:40px 0;font-family:var(--font-mono)}
+/* Form */
+.fg{margin-bottom:12px}
+.lbl{display:block;font-size:10px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
+.chip:active,.chip.sel{border-color:var(--accent);color:var(--accent);background:var(--accentBg)}
+.no-cb{font-size:10px;color:var(--warn);margin-top:5px;font-family:var(--font-mono)}
+.cb-preview{background:var(--greenBg);border:1px solid var(--greenBorder);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;margin-bottom:12px;font-family:var(--font-mono);font-weight:600;transition:all .3s}
+.submit{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .15s;letter-spacing:.2px}
+.submit:active{transform:scale(.98)}
 
-.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.cat-chip{background:var(--card-bg);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:all .15s;white-space:nowrap}
-.cat-chip.active{background:var(--accentD);border-color:var(--accent2);color:var(--accent)}
-.shop-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);padding:13px;margin-bottom:8px;box-shadow:var(--shadow);transition:all .35s}
-.shop-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.shop-icon{font-size:20px}
-.shop-name{font-weight:800;font-size:14px;color:var(--text)}
-.shop-cat{font-size:10px;color:var(--text3);margin-top:1px;font-family:var(--font-mono)}
-.shop-recommend{border:1px solid var(--border2);border-radius:8px;padding:9px 11px;margin-bottom:7px;transition:all .35s}
-.shop-cb-detail{font-size:10px;color:var(--text2);margin-bottom:3px;font-family:var(--font-mono)}
-.shop-remaining{font-size:10px;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono)}
-.mini-progress{height:3px;background:var(--progress-track);border-radius:2px;overflow:hidden;transition:background .35s}
-.full-sm{font-size:9px;background:var(--warnD);color:var(--warn);padding:2px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono);margin-left:auto}
-
-.event-card{border-radius:var(--card-radius);padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .35s}
-.event-card.urgent{background:color-mix(in srgb,var(--warn) 8%,var(--card-bg));border:1.5px solid var(--warnD);animation:blink 2s ease-in-out infinite}
-.event-card.normal{background:var(--card-bg);border:1px solid var(--card-border)}
-.event-dot{width:36px;height:36px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.event-dot.urgent{background:var(--warnD);color:var(--warn)}
-.event-dot.due{background:var(--accentD);color:var(--accent)}
-.event-dot.custom{background:var(--bg3);color:var(--purple);border:1px solid var(--border)}
-.event-day{font-size:14px;font-weight:800;font-family:var(--font-mono);line-height:1}
-.event-mon{font-size:8px;font-weight:700;font-family:var(--font-mono);line-height:1;margin-top:2px;opacity:.8}
-.event-body{flex:1;min-width:0}
-.event-title{font-weight:700;font-size:13px;color:var(--text)}
-.event-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
-.event-urgent-label{display:inline-block;font-size:9px;background:var(--warnD);color:var(--warn);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;font-family:var(--font-mono);margin-top:4px;animation:pulse 1.5s ease-in-out infinite}
-.event-del{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
-.event-del:active{color:var(--red)}
-.event-section-label{font-size:10px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-left:2px}
-
-.form-tab-row{display:flex;gap:6px;margin-bottom:16px;background:var(--bg3);border-radius:10px;padding:4px;transition:background .35s}
+/* Form tabs */
+.form-tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:3px;transition:background .3s}
 .form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s}
-.form-tab.active{background:var(--card-bg);color:var(--accent);box-shadow:0 2px 8px #00000020}
+.form-tab.active{background:var(--card-bg);color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.15)}
 
-.cb-row.inactive{opacity:.35;pointer-events:none}
-.cb-row.inactive .progress-fill{background:var(--text3)!important}
-.active-cat-badge{display:inline-block;font-size:9px;background:var(--greenD);color:var(--green);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;margin-left:6px;font-family:var(--font-mono)}
-.inactive-cat-badge{display:inline-block;font-size:9px;background:var(--bg3);color:var(--text3);padding:1px 6px;border-radius:var(--badge-radius);font-weight:700;margin-left:6px;font-family:var(--font-mono)}
+/* Category filter */
+.cat-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+
+/* Shop */
+.shop-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:12px;margin-bottom:7px;box-shadow:var(--shadow);transition:all .3s}
+.shop-head{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.shop-icon{font-size:18px}
+.shop-name{font-weight:800;font-size:13px}
+.shop-cat{font-size:10px;color:var(--text3);margin-top:1px;font-family:var(--font-mono)}
+.shop-rec{border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;transition:all .3s}
+.shop-detail{font-size:10px;color:var(--text2);margin-bottom:3px;font-family:var(--font-mono)}
+.mini-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;transition:background .3s}
+
+/* Events */
+.ev-card{border-radius:var(--radius);padding:12px;margin-bottom:7px;display:flex;align-items:flex-start;gap:11px;transition:all .3s}
+.ev-card.urgent{background:var(--warnBg);border:1.5px solid var(--warnBorder);animation:pulse-glow 2.5s ease-in-out infinite}
+.ev-card.normal{background:var(--card-bg);border:1px solid var(--card-border)}
+.ev-dot{width:36px;height:36px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.ev-dot.urgent{background:var(--warnBg);color:var(--warn);border:1px solid var(--warnBorder)}
+.ev-dot.due{background:var(--accentBg);color:var(--accent);border:1px solid var(--accentBorder)}
+.ev-dot.custom{background:var(--bg3);color:var(--purple);border:1px solid var(--border)}
+.ev-day{font-size:14px;font-weight:800;font-family:var(--font-mono);line-height:1}
+.ev-mon{font-size:8px;font-weight:700;font-family:var(--font-mono);line-height:1;margin-top:2px;opacity:.8}
+.ev-body{flex:1;min-width:0}
+.ev-title{font-weight:700;font-size:13px}
+.ev-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
+.ev-urg{display:inline-block;font-size:9px;background:var(--warnBg);color:var(--warn);padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono);margin-top:4px;animation:shimmer 1.5s infinite}
+.ev-del{background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
+.ev-del:active{color:var(--red)}
+.ev-section{font-size:10px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 7px;padding-left:2px}
+
+.toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#000;font-weight:700;font-size:12px;padding:10px 20px;border-radius:12px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1);font-family:var(--font-mono)}
+.toast.show{transform:translateX(-50%) translateY(8px)}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div class="toast" id="toast"></div>
 <script>
-// ═══════════════════════════════════════════════
-// DATA — synced with CardList.txt & Shops.txt
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// DATA — synced with CardList.txt + Shops.txt
+// ═══════════════════════════════════════════
 const ALL_CARDS=[
   {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",
     cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],
-    minSpend:3000000,
-    note:"CB chỉ cho giao dịch quẹt POS hoặc Apple-Pay tại Siêu thị; chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
-
+    minSpend:3000000,note:"CB chỉ cho POS/Apple-Pay tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng"},
   {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
-    note:"Đổi danh mục CB tháng này → áp dụng tháng kế. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
-
+    note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
   {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
-    note:"Đổi danh mục CB tháng này → áp dụng tháng kế. Lĩnh vực CB trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
-
+    note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
   {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
-    minSpend:3000000,
-    note:"Online: Shopee, Lazada, Tiktok; chi tiêu (bất kỳ) tối thiểu 3tr/tháng"},
-
+    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
   {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
     minSpend:0,note:"Mọi giao dịch Online"},
-
   {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",stmtDay:20,dueDay:4,color:"#CC0028",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
     minSpend:0,note:"Mọi giao dịch Online"},
-
   {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",stmtDay:20,dueDay:4,color:"#0C4DA2",
     cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],
-    minSpend:0,sharedMaxCashback:800000,
-    note:"Tổng max 800K chung BH & Y tế & GD, riêng BH max 400K"},
-
+    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
   {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",
     cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],
-    minSpend:0,
-    note:"Online 6% max 200K & Ẩm thực nhà hàng (ko Fastfood) 4% max 100K — 2 lĩnh vực CB độc lập"},
-
+    minSpend:0,note:"Online 6% max 200K và Ẩm thực 4% max 100K — 2 lĩnh vực CB độc lập"},
   {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",
     cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Du lịch",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Vé Vietjet",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:0,sharedMaxCashback:200000,sharedCats:["Ẩm thực","Du lịch"],
-    note:"Ẩm thực (ko Fastfood) & Du lịch: max CB 200K chung; Vé Vietjet riêng max 300K"},
-
+    note:"Ẩm thực & Du lịch max CB 200K chung; Vé Vietjet riêng max 300K"},
   {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",
     cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],
     minSpend:0,sharedMaxCashback:600000,firstCatOnly:true,
-    note:"Max 600K/tháng chung. Lĩnh vực CB = lần đổi cuối cùng trong tháng; trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
-
+    note:"Max 600K/tháng chung. Trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
   {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",stmtDay:30,dueDay:8,color:"#F26522",
     cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],
-    minSpend:0,note:"Áp dụng mọi giao dịch tại Shopee"},
-
+    minSpend:0,note:"Mọi giao dịch tại Shopee"},
   {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",
     cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
     minSpend:0,sharedMaxCashback:1000000,
-    note:"Max hoàn 1tr/tháng tổng; mỗi danh mục max 500K. Chạm 1tr total → hết CB"},
-
+    note:"Max 1tr/tháng tổng; mỗi danh mục max 500K"},
   {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",
     cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],
-    minSpend:0,note:"Max CB 1tr/tháng cho Du lịch (Agoda, hotel, Vé máy bay)"},
-
+    minSpend:0,note:"Max 1tr/tháng chung Du lịch"},
   {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",
     cashbackCategories:[{category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},{category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},{category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}],
-    minSpend:0,sharedMaxCashback:800000,
-    note:"Tổng max 800K chung BH & Y tế & GD, riêng BH max 400K"},
-
+    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
   {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",stmtDay:4,dueDay:27,color:"#DB0011",
     cashbackCategories:[{category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}],
-    minSpend:0,sharedMaxCashback:200000,
-    note:"Max CB 200K tính chung Ẩm thực & Thời trang"},
-
+    minSpend:0,sharedMaxCashback:200000,note:"Max 200K chung Ẩm thực & Thời trang"},
   {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",stmtDay:5,dueDay:27,color:"#0F7B5F",
     cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],
-    minSpend:0,sharedMaxCashback:300000,
-    note:"Max CB 300K tính chung Siêu thị & Di chuyển"},
-
+    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
   {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",stmtDay:25,dueDay:15,color:"#0A6B50",
     cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],
-    minSpend:0,sharedMaxCashback:300000,
-    note:"Max CB 300K tính chung Siêu thị & Di chuyển"}
+    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"}
 ];
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
-
-const SHOP_SUGGESTIONS={
-  "Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],
-  "Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],
-  "Y tế":["VNVC","Hai Yen EYE-CARE","TaimuihongSG","Choray","ĐH YD","Vinmec","Tâm Anh","Á Châu","Pharmacity","MATSUKIYO","Long Chau"],
-  "Giáo dục":["SSC","ReadingQ"],
-  "Online":["Shopee","Lazada","Tiktok"],
-  "Bảo hiểm":["Bảo Việt"],
-  "Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],
-  "Du lịch":["Agoda","Traveloka","Booking"],
-  "Di chuyển":["Grab","Taxi"],
-  "Vé Vietjet":["Vietjet"],
-  "Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],
-  "Nước ngoài":[]
-};
+const SHOP_SUGGESTIONS={"Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],"Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],"Y tế":["Vinmec","Á Châu","Pharmacity","VNVC","Long Chau","Hai Yen EYE-CARE","TaimuihongSG","Tâm Anh","MATSUKIYO"],"Giáo dục":["SSC","ReadingQ"],"Online":["Shopee","Lazada","Tiktok"],"Bảo hiểm":["Bảo Việt"],"Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],"Du lịch":["Agoda","Traveloka","Booking","Ttip"],"Di chuyển":["Grab","Taxi"],"Vé Vietjet":["Vietjet"],"Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],"Nước ngoài":[]};
 
 const SHOP_CARD_MAP=[
   {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
@@ -307,18 +275,18 @@ const SHOP_CARD_MAP=[
   {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
   {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
   {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549","hsbc-3008"]},
+  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
+  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
   {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
@@ -327,17 +295,17 @@ const SHOP_CARD_MAP=[
   {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"KFC",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
   {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"Hai Yen EYE-CARE",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"TaimuihongSG",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"ĐH YD",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"Tâm Anh",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
   {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887"]},
   {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887"]},
-  {shop:"MATSUKIYO",category:"Y tế",cardIds:["mb-4887"]},
   {shop:"Long Chau",category:"Y tế",cardIds:["mb-4887"]},
+  {shop:"MATSUKIYO",category:"Y tế",cardIds:["mb-4887"]},
   {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
   {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
   {shop:"Shopee",category:"Online",cardIds:["msb-1712","tcb-5166","seabank-6891","vib-4549"]},
@@ -349,784 +317,485 @@ const SHOP_CARD_MAP=[
   {shop:"Adidas",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
   {shop:"Zara",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
   {shop:"Decathlon",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4549"]},
-  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4549"]},
+  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4549","hdb-1541"]},
+  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4549","hdb-1541"]},
+  {shop:"Ttip",category:"Du lịch",cardIds:["sacom-9870","vib-4549"]},
   {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
   {shop:"Taxi",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
   {shop:"CGV",category:"Giải trí",cardIds:["bvb-0202"]},
   {shop:"Galaxy Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
-  {shop:"Lotte Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
+  {shop:"Lotte Cinema",category:"Giải trí",cardIds:["bvb-0202"]}
 ];
 
 const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
-// ═══════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════
+// ═══ HELPERS ═══
 const fmt=n=>new Intl.NumberFormat("vi-VN").format(Math.round(n));
-const fmtK=n=>{if(n>=1e6)return (n/1e6).toFixed(n%1e6===0?0:1)+"tr";if(n>=1e3)return Math.round(n/1e3)+"K";return fmt(n)};
+const fmtK=n=>{if(n>=1e6)return(n/1e6).toFixed(n%1e6===0?0:1)+"tr";if(n>=1e3)return Math.round(n/1e3)+"K";return fmt(n)};
+
+// Convert a Date to "YYYY-MM-DD" in LOCAL timezone (avoids UTC shift bugs)
+function toLocalDateStr(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${dd}`;
+}
+// Parse a "YYYY-MM-DD" string as LOCAL midnight (not UTC)
+function parseLocalDate(s){
+  const p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]);
+}
 
 function cycleStart(card,ref){
-  const d=new Date(ref);
-  const day=card.stmtDay;
-  let y=d.getFullYear(), m=d.getMonth();
-  if(d.getDate()>=day) return new Date(y,m,day);
-  return new Date(y,m-1,day);
+  const d=new Date(ref),day=card.stmtDay,y=d.getFullYear(),m=d.getMonth();
+  return d.getDate()>=day?new Date(y,m,day):new Date(y,m-1,day);
 }
-
 function daysUntilDue(card,from){
-  const t=from||new Date(), y=t.getFullYear(), m=t.getMonth();
+  const t=from||new Date(),y=t.getFullYear(),m=t.getMonth();
   let d=new Date(y,m,card.dueDay);
-  if(d<=t) d=new Date(y,m+1,card.dueDay);
-  return Math.ceil((d-t)/864e5);
+  if(d.toDateString()===t.toDateString())return 0;
+  if(d<t)d=new Date(y,m+1,card.dueDay);
+  return Math.max(0,Math.ceil((d-t)/864e5));
 }
-
 function nextDueDate(card){
-  const t=new Date(), y=t.getFullYear(), m=t.getMonth();
+  const t=new Date(),y=t.getFullYear(),m=t.getMonth();
   let d=new Date(y,m,card.dueDay);
-  if(d<=t) d=new Date(y,m+1,card.dueDay);
+  if(d<t&&d.toDateString()!==t.toDateString())d=new Date(y,m+1,card.dueDay);
   return d;
 }
 
-// ═══════════════════════════════════════════════
-// FIRST-CAT-ONLY LOGIC (BVB, MSB)
-// ═══════════════════════════════════════════════
-function getActiveCat(card, cycleTxns){
-  if(!card.firstCatOnly) return null;
-  // Sort by date first, then by id (creation order) for same-date txns
-  const sorted=[...cycleTxns].sort((a,b)=>{
-    const dd=a.date.localeCompare(b.date);
-    if(dd!==0) return dd;
-    return (a.ts||0)-(b.ts||0);
-  });
+// ═══ FIRST-CAT-ONLY (MSB, BVB) ═══
+function getActiveCat(card,ct){
+  if(!card.firstCatOnly)return null;
+  const sorted=[...ct].sort((a,b)=>(parseInt(a.id.replace("tx-",""))||0)-(parseInt(b.id.replace("tx-",""))||0));
   const first=sorted.find(tx=>card.cashbackCategories.some(c=>c.category===tx.category));
   return first?first.category:null;
 }
-
-function isCatActive(card, cycleTxns, category){
-  if(!card.firstCatOnly) return true;
-  const active=getActiveCat(card,cycleTxns);
-  if(!active) return true;
+function isCatActive(card,ct,category){
+  if(!card.firstCatOnly)return true;
+  const active=getActiveCat(card,ct);
+  if(!active)return true;
   return category===active;
 }
 
-// ═══════════════════════════════════════════════
-// DYNAMIC CASHBACK CALCULATION (FIX: recalc every render)
-// ═══════════════════════════════════════════════
-function calcCategorySpend(cycleTxns, category){
-  return cycleTxns.filter(tx=>tx.category===category).reduce((s,t)=>s+t.amount,0);
+// ═══ CASHBACK CALC ═══
+function calcCatSpend(card,ct,cat){return ct.filter(tx=>tx.category===cat).reduce((s,t)=>s+t.amount,0)}
+function calcCatCb(card,ct,cat){
+  const cb=card.cashbackCategories.find(c=>c.category===cat);
+  if(!cb||!isCatActive(card,ct,cat))return 0;
+  return Math.min(calcCatSpend(card,ct,cat)*cb.rate,cb.maxCashback);
 }
-
-// Calculate CB for a single category on a card, respecting caps
-function calcCatCb(card, cycleTxns, cbDef){
-  if(!isCatActive(card, cycleTxns, cbDef.category)) return 0;
-  const spend=calcCategorySpend(cycleTxns, cbDef.category);
-  return Math.min(spend*cbDef.rate, cbDef.maxCashback);
-}
-
-// Calculate shared CB info
-function calcSharedCb(card, cycleTxns){
-  if(!card.sharedMaxCashback) return null;
+function calcSharedCb(card,ct){
+  if(!card.sharedMaxCashback)return null;
   const cats=card.sharedCats||card.cashbackCategories.map(c=>c.category);
   let total=0;
-  card.cashbackCategories.forEach(c=>{
-    if(cats.includes(c.category)){
-      total+=calcCatCb(card,cycleTxns,c);
-    }
-  });
-  const capped=Math.min(total,card.sharedMaxCashback);
-  return {total:capped, max:card.sharedMaxCashback, isFull:total>=card.sharedMaxCashback, cats, raw:total};
+  card.cashbackCategories.filter(c=>cats.includes(c.category)).forEach(c=>{total+=calcCatCb(card,ct,c.category)});
+  return{total:Math.min(total,card.sharedMaxCashback),max:card.sharedMaxCashback,isFull:total>=card.sharedMaxCashback,cats};
+}
+function calcTotalCb(card,ct){
+  let t=0;
+  card.cashbackCategories.forEach(cb=>{t+=calcCatCb(card,ct,cb.category)});
+  const shared=calcSharedCb(card,ct);
+  if(shared)t=Math.min(t,shared.max);
+  return t;
+}
+function calcTxnCb(tx,card,ct){
+  const cb=card.cashbackCategories.find(c=>c.category===tx.category);
+  if(!cb||!isCatActive(card,ct,tx.category))return 0;
+  const sameCat=[...ct].filter(t=>t.category===tx.category).sort((a,b)=>(parseInt(a.id.replace("tx-",""))||0)-(parseInt(b.id.replace("tx-",""))||0));
+  let cum=0;
+  for(const t of sameCat){
+    if(t.id===tx.id)return Math.max(Math.min(tx.amount*cb.rate,cb.maxCashback-cum*cb.rate),0);
+    cum+=t.amount;
+  }
+  return 0;
 }
 
-// Calculate total CB earned for a card in the cycle, respecting all caps
-function calcTotalCb(card, cycleTxns){
-  const shared=calcSharedCb(card,cycleTxns);
-  if(shared){
-    // For cards with sharedMaxCashback: sum all cats, cap at shared max
-    // But also need to add non-shared cats (e.g. Vé Vietjet for HDB-1541)
-    const sharedCats=shared.cats;
-    let sharedTotal=shared.total;
-    let nonSharedTotal=0;
-    card.cashbackCategories.forEach(c=>{
-      if(!sharedCats.includes(c.category)){
-        nonSharedTotal+=calcCatCb(card,cycleTxns,c);
-      }
-    });
-    return sharedTotal+nonSharedTotal;
-  }
-  // No shared cap: just sum each category CB independently
-  return card.cashbackCategories.reduce((sum,c)=>sum+calcCatCb(card,cycleTxns,c),0);
-}
-
-// Calculate CB for a single transaction (for display in txn list)
-function calcTxnCb(card, allCycleTxns, tx){
-  const cbDef=card.cashbackCategories.find(c=>c.category===tx.category);
-  if(!cbDef) return 0;
-  if(!isCatActive(card, allCycleTxns, tx.category)) return 0;
-
-  // Get all txns in this category, sorted by date then creation time
-  const catTxns=allCycleTxns
-    .filter(t=>t.category===tx.category)
-    .sort((a,b)=>{const dd=a.date.localeCompare(b.date);return dd!==0?dd:(a.ts||0)-(b.ts||0)});
-
-  // Calculate cumulative spend before this txn
-  let spendBefore=0;
-  for(const t of catTxns){
-    if(t.id===tx.id) break;
-    spendBefore+=t.amount;
-  }
-
-  const cbBefore=Math.min(spendBefore*cbDef.rate, cbDef.maxCashback);
-  const cbAfter=Math.min((spendBefore+tx.amount)*cbDef.rate, cbDef.maxCashback);
-  let thisTxCb=cbAfter-cbBefore;
-
-  // Check shared cap
-  const shared=calcSharedCb(card, allCycleTxns);
-  if(shared && (card.sharedCats||card.cashbackCategories.map(c=>c.category)).includes(tx.category)){
-    if(shared.isFull){
-      // Recalculate: how much shared CB was earned from txns before this one
-      const txnsBefore=allCycleTxns.filter(t=>{
-        const dd=t.date.localeCompare(tx.date);
-        return dd<0||(dd===0&&(t.ts||0)<(tx.ts||0));
-      });
-      const sharedBefore=calcSharedCb(card, txnsBefore);
-      const remainBefore=shared.max-(sharedBefore?sharedBefore.total:0);
-      thisTxCb=Math.max(0,Math.min(thisTxCb,remainBefore));
-    }
-  }
-  return Math.max(0, thisTxCb);
-}
-
-// ═══════════════════════════════════════════════
-// STORAGE
-// ═══════════════════════════════════════════════
-function load(key,fb){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fb}catch{return fb}}
-function save(key,v){try{localStorage.setItem(key,JSON.stringify(v))}catch{}}
-
-function getTheme(){return load("ct4-theme","dark-neon")}
-function setTheme(t){save("ct4-theme",t);document.documentElement.setAttribute("data-theme",t);
-  document.querySelector('meta[name="theme-color"]').content=t==="neo-minimal"?"#f5f3ef":"#060a12";render();}
+// ═══ STORAGE ═══
+function load(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb}catch{return fb}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+function getTheme(){return load("ct5-theme","dark")}
+function setTheme(t){save("ct5-theme",t);document.documentElement.setAttribute("data-theme",t);document.querySelector('meta[name="theme-color"]').content=t==="light"?"#f8f9fc":"#080c14";render()}
 document.documentElement.setAttribute("data-theme",getTheme());
 
-// ═══════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════
+// ═══ STATE ═══
 let state={
   tab:"cards",
-  selectedCardIds:load("ct4-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
-  transactions:load("ct4-txns",[]),
-  events:load("ct4-events",[]),
-  detailCardId:null,
-  addMode:"txn",
-  addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:new Date().toISOString().slice(0,10),
+  selectedCardIds:load("ct5-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
+  transactions:load("ct5-txns",[]),
+  events:load("ct5-events",[]),
+  detailCardId:null,addMode:"txn",
+  addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:toLocalDateStr(new Date()),
   addEventDate:"",addEventCard:"",addEventNote:"",
   filterCard:"all",filterMonth:new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"),
-  shopSearch:"",shopCatFilter:"all",
+  shopSearch:"",shopCatFilter:"all"
 };
 
-function setState(patch){Object.assign(state,patch);render();persist()}
-function setQ(patch){Object.assign(state,patch)}
-function persist(){save("ct4-sel",state.selectedCardIds);save("ct4-txns",state.transactions);save("ct4-events",state.events)}
-
+let _shopTimer=null;
+let _addInputTimer=null;
+function setState(p){Object.assign(state,p);render();persist()}
+function setQ(p){Object.assign(state,p)}
+function persist(){save("ct5-sel",state.selectedCardIds);save("ct5-txns",state.transactions);save("ct5-events",state.events)}
 function purgeOldTxns(){
-  const now=new Date();
-  const before=state.transactions.length;
+  const now=new Date(),b=state.transactions.length;
   state.transactions=state.transactions.filter(tx=>{
-    const card=ALL_CARDS.find(c=>c.id===tx.cardId);
-    if(!card) return false;
-    const txDate=new Date(tx.date);
-    const cs=cycleStart(card,now);
-    return txDate>=cs;
+    const c=ALL_CARDS.find(c=>c.id===tx.cardId);if(!c)return false;
+    const currentCycleStart=cycleStart(c,now);
+    const txDate=parseLocalDate(tx.date);
+    return txDate>=currentCycleStart;
   });
-  if(state.transactions.length!==before) persist();
+  if(state.transactions.length!==b)persist();
 }
-
 function selectedCards(){return ALL_CARDS.filter(c=>state.selectedCardIds.includes(c.id))}
-
 function getCycleTxns(card){
   const cs=cycleStart(card,new Date());
-  return state.transactions.filter(tx=>tx.cardId===card.id&&new Date(tx.date)>=cs);
-}
-
-function getAutoEvents(){
-  const now=new Date(), events=[];
-  state.selectedCardIds.forEach(id=>{
-    const card=ALL_CARDS.find(c=>c.id===id);if(!card)return;
-    const due=nextDueDate(card);
-    const diff=Math.ceil((due-now)/864e5);
-    if(diff>=0&&diff<=14){
-      events.push({id:"auto-"+card.id,isAuto:true,date:due.toISOString().slice(0,10),title:`Đến hạn: ${card.name} ****${card.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:card.id,cardColor:card.color,diff});
-    }
+  return state.transactions.filter(tx=>{
+    if(tx.cardId!==card.id)return false;
+    return parseLocalDate(tx.date)>=cs;
   });
-  return events;
 }
-
-function urgentEventCount(){
-  const now=new Date();
-  const all=[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((new Date(e.date)-now)/864e5)}))];
-  return all.filter(e=>e.diff>=0&&e.diff<=3).length;
+function getAutoEvents(){
+  const now=new Date(),evts=[];
+  state.selectedCardIds.forEach(id=>{
+    const c=ALL_CARDS.find(x=>x.id===id);if(!c)return;
+    const due=nextDueDate(c),diff=Math.ceil((due-now)/864e5);
+    if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ****${c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
+  });return evts;
 }
+function urgentCount(){const now=new Date();return[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].filter(e=>e.diff>=0&&e.diff<=3).length}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000)}
 
-// ═══════════════════════════════════════════════
-// RENDER ENGINE
-// ═══════════════════════════════════════════════
-function h(tag,attrs,...children){
-  const el=document.createElement(tag);
-  let deferValue;
-  if(attrs) for(const[k,v] of Object.entries(attrs)){
-    if(k==="style"&&typeof v==="object") Object.assign(el.style,v);
-    else if(k.startsWith("on")) el.addEventListener(k.slice(2).toLowerCase(),v);
-    else if(k==="className") el.className=v;
-    else if(k==="value"){deferValue=v}
+// ═══ RENDER ENGINE ═══
+function h(tag,attrs,...ch){
+  const el=document.createElement(tag);let dv;
+  if(attrs)for(const[k,v]of Object.entries(attrs)){
+    if(k==="style"&&typeof v==="object")Object.assign(el.style,v);
+    else if(k.startsWith("on"))el.addEventListener(k.slice(2).toLowerCase(),v);
+    else if(k==="className")el.className=v;
+    else if(k==="value")dv=v;
     else el.setAttribute(k,v);
   }
-  for(const c of children.flat()){
-    if(c==null||c===false) continue;
-    el.appendChild(typeof c==="string"||typeof c==="number"?document.createTextNode(c):c);
-  }
-  if(deferValue!==undefined) el.value=deferValue;
-  return el;
+  for(const c of ch.flat()){if(c==null||c===false)continue;el.appendChild(typeof c==="string"||typeof c==="number"?document.createTextNode(String(c)):c)}
+  if(dv!==undefined)el.value=dv;return el;
 }
 
 function render(){
   purgeOldTxns();
-  const oldContent=document.querySelector(".content");
-  const scrollTop=oldContent?oldContent.scrollTop:0;
-  const app=document.getElementById("app");
-  app.innerHTML="";
+  // Save focus & cursor position
+  const ae=document.activeElement;
+  const focusId=ae?.dataset?.fid||"";
+  const cursorPos=ae?.selectionStart??-1;
+  const old=document.querySelector(".content"),st=old?old.scrollTop:0;
+  const app=document.getElementById("app");app.innerHTML="";
   app.appendChild(renderHeader());
   const content=h("div",{className:"content"});
-  if(state.tab==="select") content.appendChild(renderSelectTab());
-  else if(state.tab==="cards"){
-    content.appendChild(state.detailCardId?renderCardDetail():renderCardsTab());
+  switch(state.tab){
+    case"select":content.appendChild(renderSelectTab());break;
+    case"cards":content.appendChild(state.detailCardId?renderCardDetail():renderCardsTab());break;
+    case"shop":content.appendChild(renderShopTab());break;
+    case"txns":content.appendChild(renderTxnTab());break;
+    case"add":content.appendChild(renderAddTab());break;
+    case"events":content.appendChild(renderEventsTab());break;
   }
-  else if(state.tab==="shop") content.appendChild(renderShopTab());
-  else if(state.tab==="txns") content.appendChild(renderTxnTab());
-  else if(state.tab==="add") content.appendChild(renderAddTab());
-  else if(state.tab==="events") content.appendChild(renderEventsTab());
-  app.appendChild(content);
-  app.appendChild(renderTabBar());
-  content.scrollTop=scrollTop;
+  app.appendChild(content);app.appendChild(renderTabBar());content.scrollTop=st;
+  // Restore focus
+  if(focusId){const el=document.querySelector(`[data-fid="${focusId}"]`);if(el){el.focus();if(cursorPos>=0&&el.setSelectionRange)try{el.setSelectionRange(cursorPos,cursorPos)}catch{}}}
 }
 
 function renderHeader(){
-  const uc=urgentEventCount();
-  const theme=getTheme();
-  const toggle=h("div",{className:"theme-toggle"},
-    h("span",{className:"theme-opt"+(theme==="dark-neon"?" active":""),onClick:e=>{e.stopPropagation();setTheme("dark-neon")}},"🌙"),
-    h("span",{className:"theme-opt"+(theme==="neo-minimal"?" active":""),onClick:e=>{e.stopPropagation();setTheme("neo-minimal")}},"☀️")
-  );
+  const uc=urgentCount(),theme=getTheme();
   return h("div",{className:"header"},
     h("div",{className:"header-logo"},"CT"),
     h("span",{className:"header-title"},"CardTrack"),
-    h("div",{className:"header-badges"},
+    h("div",{className:"header-right"},
       h("span",{className:"hbadge mono"},selectedCards().length+" thẻ"),
-      uc>0?h("span",{className:"hbadge event mono"},uc+" sắp đến"):null,
-      toggle
-    )
-  );
+      uc>0?h("span",{className:"hbadge warn mono"},uc+" ⚡"):null,
+      h("button",{className:"theme-btn",onClick:()=>setTheme(theme==="dark"?"light":"dark")},theme==="dark"?"☀️":"🌙")));
 }
 
 function renderTabBar(){
-  const tabs=[
-    {key:"select",label:"Chọn",icon:"◎"},
-    {key:"cards",label:"Thẻ",icon:"▦"},
-    {key:"shop",label:"Shop",icon:"⌘"},
-    {key:"txns",label:"GD",icon:"≡"},
-    {key:"events",label:"Events",icon:"◷"},
-    {key:"add",label:"Thêm",icon:"＋"},
-  ];
+  const tabs=[{key:"select",label:"Chọn",icon:"◎"},{key:"cards",label:"Thẻ",icon:"▦"},{key:"shop",label:"Shop",icon:"⌘"},{key:"txns",label:"GD",icon:"≡"},{key:"events",label:"Event",icon:"◷"},{key:"add",label:"Thêm",icon:"＋"}];
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
-    const uc=(t.key==="events")?urgentEventCount():0;
-    const inner=h("span",{className:"tab-btn-wrap"},
-      h("span",{className:"ico"},t.icon),
-      uc>0?h("span",{className:"tab-dot"}):null
-    );
-    bar.appendChild(h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>setState({tab:t.key,detailCardId:null})},inner,h("span",null,t.label)));
-  });
-  return bar;
+    const uc=t.key==="events"?urgentCount():0;
+    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>setState({tab:t.key,detailCardId:null})},
+      h("span",{className:"ico",style:{position:"relative"}},t.icon,uc>0?h("span",{className:"tab-dot"}):null),h("span",null,t.label));
+    bar.appendChild(btn);
+  });return bar;
 }
 
-// ═══════════════════════════════════════════════
-// TAB: SELECT
-// ═══════════════════════════════════════════════
+// ═══ SELECT TAB ═══
 function renderSelectTab(){
-  const wrap=h("div",null,h("p",{className:"section-hint"},"// chọn thẻ cần theo dõi"));
+  const w=h("div",null,h("p",{className:"hint"},"// chọn thẻ cần theo dõi"));
   ALL_CARDS.forEach(c=>{
     const on=state.selectedCardIds.includes(c.id);
-    wrap.appendChild(h("div",{className:"sel-card"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
-      const ids=on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id];
-      setState({selectedCardIds:ids});
-    }},
-      h("span",{className:"net-badge",style:{background:c.color}},NET_ICONS[c.network]),
-      h("div",{className:"sel-info"},
-        h("div",{className:"sel-name"},c.name),
-        h("div",{className:"sel-sub"},`****${c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)
-      ),
-      h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")
-    ));
-  });
-  return wrap;
+    w.appendChild(h("div",{className:"sel-item"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
+      setState({selectedCardIds:on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id]});
+    }},h("span",{className:"net",style:{background:c.color}},NET_ICONS[c.network]),
+      h("div",{style:{flex:1,minWidth:0}},h("div",{className:"sel-name"},c.name),h("div",{className:"sel-sub"},`****${c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)),
+      h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")));
+  });return w;
 }
 
-// ═══════════════════════════════════════════════
-// TAB: CARDS
-// ═══════════════════════════════════════════════
+// ═══ CARDS TAB ═══
 function renderCardsTab(){
-  const wrap=h("div",null);
-  const cards=selectedCards();
-  if(!cards.length) return h("p",{className:"empty-msg"},"// chưa chọn thẻ nào");
-
+  const w=h("div",null),cards=selectedCards();
+  if(!cards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
   cards.forEach(card=>{
-    const cycleTxns=getCycleTxns(card);
-    const dl=daysUntilDue(card);
-    const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
-    const totalCb=calcTotalCb(card,cycleTxns);
-    const shared=calcSharedCb(card,cycleTxns);
-
-    const block=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id,tab:"cards"})},
-      h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"12px"}},
-        h("span",{className:"net-badge",style:{background:card.color}},NET_ICONS[card.network]),
-        h("div",{style:{flex:1}},
-          h("div",{className:"card-name"},`${card.name} ****${card.last4}`),
-          h("div",{className:"card-meta"},
-            `Hạn ${dl}d · Chi ${fmtK(totalSpend)} · CB ${fmtK(totalCb)}`,
-            card.minSpend>0?(totalSpend<card.minSpend?h("span",{className:"warn-badge"},"!Min"):h("span",{className:"ok-badge"},"✓Min")):null
-          )
-        ),
-        h("span",{style:{color:"var(--text3)",fontSize:"14px"}},"›")
-      )
-    );
+    const ct=getCycleTxns(card),dl=daysUntilDue(card),ts=ct.reduce((s,t)=>s+t.amount,0),tc=calcTotalCb(card,ct),shared=calcSharedCb(card,ct);
+    const bl=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id})},
+      h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}},
+        h("span",{className:"net",style:{background:card.color}},NET_ICONS[card.network]),
+        h("div",{style:{flex:1}},h("div",{className:"card-name"},`${card.name} ****${card.last4}`),
+          h("div",{className:"card-meta"},`Hạn ${dl}d · Chi ${fmtK(ts)} · CB ${fmtK(tc)}`,
+            card.minSpend>0?(ts<card.minSpend?h("span",{className:"badge badge-warn",style:{marginLeft:"6px"}},"!Min"):h("span",{className:"badge badge-ok",style:{marginLeft:"6px"}},"✓Min")):null)),
+        h("span",{style:{color:"var(--text3)",fontSize:"14px"}},"›")));
 
     card.cashbackCategories.forEach(cb=>{
-      const active=isCatActive(card, cycleTxns, cb.category);
-      const catSpend=calcCategorySpend(cycleTxns, cb.category);
-      const earnedCb=active?calcCatCb(card,cycleTxns,cb):0;
-      const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
-      const isFull=active&&(pct>=100||(shared&&shared.cats.includes(cb.category)&&shared.isFull));
-      const activeCat=getActiveCat(card,cycleTxns);
+      const active=isCatActive(card,ct,cb.category),cs=calcCatSpend(card,ct,cb.category),ec=calcCatCb(card,ct,cb.category);
+      const pct=active?Math.min(cs/cb.maxSpend*100,100):0;
+      const isFull=active&&(pct>=100||(shared&&shared.cats&&shared.cats.includes(cb.category)&&shared.isFull));
       const badges=[];
-      if(card.firstCatOnly&&activeCat){
-        badges.push(active?h("span",{className:"active-cat-badge"},"✓ Active"):h("span",{className:"inactive-cat-badge"},"✗ No CB"));
-      }
-      block.appendChild(h("div",{className:"cb-row"+(active?"":" inactive")},
-        h("div",{className:"cb-label"},
-          h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),
-          h("span",{className:"cb-amt"},`${fmtK(catSpend)}/${fmtK(cb.maxSpend)}`)
-        ),
-        h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
-        h("div",{className:"cb-footer"},
-          h("span",null,`CB ≈${fmtK(earnedCb)}/${fmtK(cb.maxCashback)}`),
-          isFull?h("span",{className:"full-badge"},"⚠ Tối ưu"):null
-        )
-      ));
+      if(card.firstCatOnly){const ac=getActiveCat(card,ct);if(ac)badges.push(active?h("span",{className:"badge badge-active",style:{marginLeft:"5px"}},"✓"):h("span",{className:"badge badge-muted",style:{marginLeft:"5px"}},"✗"))}
+      bl.appendChild(h("div",{className:"cb-row"+(active?"":" off")},
+        h("div",{className:"cb-head"},h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),h("span",{className:"cb-amt"},`${fmtK(cs)}/${fmtK(cb.maxSpend)}`)),
+        h("div",{className:"bar-track"},h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
+        h("div",{className:"cb-foot"},h("span",null,`CB ≈${fmtK(ec)}/${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"badge badge-warn"},"⚠ Tối ưu"):null)));
     });
-    if(shared) block.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
-    if(card.note) block.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
-    wrap.appendChild(block);
-  });
-  return wrap;
+    if(shared)bl.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
+    if(card.note)bl.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+    w.appendChild(bl);
+  });return w;
 }
 
-// ═══════════════════════════════════════════════
-// TAB: CARD DETAIL
-// ═══════════════════════════════════════════════
+// ═══ CARD DETAIL ═══
 function renderCardDetail(){
-  const card=ALL_CARDS.find(c=>c.id===state.detailCardId);
-  if(!card) return h("div",null,"Không tìm thấy thẻ");
-  const cycleTxns=getCycleTxns(card);
-  const totalSpend=cycleTxns.reduce((s,t)=>s+t.amount,0);
-  const totalCb=calcTotalCb(card,cycleTxns);
-  const dl=daysUntilDue(card);
-  const shared=calcSharedCb(card,cycleTxns);
-
-  const wrap=h("div",null);
-  wrap.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},"‹ ",`${card.name} ****${card.last4}`));
-  wrap.appendChild(h("div",{className:"detail-stat-row"},
-    h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Tổng chi kỳ"),h("div",{className:"detail-stat-val",style:{color:"var(--text)"}},fmtK(totalSpend)+"₫")),
-    h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"CB ước tính"),h("div",{className:"detail-stat-val",style:{color:"var(--green)"}},fmtK(totalCb)+"₫")),
-    h("div",{className:"detail-stat"},h("div",{className:"detail-stat-label"},"Hạn TT"),h("div",{className:"detail-stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))
-  ));
+  const card=ALL_CARDS.find(c=>c.id===state.detailCardId);if(!card)return h("div",null,"?");
+  const ct=getCycleTxns(card),ts=ct.reduce((s,t)=>s+t.amount,0),tc=calcTotalCb(card,ct),dl=daysUntilDue(card),shared=calcSharedCb(card,ct);
+  const w=h("div",null);
+  w.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},"‹ ",`${card.name} ****${card.last4}`));
+  w.appendChild(h("div",{className:"stat-row"},
+    h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Tổng chi kỳ"),h("div",{className:"stat-val"},fmtK(ts)+"₫")),
+    h("div",{className:"stat-box"},h("div",{className:"stat-label"},"CB ước tính"),h("div",{className:"stat-val",style:{color:"var(--green)"}},fmtK(tc)+"₫")),
+    h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Hạn TT"),h("div",{className:"stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))));
 
   card.cashbackCategories.forEach(cb=>{
-    const active=isCatActive(card,cycleTxns,cb.category);
-    const catSpend=calcCategorySpend(cycleTxns,cb.category);
-    const earnedCb=active?calcCatCb(card,cycleTxns,cb):0;
-    const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
-    const isFull=active&&(pct>=100||(shared&&shared.cats.includes(cb.category)&&shared.isFull));
-    const activeCat=getActiveCat(card,cycleTxns);
+    const active=isCatActive(card,ct,cb.category),cs=calcCatSpend(card,ct,cb.category),ec=calcCatCb(card,ct,cb.category);
+    const pct=active?Math.min(cs/cb.maxSpend*100,100):0;
+    const isFull=active&&(pct>=100||(shared&&shared.cats&&shared.cats.includes(cb.category)&&shared.isFull));
     const badges=[];
-    if(card.firstCatOnly&&activeCat){
-      badges.push(active?h("span",{className:"active-cat-badge"},"✓ Active"):h("span",{className:"inactive-cat-badge"},"✗ No CB"));
-    }
-    wrap.appendChild(h("div",{className:"cb-row"+(active?"":" inactive")},
-      h("div",{className:"cb-label"},h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),h("span",{className:"cb-amt"},`${fmtK(catSpend)} / ${fmtK(cb.maxSpend)}`)),
-      h("div",{className:"progress-track"},h("div",{className:"progress-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
-      h("div",{className:"cb-footer"},h("span",null,`CB ≈ ${fmtK(earnedCb)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"full-badge"},"⚠ Đã đạt tối ưu"):null)
-    ));
+    if(card.firstCatOnly){const ac=getActiveCat(card,ct);if(ac)badges.push(active?h("span",{className:"badge badge-active",style:{marginLeft:"5px"}},"✓ Active"):h("span",{className:"badge badge-muted",style:{marginLeft:"5px"}},"✗ No CB"))}
+    w.appendChild(h("div",{className:"cb-row"+(active?"":" off")},
+      h("div",{className:"cb-head"},h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),h("span",{className:"cb-amt"},`${fmtK(cs)} / ${fmtK(cb.maxSpend)}`)),
+      h("div",{className:"bar-track"},h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
+      h("div",{className:"cb-foot"},h("span",null,`CB ≈ ${fmtK(ec)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"badge badge-warn"},"⚠ Đã đạt tối ưu"):null)));
   });
-  if(shared) wrap.appendChild(h("div",{className:"shared-cap"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
-  if(card.note) wrap.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+  if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
+  if(card.note)w.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
 
-  wrap.appendChild(h("div",{className:"detail-txn-header"},"Giao dịch kỳ này"));
-  if(!cycleTxns.length){wrap.appendChild(h("p",{className:"empty-msg",style:{padding:"20px 0"}},"// chưa có giao dịch"));return wrap}
+  w.appendChild(h("div",{style:{margin:"12px 0 4px"}},h("button",{className:"submit",style:{background:card.color,fontSize:"12px",padding:"10px"},onClick:()=>setState({tab:"add",addMode:"txn",addCardId:card.id,addCategory:card.cashbackCategories[0]?.category||"",addShop:"",detailCardId:null})},"＋ Thêm giao dịch cho thẻ này")));
 
-  const sorted=[...cycleTxns].sort((a,b)=>{const dd=b.date.localeCompare(a.date);return dd!==0?dd:(b.ts||0)-(a.ts||0)});
-  sorted.forEach(tx=>{
-    const txCb=calcTxnCb(card,cycleTxns,tx);
-    wrap.appendChild(h("div",{className:"txn-row"},
-      h("div",{style:{flex:"1"}},
-        h("div",{className:"txn-shop"},tx.shop),
-        h("div",{className:"txn-meta"},h("span",{className:"txn-cat"},tx.category),h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date))
-      ),
-      h("div",{className:"txn-right"},
-        h("div",{className:"txn-amount"},fmt(tx.amount)+"₫"),
-        txCb>0?h("div",{className:"txn-cb"},"CB +"+fmtK(txCb)):null,
-        h("button",{className:"del-btn",onClick:e=>{e.stopPropagation();state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕")
-      )
-    ));
-  });
-  return wrap;
+  w.appendChild(h("div",{className:"detail-section"},"Giao dịch kỳ này"));
+  if(!ct.length){w.appendChild(h("p",{className:"empty",style:{padding:"20px 0"}},"// chưa có giao dịch"));return w}
+  [...ct].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx=>{
+    const cb=calcTxnCb(tx,card,ct);
+    w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date))),
+      h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"CB +"+fmtK(cb)):null,
+        h("button",{className:"del",onClick:e=>{e.stopPropagation();state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕"))));
+  });return w;
 }
 
-// ═══════════════════════════════════════════════
-// TAB: SHOP
-// ═══════════════════════════════════════════════
+// ═══ SHOP TAB ═══
 function renderShopTab(){
-  const wrap=h("div",null);
-  const selIds=state.selectedCardIds;
-
-  const searchInput=h("input",{className:"input-field",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
-    onInput:e=>{setQ({shopSearch:e.target.value});clearTimeout(window._shopTimer);window._shopTimer=setTimeout(render,250)}
-  });
-  wrap.appendChild(h("div",{style:{marginBottom:"10px"}},searchInput));
-
+  const w=h("div",null);
+  w.appendChild(h("div",{style:{marginBottom:"8px"}},h("input",{className:"input",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
+    onInput:e=>{setQ({shopSearch:e.target.value});if(_shopTimer)clearTimeout(_shopTimer);_shopTimer=setTimeout(()=>{const l=document.getElementById("slist");if(l){l.innerHTML="";renderShopList(l)}},200)}})));
   const cats=[...new Set(SHOP_CARD_MAP.map(s=>s.category))];
   const fw=h("div",{className:"cat-filter"});
-  fw.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter==="all"?" active":""),onClick:()=>setState({shopCatFilter:"all"})},"All"));
-  cats.forEach(c=>fw.appendChild(h("button",{className:"cat-chip"+(state.shopCatFilter===c?" active":""),onClick:()=>setState({shopCatFilter:c})},(CAT_ICONS[c]||"📦")+" "+c)));
-  wrap.appendChild(fw);
+  const setCat=c=>{state.shopCatFilter=c;const l=document.getElementById("slist");if(l){l.innerHTML="";renderShopList(l)}else render()};
+  fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter==="all"?" sel":""),onClick:()=>setCat("all")},"All"));
+  cats.forEach(c=>fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter===c?" sel":""),onClick:()=>setCat(c)},(CAT_ICONS[c]||"📦")+" "+c)));
+  w.appendChild(fw);
+  const list=h("div",{id:"slist"});renderShopList(list);w.appendChild(list);return w;
+}
 
-  const filtered=SHOP_CARD_MAP
-    .filter(s=>state.shopCatFilter==="all"||s.category===state.shopCatFilter)
+function renderShopList(el){
+  const selIds=state.selectedCardIds;
+  const filtered=SHOP_CARD_MAP.filter(s=>state.shopCatFilter==="all"||s.category===state.shopCatFilter)
     .filter(s=>!state.shopSearch||s.shop.toLowerCase().includes(state.shopSearch.toLowerCase()))
-    .map(s=>({...s,cardIds:s.cardIds.filter(id=>selIds.includes(id))}))
-    .filter(s=>s.cardIds.length>0);
-
-  if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không tìm thấy shop"));return wrap}
-
+    .map(s=>({...s,cardIds:s.cardIds.filter(id=>selIds.includes(id))})).filter(s=>s.cardIds.length>0);
+  if(!filtered.length){el.appendChild(h("p",{className:"empty"},"// không tìm thấy shop"));return}
   filtered.forEach(s=>{
-    const shopEl=h("div",{className:"shop-card"},
-      h("div",{className:"shop-header"},
-        h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),
-        h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))
-      )
-    );
-    s.cardIds.forEach(cardId=>{
-      const card=ALL_CARDS.find(c=>c.id===cardId);if(!card)return;
+    const se=h("div",{className:"shop-card"},h("div",{className:"shop-head"},h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))));
+    s.cardIds.forEach(cid=>{
+      const card=ALL_CARDS.find(c=>c.id===cid);if(!card)return;
       const cb=card.cashbackCategories.find(c=>c.category===s.category);if(!cb)return;
-      const cycleTxns=getCycleTxns(card);
-      const active=isCatActive(card,cycleTxns,s.category);
-      const catSpend=calcCategorySpend(cycleTxns,s.category);
-      const pct=active?Math.min((catSpend/cb.maxSpend)*100,100):0;
-      const remainSpend=active?Math.max(cb.maxSpend-catSpend,0):0;
-      let remainCb=active?Math.max(cb.maxCashback-calcCatCb(card,cycleTxns,cb),0):0;
+      const ct=getCycleTxns(card),active=isCatActive(card,ct,s.category),cs=calcCatSpend(card,ct,s.category);
+      const pct=active?Math.min(cs/cb.maxSpend*100,100):0;
+      const remS=active?Math.max(cb.maxSpend-cs,0):0;
+      let remCb=active?Math.max(cb.maxCashback-calcCatCb(card,ct,s.category),0):0;
       let isFull=!active||(active&&pct>=100);
-      const shared=calcSharedCb(card,cycleTxns);
-      if(active&&shared&&(card.sharedCats||card.cashbackCategories.map(c=>c.category)).includes(s.category)){
-        remainCb=Math.max(shared.max-shared.total,0);
-        if(shared.isFull) isFull=true;
-      }
-      const inactiveNote=(!active&&card.firstCatOnly)?getActiveCat(card,cycleTxns):null;
-
-      const rec=h("div",{className:"shop-recommend",style:{borderColor:isFull?"#f59e0b40":`${card.color}50`,background:isFull?`color-mix(in srgb,var(--warn) 5%,var(--bg3))`:`color-mix(in srgb,${card.color} 5%,var(--bg3))`,opacity:active?1:.45}},
-        h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"5px"}},
-          h("span",{className:"net-badge-sm",style:{background:card.color}},NET_ICONS[card.network]),
-          h("span",{style:{fontWeight:700,fontSize:"12px",color:"var(--text)"}},`${card.name} ****${card.last4}`),
-          isFull?(inactiveNote?h("span",{className:"full-sm"},`🔒 ${inactiveNote}`):h("span",{className:"full-sm"},"⚠ Full")):null
-        ),
-        h("div",{className:"shop-cb-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
-        active&&!isFull?h("div",{className:"shop-remaining"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remainSpend)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remainCb))):h("div",{className:"shop-remaining",style:{color:"var(--warn)"}},inactiveNote?`Kỳ này đang active "${inactiveNote}"`:"Đã hết cashback kỳ này"),
-        h("div",{className:"mini-progress"},h("div",{style:{height:"100%",borderRadius:"2px",width:pct+"%",background:isFull?"var(--warn)":card.color,transition:"width .3s"}}))
-      );
-      shopEl.appendChild(rec);
-    });
-    wrap.appendChild(shopEl);
+      const shared=calcSharedCb(card,ct);
+      if(active&&shared&&shared.cats&&shared.cats.includes(s.category)){remCb=Math.max(shared.max-shared.total,0);if(shared.isFull)isFull=true}
+      const inNote=(!active&&card.firstCatOnly)?getActiveCat(card,ct):null;
+      se.appendChild(h("div",{className:"shop-rec",style:{borderColor:isFull?"var(--warnBorder)":`${card.color}40`,background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,opacity:active?1:.4}},
+        h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"4px"}},h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),h("span",{style:{fontWeight:700,fontSize:"12px"}},`${card.name} ****${card.last4}`),isFull?(inNote?h("span",{className:"badge badge-warn"},"🔒 "+inNote):h("span",{className:"badge badge-warn"},"⚠ Full")):null),
+        h("div",{className:"shop-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
+        active&&!isFull?h("div",{className:"shop-detail"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remS)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remCb))):h("div",{className:"shop-detail",style:{color:"var(--warn)"}},inNote?`Kỳ này đang active "${inNote}"`:"Đã hết cashback kỳ này"),
+        h("div",{className:"mini-bar"},h("div",{style:{height:"100%",borderRadius:"2px",width:pct+"%",background:isFull?"var(--warn)":card.color,transition:"width .3s"}}))));
+    });el.appendChild(se);
   });
-  return wrap;
 }
 
-// ═══════════════════════════════════════════════
-// TAB: TRANSACTIONS
-// ═══════════════════════════════════════════════
+// ═══ TXN TAB ═══
 function renderTxnTab(){
-  const wrap=h("div",null);
-  const cards=selectedCards();
+  const w=h("div",null),cards=selectedCards();
+  const selC=h("select",{onChange:e=>setState({filterCard:e.target.value})});
+  selC.appendChild(h("option",{value:"all"},"Tất cả thẻ"));
+  cards.forEach(c=>selC.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));selC.value=state.filterCard;
+  const mIn=h("input",{type:"month",className:"month-in",onChange:e=>setState({filterMonth:e.target.value})});mIn.value=state.filterMonth;
+  w.appendChild(h("div",{className:"filter-row"},selC,mIn));
 
-  const selCard=h("select",{onChange:e=>setState({filterCard:e.target.value})});
-  selCard.appendChild(h("option",{value:"all"},"Tất cả thẻ"));
-  cards.forEach(c=>selCard.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
-  selCard.value=state.filterCard;
-  const monthIn=h("input",{type:"month",className:"month-input",onChange:e=>setState({filterMonth:e.target.value})});
-  monthIn.value=state.filterMonth;
-  wrap.appendChild(h("div",{className:"filter-row"},selCard,monthIn));
-
-  const filtered=state.transactions
-    .filter(tx=>state.filterCard==="all"||tx.cardId===state.filterCard)
-    .filter(tx=>tx.date.startsWith(state.filterMonth))
-    .sort((a,b)=>{const dd=b.date.localeCompare(a.date);return dd!==0?dd:(b.ts||0)-(a.ts||0)});
-
-  // Calculate CB dynamically
-  let totalCb=0, totalSpend=0;
-  filtered.forEach(tx=>{
-    totalSpend+=tx.amount;
-    const card=ALL_CARDS.find(c=>c.id===tx.cardId);
-    if(card) totalCb+=calcTxnCb(card,getCycleTxns(card),tx);
-  });
-
-  wrap.appendChild(h("div",{className:"cb-summary mono"},
-    h("span",null,`Chi: ${fmtK(totalSpend)}₫`),
-    h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB: +${fmtK(totalCb)}₫`)
-  ));
-
-  if(!filtered.length){wrap.appendChild(h("p",{className:"empty-msg"},"// chưa có giao dịch"));return wrap}
+  const filtered=state.transactions.filter(tx=>state.filterCard==="all"||tx.cardId===state.filterCard).filter(tx=>tx.date.startsWith(state.filterMonth)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let tCb=0,tSp=0;
+  filtered.forEach(tx=>{tSp+=tx.amount;const c=ALL_CARDS.find(x=>x.id===tx.cardId);if(c)tCb+=calcTxnCb(tx,c,getCycleTxns(c))});
+  w.appendChild(h("div",{className:"summary-bar"},h("span",null,`Chi: ${fmtK(tSp)}₫`),h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB: +${fmtK(tCb)}₫`)));
+  if(!filtered.length){w.appendChild(h("p",{className:"empty"},"// chưa có giao dịch"));return w}
 
   filtered.forEach(tx=>{
-    const card=ALL_CARDS.find(c=>c.id===tx.cardId);
-    const txCb=card?calcTxnCb(card,getCycleTxns(card),tx):0;
-    wrap.appendChild(h("div",{className:"txn-row"},
-      h("div",{style:{flex:"1"}},
-        h("div",{className:"txn-shop"},tx.shop),
-        h("div",{className:"txn-meta"},
-          h("span",{className:"txn-tag",style:{background:`${card?.color||"#555"}25`,color:card?.color||"#aaa"}},card?`****${card.last4}`:"?"),
-          h("span",{className:"txn-cat"},tx.category),
-          h("span",{style:{fontSize:"9px",color:"var(--text3)"}},tx.date)
-        )
-      ),
-      h("div",{className:"txn-right"},
-        h("div",{className:"txn-amount"},fmt(tx.amount)+"₫"),
-        txCb>0?h("div",{className:"txn-cb"},"+"+fmtK(txCb)):null,
-        h("button",{className:"del-btn",onClick:()=>{state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕")
-      )
-    ));
-  });
-  return wrap;
+    const card=ALL_CARDS.find(c=>c.id===tx.cardId),cb=card?calcTxnCb(tx,card,getCycleTxns(card)):0;
+    w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},
+      h("span",{className:"tx-tag",style:{background:`${card?.color||"#555"}20`,color:card?.color||"#aaa"}},card?`****${card.last4}`:"?"),
+      h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"9px",color:"var(--text3)"}},tx.date))),
+      h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"+"+fmtK(cb)):null,
+        h("button",{className:"del",onClick:()=>{state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕"))));
+  });return w;
 }
 
-// ═══════════════════════════════════════════════
-// TAB: EVENTS
-// ═══════════════════════════════════════════════
+// ═══ EVENTS TAB ═══
 function renderEventsTab(){
-  const wrap=h("div",null);
-  const now=new Date();
-  const nowStr=now.toISOString().slice(0,10);
-  const autoEvs=getAutoEvents();
-  const userEvs=state.events
-    .filter(e=>e.date>=nowStr)
-    .map(e=>({...e,isAuto:false,diff:Math.ceil((new Date(e.date)-now)/864e5),cardColor:e.cardId?ALL_CARDS.find(c=>c.id===e.cardId)?.color:null}));
-  const all=[...autoEvs,...userEvs].sort((a,b)=>a.date.localeCompare(b.date));
-  if(!all.length){wrap.appendChild(h("p",{className:"empty-msg"},"// không có sự kiện nào"));return wrap}
-  const urgent=all.filter(e=>e.diff>=0&&e.diff<=3);
-  const later=all.filter(e=>e.diff>3);
-  if(urgent.length){
-    wrap.appendChild(h("div",{className:"event-section-label"},"⚡ Trong 3 ngày tới"));
-    urgent.forEach(e=>wrap.appendChild(renderEventCard(e,true)));
-  }
-  if(later.length){
-    wrap.appendChild(h("div",{className:"event-section-label"},"📅 Sắp tới"));
-    later.forEach(e=>wrap.appendChild(renderEventCard(e,false)));
-  }
-  return wrap;
+  const w=h("div",null),now=new Date(),nowStr=toLocalDateStr(now);
+  const all=[...getAutoEvents(),...state.events.filter(e=>e.date>=nowStr).map(e=>({...e,isAuto:false,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].sort((a,b)=>a.date.localeCompare(b.date));
+  if(!all.length){w.appendChild(h("p",{className:"empty"},"// không có sự kiện nào trong 14 ngày tới"));return w}
+  const urgent=all.filter(e=>e.diff>=0&&e.diff<=3),later=all.filter(e=>e.diff>3);
+  if(urgent.length){w.appendChild(h("div",{className:"ev-section"},"⚡ Trong 3 ngày tới"));urgent.forEach(e=>w.appendChild(renderEvCard(e,true)))}
+  if(later.length){w.appendChild(h("div",{className:"ev-section"},"📅 Sắp tới"));later.forEach(e=>w.appendChild(renderEvCard(e,false)))}
+  return w;
+}
+function renderEvCard(ev,urg){
+  const d=new Date(ev.date),dotCls=urg?"urgent":(ev.isAuto?"due":"custom");
+  const el=h("div",{className:`ev-card ${urg?"urgent":"normal"}`},
+    h("div",{className:`ev-dot ${dotCls}`},h("span",{className:"ev-day"},d.getDate()),h("span",{className:"ev-mon"},MONTHS_VI[d.getMonth()])),
+    h("div",{className:"ev-body"},h("div",{className:"ev-title"},ev.title),ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
+      urg?h("span",{className:"ev-urg"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null));
+  if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
+  return el;
 }
 
-function renderEventCard(ev,isUrgent){
-  const d=new Date(ev.date);
-  const dotCls=isUrgent?"urgent":(ev.isAuto?"due":"custom");
-  const card=h("div",{className:`event-card ${isUrgent?"urgent":"normal"}`},
-    h("div",{className:`event-dot ${dotCls}`},
-      h("span",{className:"event-day"},d.getDate()),
-      h("span",{className:"event-mon"},MONTHS_VI[d.getMonth()])
-    ),
-    h("div",{className:"event-body"},
-      h("div",{className:"event-title"},ev.title),
-      ev.sub?h("div",{className:"event-sub"},ev.sub):null,
-      isUrgent?h("span",{className:"event-urgent-label"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null
-    )
-  );
-  if(!ev.isAuto) card.appendChild(h("button",{className:"event-del",onClick:()=>{state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
-  return card;
-}
-
-// ═══════════════════════════════════════════════
-// TAB: ADD (Transaction + Event)
-// ═══════════════════════════════════════════════
+// ═══ ADD TAB ═══
 function renderAddTab(){
-  const wrap=h("div",null);
-  const tabRow=h("div",{className:"form-tab-row"},
-    h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"),
-    h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event")
-  );
-  wrap.appendChild(tabRow);
-  wrap.appendChild(state.addMode==="txn"?renderAddTxnForm():renderAddEventForm());
-  return wrap;
+  const w=h("div",null),tr=h("div",{className:"form-tabs"});
+  tr.appendChild(h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"));
+  tr.appendChild(h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event"));
+  w.appendChild(tr);w.appendChild(state.addMode==="txn"?renderAddTxn():renderAddEv());return w;
 }
 
-function renderAddTxnForm(){
-  const wrap=h("div",null);
-  const cards=selectedCards();
-  if(!cards.length) return h("p",{className:"empty-msg"},"// chưa chọn thẻ nào");
-
-  // FIX: ensure addCardId is valid and in selected cards
-  if(!state.addCardId||!cards.find(c=>c.id===state.addCardId)) state.addCardId=cards[0].id;
+function renderAddTxn(){
+  const w=h("div",null),cards=selectedCards();
+  if(!cards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
+  if(!state.addCardId||!cards.find(c=>c.id===state.addCardId))state.addCardId=cards[0].id;
   const selCard=ALL_CARDS.find(c=>c.id===state.addCardId);
-
-  // FIX: auto-set category to first CB category of selected card
-  if(selCard&&(!state.addCategory||!CATEGORIES.includes(state.addCategory))) state.addCategory=selCard.cashbackCategories[0]?.category||"";
-
-  const cardSel=h("select",{onChange:e=>{
-    const nc=ALL_CARDS.find(c=>c.id===e.target.value);
-    setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""});
-  }});
-  cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
-  cardSel.value=state.addCardId;
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ"),cardSel));
-
-  const catSel=h("select",{onChange:e=>setState({addCategory:e.target.value,addShop:""})});
-  catSel.appendChild(h("option",{value:""},"-- Chọn lĩnh vực --"));
-  CATEGORIES.forEach(c=>catSel.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
-  catSel.value=state.addCategory;
-  const catG=h("div",{className:"form-group"},h("label",{className:"label"},"Lĩnh vực"),catSel);
-
-  const hasCb=selCard&&selCard.cashbackCategories.find(c=>c.category===state.addCategory);
-  if(selCard&&state.addCategory&&!hasCb){
-    catG.appendChild(h("div",{className:"no-cb-hint"},`⚠ Không có cashback cho "${state.addCategory}"`));
+  if(selCard){
+    const valid=selCard.cashbackCategories.map(c=>c.category);
+    if(!state.addCategory||(!valid.includes(state.addCategory)&&!CATEGORIES.includes(state.addCategory)))
+      state.addCategory=valid[0]||CATEGORIES[0];
   }
-  wrap.appendChild(catG);
 
-  // Shop suggestions
-  const suggestions=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
-  const shopWrap=h("div",null);
-  const shopIn=h("input",{className:"input-field",placeholder:"Tên cửa hàng",value:state.addShop,
-    onInput:e=>setQ({addShop:e.target.value}),
-    onBlur:e=>setQ({addShop:e.target.value})
-  });
-  shopWrap.appendChild(shopIn);
-  if(suggestions.length){
-    const cw=h("div",{style:{display:"flex",flexWrap:"wrap",gap:"6px",marginTop:"7px"}});
-    suggestions.forEach(s=>cw.appendChild(h("button",{className:"suggest-btn-chip",onClick:()=>{state.addShop=s;render()}},s)));
-    shopWrap.appendChild(cw);
-  }
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Cửa hàng"),shopWrap));
+  const cs=h("select",{onChange:e=>{const nc=ALL_CARDS.find(c=>c.id===e.target.value);setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""})}});
+  cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));cs.value=state.addCardId;
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Thẻ"),cs));
 
-  const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input-field",placeholder:"0",value:state.addAmount,
-    onInput:e=>setQ({addAmount:e.target.value}),
-    onBlur:e=>setState({addAmount:e.target.value})
-  });
-  const dateIn=h("input",{type:"date",className:"input-field",value:state.addDate,onChange:e=>setState({addDate:e.target.value})});
-  wrap.appendChild(h("div",{style:{display:"flex",gap:"8px"}},
-    h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Số tiền (₫)"),amtIn),
-    h("div",{className:"form-group",style:{flex:"1"}},h("label",{className:"label"},"Ngày"),dateIn)
-  ));
+  const catS=h("select",{onChange:e=>setState({addCategory:e.target.value,addShop:""})});
+  if(selCard){
+    selCard.cashbackCategories.forEach(c=>catS.appendChild(h("option",{value:c.category},`${CAT_ICONS[c.category]||""} ${c.category} (${Math.round(c.rate*100)}%)`)));
+    catS.appendChild(h("option",{value:"",disabled:"true"},"───── Khác ─────"));
+    CATEGORIES.filter(c=>!selCard.cashbackCategories.find(cb=>cb.category===c)).forEach(c=>catS.appendChild(h("option",{value:c},`${CAT_ICONS[c]||""} ${c}`)));
+  }else CATEGORIES.forEach(c=>catS.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
+  catS.value=state.addCategory;
+  const cg=h("div",{className:"fg"},h("label",{className:"lbl"},"Lĩnh vực"),catS);
+  if(selCard&&state.addCategory&&!selCard.cashbackCategories.find(c=>c.category===state.addCategory))
+    cg.appendChild(h("div",{className:"no-cb"},`⚠ Thẻ này không có CB cho "${state.addCategory}"`));
+  w.appendChild(cg);
 
-  // CB Preview
-  if(state.addAmount&&state.addCategory&&selCard){
-    const parsedAmt=parseFloat(state.addAmount);
-    if(!isNaN(parsedAmt)&&parsedAmt>0){
-      const cb=selCard.cashbackCategories.find(c=>c.category===state.addCategory);
-      const cycleTxns=getCycleTxns(selCard);
-      const willBeActive=isCatActive(selCard,cycleTxns,state.addCategory);
+  const sugs=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
+  const sw=h("div",null);
+  sw.appendChild(h("input",{className:"input","data-fid":"add-shop",placeholder:"Tên cửa hàng",value:state.addShop,onInput:e=>{setQ({addShop:e.target.value});clearTimeout(_addInputTimer);_addInputTimer=setTimeout(render,350)}}));
+  if(sugs.length){const cw=h("div",{className:"chip-row"});sugs.forEach(s=>cw.appendChild(h("button",{className:"chip"+(state.addShop===s?" sel":""),onClick:()=>{state.addShop=s;render()}},s)));sw.appendChild(cw)}
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Cửa hàng"),sw));
 
-      if(!willBeActive&&selCard.firstCatOnly){
-        const activeCat=getActiveCat(selCard,cycleTxns);
-        wrap.appendChild(h("div",{className:"no-cb-hint",style:{marginBottom:"12px"}},`⚠ Kỳ này đang active "${activeCat}" → "${state.addCategory}" sẽ không có CB`));
-      } else if(cb){
-        // Calculate remaining CB capacity
-        const catSpend=calcCategorySpend(cycleTxns,state.addCategory);
-        const catCbSoFar=Math.min(catSpend*cb.rate,cb.maxCashback);
-        const catCbAfter=Math.min((catSpend+parsedAmt)*cb.rate,cb.maxCashback);
-        let est=catCbAfter-catCbSoFar;
-        // Also check shared cap
-        const shared=calcSharedCb(selCard,cycleTxns);
-        if(shared&&(selCard.sharedCats||selCard.cashbackCategories.map(c=>c.category)).includes(state.addCategory)){
-          const remainShared=Math.max(shared.max-shared.total,0);
-          est=Math.min(est,remainShared);
-        }
-        est=Math.max(0,est);
-        wrap.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(est)+"₫")));
-      }
+  const cycleDateMin=selCard?toLocalDateStr(cycleStart(selCard,new Date())):"";
+  const dateGroup=h("div",{className:"fg",style:{flex:"1"}},h("label",{className:"lbl"},"Ngày"),h("input",{type:"date",className:"input",value:state.addDate,min:cycleDateMin,onChange:e=>setState({addDate:e.target.value})}));
+  if(selCard)dateGroup.appendChild(h("div",{style:{fontSize:"9px",color:"var(--text3)",marginTop:"3px",fontFamily:"var(--font-mono)"}},`Kỳ từ ${cycleDateMin}`));
+  w.appendChild(h("div",{style:{display:"flex",gap:"8px"}},
+    h("div",{className:"fg",style:{flex:"1"}},h("label",{className:"lbl"},"Số tiền (₫)"),h("input",{type:"text",inputmode:"decimal",className:"input","data-fid":"add-amt",placeholder:"0",value:state.addAmount,onInput:e=>{setQ({addAmount:e.target.value});clearTimeout(_addInputTimer);_addInputTimer=setTimeout(render,350)}})),
+    dateGroup));
+  if(state.addAmount&&parseFloat(state.addAmount)>0&&state.addCategory&&selCard){
+    const cb=selCard.cashbackCategories.find(c=>c.category===state.addCategory);
+    const ct=getCycleTxns(selCard),willActive=isCatActive(selCard,ct,state.addCategory);
+    if(!willActive&&selCard.firstCatOnly){
+      w.appendChild(h("div",{className:"no-cb",style:{marginBottom:"12px"}},`⚠ Kỳ này active "${getActiveCat(selCard,ct)}" → "${state.addCategory}" không có CB`));
+    }else if(cb){
+      const existCb=calcCatSpend(selCard,ct,state.addCategory)*cb.rate;
+      let newCb=Math.min(parseFloat(state.addAmount)*cb.rate,Math.max(cb.maxCashback-existCb,0));
+      if(selCard.sharedMaxCashback){const sh=calcSharedCb(selCard,ct);if(sh)newCb=Math.min(newCb,Math.max(sh.max-sh.total,0))}
+      w.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(Math.max(newCb,0))+"₫"),existCb>0?h("span",{style:{marginLeft:"8px",fontSize:"10px",color:"var(--text3)"}},`(đã CB ${fmtK(Math.min(existCb,cb.maxCashback))} kỳ này)`):null));
+    }else{
+      w.appendChild(h("div",{className:"cb-preview",style:{background:"var(--bg3)",borderColor:"var(--border)"}},`CB: `,h("strong",{style:{color:"var(--text3)"}},"0₫")));
     }
   }
 
-  const canSubmit=state.addCardId&&state.addShop&&state.addAmount&&!isNaN(parseFloat(state.addAmount))&&parseFloat(state.addAmount)>0&&state.addCategory;
-  const btn=h("button",{className:"submit-btn",style:{background:selCard?.color||"var(--accent2)",opacity:canSubmit?1:.4},onClick:()=>{
-    if(!canSubmit) return;
-    const amt=parseFloat(state.addAmount);
-    // FIX: don't store cashback statically — it's calculated dynamically now
-    state.transactions.unshift({
-      id:"tx-"+Date.now(),
-      ts:Date.now(), // FIX: store creation timestamp for proper ordering
-      cardId:state.addCardId,
-      shop:state.addShop,
-      amount:amt,
-      category:state.addCategory,
-      date:state.addDate
-    });
-    state.addShop="";state.addAmount="";
-    persist();render();
-  }},"+ Thêm giao dịch");
-  wrap.appendChild(btn);
-  return wrap;
+  const canS=state.addCardId&&state.addShop.trim()&&state.addAmount&&parseFloat(state.addAmount)>0&&state.addCategory;
+  w.appendChild(h("button",{className:"submit",style:{background:selCard?.color||"var(--accent2)",opacity:canS?1:.4},onClick:()=>{
+    clearTimeout(_addInputTimer);
+    // Re-check with LIVE state values
+    const liveCanS=state.addCardId&&state.addShop.trim()&&state.addAmount&&parseFloat(state.addAmount)>0&&state.addCategory;
+    if(!liveCanS)return;const amt=parseFloat(state.addAmount);if(isNaN(amt)||amt<=0)return;
+    state.transactions.unshift({id:"tx-"+Date.now(),cardId:state.addCardId,shop:state.addShop.trim(),amount:amt,category:state.addCategory,date:state.addDate});
+    state.addShop="";state.addAmount="";persist();showToast(`✓ Đã thêm ${fmtK(amt)}₫`);render();
+  }},"+ Thêm giao dịch"));
+  return w;
 }
 
-function renderAddEventForm(){
-  const wrap=h("div",null);
-  const cards=selectedCards();
-  const dateIn=h("input",{type:"date",className:"input-field",value:state.addEventDate,onChange:e=>setState({addEventDate:e.target.value})});
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Ngày event"),dateIn));
-  const cardSel=h("select",{onChange:e=>setState({addEventCard:e.target.value})});
-  cardSel.appendChild(h("option",{value:""},"-- Không gắn thẻ --"));
-  cards.forEach(c=>cardSel.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));
-  cardSel.value=state.addEventCard;
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Thẻ (tuỳ chọn)"),cardSel));
-  const noteIn=h("input",{type:"text",className:"input-field",placeholder:"Nội dung sự kiện",value:state.addEventNote,
-    onInput:e=>setQ({addEventNote:e.target.value}),
-    onBlur:e=>setState({addEventNote:e.target.value})
-  });
-  wrap.appendChild(h("div",{className:"form-group"},h("label",{className:"label"},"Nội dung"),noteIn));
-  const canSubmit=state.addEventDate&&state.addEventNote;
-  const btn=h("button",{className:"submit-btn",style:{background:"var(--purple)",opacity:canSubmit?1:.4},onClick:()=>{
-    if(!canSubmit) return;
-    const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
-    state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote,sub:card?`${card.name} ****${card.last4}`:null,cardId:state.addEventCard||null});
-    state.addEventDate="";state.addEventNote="";state.addEventCard="";
-    persist();render();
-  }},"+ Thêm Event");
-  wrap.appendChild(btn);
+function renderAddEv(){
+  const w=h("div",null),cards=selectedCards();
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Ngày event"),h("input",{type:"date",className:"input",value:state.addEventDate,onChange:e=>setState({addEventDate:e.target.value})})));
+  const cs=h("select",{onChange:e=>setState({addEventCard:e.target.value})});
+  cs.appendChild(h("option",{value:""},"-- Không gắn thẻ --"));
+  cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));cs.value=state.addEventCard;
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Thẻ (tuỳ chọn)"),cs));
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Nội dung"),h("input",{type:"text",className:"input","data-fid":"add-evnote",placeholder:"Nội dung sự kiện",value:state.addEventNote,onInput:e=>{setQ({addEventNote:e.target.value});clearTimeout(_addInputTimer);_addInputTimer=setTimeout(render,350)}})));
 
-  // Past events
-  const past=state.events.filter(e=>e.date<new Date().toISOString().slice(0,10));
+  const canS=state.addEventDate&&state.addEventNote.trim();
+  w.appendChild(h("button",{className:"submit",style:{background:"var(--purple)",opacity:canS?1:.4},onClick:()=>{
+    clearTimeout(_addInputTimer);
+    const liveCanS=state.addEventDate&&state.addEventNote.trim();
+    if(!liveCanS)return;const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
+    state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote.trim(),sub:card?`${card.name} ****${card.last4}`:null,cardId:state.addEventCard||null});
+    state.addEventDate="";state.addEventNote="";state.addEventCard="";persist();showToast("✓ Đã thêm event");render();
+  }},"+ Thêm Event"));
+
+  const past=state.events.filter(e=>e.date<toLocalDateStr(new Date()));
   if(past.length){
-    wrap.appendChild(h("div",{className:"event-section-label",style:{marginTop:"20px"}},"Đã qua"));
+    w.appendChild(h("div",{className:"ev-section",style:{marginTop:"18px"}},"Đã qua"));
     past.sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
-      wrap.appendChild(h("div",{style:{display:"flex",alignItems:"center",gap:"10px",padding:"8px 0",borderBottom:"1px solid var(--border)"}},
-        h("div",{style:{flex:1}},
-          h("div",{style:{fontSize:"12px",fontWeight:700,color:"var(--text3)"}},e.title),
-          h("div",{style:{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--font-mono)"}},e.date+(e.sub?" · "+e.sub:""))
-        ),
-        h("button",{className:"del-btn",onClick:()=>{state.events=state.events.filter(ev=>ev.id!==e.id);persist();render()}},"✕")
-      ));
+      w.appendChild(h("div",{style:{display:"flex",alignItems:"center",gap:"10px",padding:"8px 0",borderBottom:"1px solid var(--border)"}},
+        h("div",{style:{flex:1}},h("div",{style:{fontSize:"12px",fontWeight:700,color:"var(--text3)"}},e.title),h("div",{style:{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--font-mono)"}},e.date+(e.sub?" · "+e.sub:""))),
+        h("button",{className:"del",onClick:()=>{state.events=state.events.filter(ev=>ev.id!==e.id);persist();render()}},"✕")));
     });
-  }
-  return wrap;
+  }return w;
 }
 
-// ═══════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════
+// ═══ INIT ═══
 render();
 </script>
 </body>
