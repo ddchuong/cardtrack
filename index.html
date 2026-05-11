@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#080c14">
-<title>CardTrack v6</title>
+<title>CardTrack v7</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -51,12 +51,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 /* Header */
 .header{padding:max(env(safe-area-inset-top),14px) 16px 12px;display:flex;align-items:center;gap:10px;background:var(--bg2);border-bottom:1px solid var(--card-border);position:sticky;top:0;z-index:10;transition:all .3s}
-.header-logo{width:30px;height:30px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;font-family:var(--font-mono)}
-.header-title{font-family:var(--font-mono);font-weight:700;font-size:17px;color:var(--text);letter-spacing:-.5px}
+.header-logo{width:30px;height:30px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;font-family:var(--font-mono)}
+.header-title{font-family:var(--font-mono);font-weight:700;font-size:18px;color:var(--text);letter-spacing:-.5px}
 .header-right{margin-left:auto;display:flex;gap:6px;align-items:center}
-.hbadge{font-family:var(--font-mono);font-size:12px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600;transition:all .3s}
+.hbadge{font-family:var(--font-mono);font-size:13px;color:var(--text3);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600;transition:all .3s}
 .hbadge.warn{color:var(--warn);border-color:var(--warnBorder);background:var(--warnBg)}
-.theme-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .2s}
+.theme-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all .2s}
 .theme-btn:active{transform:scale(.92)}
 
 /* Content */
@@ -65,37 +65,37 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 /* Tab Bar */
 .tab-bar{display:flex;justify-content:space-around;background:var(--bg2);border-top:1px solid var(--card-border);padding:6px 4px max(env(safe-area-inset-bottom),8px);position:sticky;bottom:0;z-index:20;transition:all .3s}
-.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 6px;border-radius:10px;transition:all .15s;font-family:var(--font-body);font-size:11px;font-weight:700;letter-spacing:.2px;min-width:52px;position:relative}
-.tab-btn .ico{font-size:20px;line-height:1}
+.tab-btn{background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 6px;border-radius:10px;transition:all .15s;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.2px;min-width:52px;position:relative}
+.tab-btn .ico{font-size:21px;line-height:1}
 .tab-btn.active{color:var(--accent)}
 .tab-btn.active::after{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--accent);border-radius:2px}
 .tab-dot{width:5px;height:5px;border-radius:50%;background:var(--warn);position:absolute;top:-2px;right:-3px;animation:shimmer 1.5s infinite}
 
 /* Common */
 .mono{font-family:var(--font-mono)}
-.hint{font-family:var(--font-mono);font-size:13px;color:var(--text3);margin-bottom:10px;letter-spacing:-.2px}
-.empty{text-align:center;color:var(--text3);font-size:14px;padding:40px 0;font-family:var(--font-mono)}
+.hint{font-family:var(--font-mono);font-size:14px;color:var(--text3);margin-bottom:10px;letter-spacing:-.2px}
+.empty{text-align:center;color:var(--text3);font-size:15px;padding:40px 0;font-family:var(--font-mono)}
 
 /* Network badges */
-.net{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
-.net-sm{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
+.net{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
+.net-sm{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
 
 /* Select Tab */
 .sel-item{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:var(--radius);cursor:pointer;transition:all .2s;margin-bottom:6px;box-shadow:var(--shadow)}
 .sel-item.on{border-color:var(--card-color);background:color-mix(in srgb,var(--card-color) 6%,var(--card-bg))}
-.sel-name{font-weight:700;font-size:15px}
-.sel-sub{font-size:12px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
-.chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:13px;color:#fff}
+.sel-name{font-weight:700;font-size:16px}
+.sel-sub{font-size:13px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
+.chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:14px;color:#fff}
 .chk.on{border-color:var(--card-color);background:var(--card-color)}
 
 /* Card Block */
 .card-block{background:var(--card-bg);border-radius:var(--radius);padding:14px;margin-bottom:8px;border:1px solid var(--card-border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
 .card-block:active{transform:scale(.985);opacity:.9}
-.card-name{font-weight:700;font-size:15px}
-.card-meta{font-size:12px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
+.card-name{font-weight:700;font-size:16px}
+.card-meta{font-size:13px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
 
 /* Badges */
-.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono)}
+.badge{display:inline-block;font-size:12px;padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono)}
 .badge-warn{background:var(--warnBg);color:var(--warn);border:1px solid var(--warnBorder)}
 .badge-ok{background:var(--greenBg);color:var(--green);border:1px solid var(--greenBorder)}
 .badge-muted{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
@@ -106,25 +106,25 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .cb-row.off{opacity:.3;pointer-events:none}
 .cb-row.off .bar-fill{background:var(--text3)!important}
 .cb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.cb-cat{font-size:13px;font-weight:700;color:var(--text2);font-family:var(--font-mono)}
-.cb-amt{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
+.cb-cat{font-size:14px;font-weight:700;color:var(--text2);font-family:var(--font-mono)}
+.cb-amt{font-size:13px;color:var(--text3);font-family:var(--font-mono)}
 .bar-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;transition:background .3s}
 .bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.cb-foot{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:12px;color:var(--text3);font-family:var(--font-mono)}
-.shared-info{background:var(--accentBg);border:1px solid var(--accentBorder);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;color:var(--accent);margin-top:6px;font-weight:600;font-family:var(--font-mono);transition:all .3s}
-.card-note{font-size:12px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-xs);font-style:italic;line-height:1.5;font-family:var(--font-mono);transition:all .3s}
+.cb-foot{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font-size:13px;color:var(--text3);font-family:var(--font-mono)}
+.shared-info{background:var(--accentBg);border:1px solid var(--accentBorder);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--accent);margin-top:6px;font-weight:600;font-family:var(--font-mono);transition:all .3s}
+.card-note{font-size:13px;color:var(--text3);margin-top:8px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-xs);font-style:italic;line-height:1.5;font-family:var(--font-mono);transition:all .3s}
 
 /* Detail */
-.back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px;padding:4px 0}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;padding:4px 0}
 .stat-row{display:flex;gap:6px;margin-bottom:12px}
 .stat-box{flex:1;background:var(--bg3);border-radius:var(--radius-sm);padding:10px;border:1px solid var(--border);transition:all .3s}
-.stat-label{font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
-.stat-val{font-size:17px;font-weight:800}
-.detail-section{font-size:13px;font-weight:700;color:var(--text2);margin:14px 0 8px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
+.stat-label{font-size:12px;color:var(--text3);font-family:var(--font-mono);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.stat-val{font-size:18px;font-weight:800}
+.detail-section{font-size:14px;font-weight:700;color:var(--text2);margin:14px 0 8px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
 
 /* Filters */
 .filter-row{display:flex;gap:6px;margin-bottom:10px}
-select,.input,.month-in{background:var(--card-bg);border:1.5px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;font-family:var(--font-body);outline:none;box-sizing:border-box;transition:all .2s;width:100%}
+select,.input,.month-in{background:var(--card-bg);border:1.5px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;font-size:15px;font-family:var(--font-body);outline:none;box-sizing:border-box;transition:all .2s;width:100%}
 select:focus,.input:focus{border-color:var(--accent2)}
 select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%234b6085'%3E%3Cpath d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;text-overflow:ellipsis}
 .month-in{width:140px;flex-shrink:0}
@@ -133,34 +133,34 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 [data-theme="light"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%239ca3af'%3E%3Cpath d='M5 7L0 2h10z'/%3E%3C/svg%3E")}
 
 /* Summary bar */
-.summary-bar{display:flex;justify-content:space-between;align-items:center;background:var(--greenBg);border:1px solid var(--greenBorder);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;margin-bottom:10px;font-family:var(--font-mono);font-weight:600;transition:all .3s}
+.summary-bar{display:flex;justify-content:space-between;align-items:center;background:var(--greenBg);border:1px solid var(--greenBorder);border-radius:var(--radius-sm);padding:10px 12px;font-size:15px;margin-bottom:10px;font-family:var(--font-mono);font-weight:600;transition:all .3s}
 
 /* Transaction row */
 .tx-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);transition:border-color .3s}
-.tx-shop{font-weight:700;font-size:15px}
+.tx-shop{font-weight:700;font-size:16px}
 .tx-meta{display:flex;gap:4px;align-items:center;margin-top:3px;flex-wrap:wrap}
-.tx-tag{font-size:11px;padding:2px 6px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono)}
-.tx-cat{font-size:11px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:var(--radius-xs);font-family:var(--font-mono)}
+.tx-tag{font-size:12px;padding:2px 6px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono)}
+.tx-cat{font-size:12px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:var(--radius-xs);font-family:var(--font-mono)}
 .tx-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.tx-amount{font-weight:800;font-size:15px;font-family:var(--font-mono)}
-.tx-cb{font-size:12px;color:var(--green);font-family:var(--font-mono)}
-.del{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:2px 4px;border-radius:4px;line-height:1}
+.tx-amount{font-weight:800;font-size:16px;font-family:var(--font-mono)}
+.tx-cb{font-size:13px;color:var(--green);font-family:var(--font-mono)}
+.del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 4px;border-radius:4px;line-height:1}
 .del:active{color:var(--red);background:var(--redBg)}
 
 /* Form */
 .fg{margin-bottom:12px}
-.lbl{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
+.lbl{display:block;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px}
 .chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 10px;font-size:13px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
+.chip{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:5px 10px;font-size:14px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
 .chip:active,.chip.sel{border-color:var(--accent);color:var(--accent);background:var(--accentBg)}
-.no-cb{font-size:12px;color:var(--warn);margin-top:5px;font-family:var(--font-mono)}
-.cb-preview{background:var(--greenBg);border:1px solid var(--greenBorder);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;margin-bottom:12px;font-family:var(--font-mono);font-weight:600;transition:all .3s}
-.submit{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .15s;letter-spacing:.2px}
+.no-cb{font-size:13px;color:var(--warn);margin-top:5px;font-family:var(--font-mono)}
+.cb-preview{background:var(--greenBg);border:1px solid var(--greenBorder);border-radius:var(--radius-sm);padding:10px 12px;font-size:15px;margin-bottom:12px;font-family:var(--font-mono);font-weight:600;transition:all .3s}
+.submit{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;color:#fff;font-size:17px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .15s;letter-spacing:.2px}
 .submit:active{transform:scale(.98)}
 
 /* Form tabs */
 .form-tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:3px;transition:background .3s}
-.form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s}
+.form-tab{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s}
 .form-tab.active{background:var(--card-bg);color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.15)}
 
 /* Category filter */
@@ -169,11 +169,11 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 /* Shop */
 .shop-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:12px;margin-bottom:7px;box-shadow:var(--shadow);transition:all .3s}
 .shop-head{display:flex;align-items:center;gap:9px;margin-bottom:9px}
-.shop-icon{font-size:20px}
-.shop-name{font-weight:800;font-size:15px}
-.shop-cat{font-size:12px;color:var(--text3);margin-top:1px;font-family:var(--font-mono)}
+.shop-icon{font-size:21px}
+.shop-name{font-weight:800;font-size:16px}
+.shop-cat{font-size:13px;color:var(--text3);margin-top:1px;font-family:var(--font-mono)}
 .shop-rec{border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;transition:all .3s}
-.shop-detail{font-size:12px;color:var(--text2);margin-bottom:3px;font-family:var(--font-mono)}
+.shop-detail{font-size:13px;color:var(--text2);margin-bottom:3px;font-family:var(--font-mono)}
 .mini-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;transition:background .3s}
 
 /* Events */
@@ -184,17 +184,29 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .ev-dot.urgent{background:var(--warnBg);color:var(--warn);border:1px solid var(--warnBorder)}
 .ev-dot.due{background:var(--accentBg);color:var(--accent);border:1px solid var(--accentBorder)}
 .ev-dot.custom{background:var(--bg3);color:var(--purple);border:1px solid var(--border)}
-.ev-day{font-size:16px;font-weight:800;font-family:var(--font-mono);line-height:1}
-.ev-mon{font-size:10px;font-weight:700;font-family:var(--font-mono);line-height:1;margin-top:2px;opacity:.8}
+.ev-day{font-size:17px;font-weight:800;font-family:var(--font-mono);line-height:1}
+.ev-mon{font-size:11px;font-weight:700;font-family:var(--font-mono);line-height:1;margin-top:2px;opacity:.8}
 .ev-body{flex:1;min-width:0}
-.ev-title{font-weight:700;font-size:15px}
-.ev-sub{font-size:12px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
-.ev-urg{display:inline-block;font-size:11px;background:var(--warnBg);color:var(--warn);padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono);margin-top:4px;animation:shimmer 1.5s infinite}
-.ev-del{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
+.ev-title{font-weight:700;font-size:16px}
+.ev-sub{font-size:13px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
+.ev-urg{display:inline-block;font-size:12px;background:var(--warnBg);color:var(--warn);padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono);margin-top:4px;animation:shimmer 1.5s infinite}
+.ev-del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
 .ev-del:active{color:var(--red)}
-.ev-section{font-size:12px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 7px;padding-left:2px}
+.ev-section{font-size:13px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 7px;padding-left:2px}
 
-.toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#000;font-weight:700;font-size:14px;padding:10px 20px;border-radius:12px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1);font-family:var(--font-mono)}
+
+/* MinSpend progress row */
+.minspend-row{margin-bottom:10px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius-xs);border:1px solid var(--border);transition:all .3s}
+.minspend-row.met{border-color:var(--greenBorder);background:var(--greenBg)}
+.minspend-row.unmet{border-color:var(--warnBorder);background:var(--warnBg)}
+.minspend-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.minspend-label{font-size:12px;font-weight:700;color:var(--text2);font-family:var(--font-mono)}
+.minspend-val{font-size:12px;font-weight:800;font-family:var(--font-mono)}
+.minspend-val.met{color:var(--green)}
+.minspend-val.unmet{color:var(--warn)}
+.minspend-sub{font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
+
+.toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#000;font-weight:700;font-size:15px;padding:10px 20px;border-radius:12px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1);font-family:var(--font-mono)}
 .toast.show{transform:translateX(-50%) translateY(8px)}
 </style>
 </head>
@@ -206,127 +218,272 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 // DATA — synced with CardList.txt + Shops.txt
 // ═══════════════════════════════════════════
 const ALL_CARDS=[
-  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",stmtDay:20,dueDay:4,color:"#0066B3",
-    cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000}],
+  // ── VIB MAX ──
+  {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:4,color:"#7C3AED",
+    cashbackCategories:[
+      {category:"Online",rate:.10,maxCashback:1500000,maxSpend:15000000},
+      {category:"Ẩm thực",rate:.10,maxCashback:1500000,maxSpend:15000000},
+      {category:"Thời trang",rate:.10,maxCashback:1500000,maxSpend:15000000},
+      {category:"Du lịch",rate:.10,maxCashback:1500000,maxSpend:15000000}
+    ],
+    minSpend:0,sharedMaxCashback:1500000,
+    note:"Max 1.5tr/tháng chung tất cả danh mục. Nhớ đăng ký gói Hội viên mỗi 3 tháng"},
+
+  // ── SHINHAN ──
+  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#0066B3",
+    cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:400000,maxSpend:4000000}],
     minSpend:3000000,note:"CB chỉ cho POS/Apple-Pay tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng"},
-  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",stmtDay:20,dueDay:4,color:"#E31937",
+
+  // ── MSB mDigi ──
+  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#E31937",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
     note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
-  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",stmtDay:20,dueDay:4,color:"#C41230",
+  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",cardNum:"532451****4232",stmtDay:20,dueDay:4,color:"#C41230",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
     note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
-  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",stmtDay:20,dueDay:4,color:"#D4213D",
+
+  // ── MSB Visa Online (2 cards, stmtDay=25, dueDay=10) ──
+  {id:"msb-9372",name:"MSB Visa Online",network:"Visa",last4:"9372",cardNum:"402215****9372",stmtDay:25,dueDay:10,color:"#B01C30",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
-  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",stmtDay:20,dueDay:4,color:"#E4002B",
+  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",cardNum:"402215****1712",stmtDay:25,dueDay:10,color:"#D4213D",
+    cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
+    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
+
+  // ── TCB Everyday (calendar month cycle, minTxn 200K) ──
+  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",cardNum:"403280****7929",stmtDay:0,dueDay:4,color:"#E4002B",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
-    minSpend:0,note:"Mọi giao dịch Online"},
-  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",stmtDay:20,dueDay:4,color:"#CC0028",
+    minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)"},
+  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",cardNum:"403280****5166",stmtDay:0,dueDay:4,color:"#CC0028",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
-    minSpend:0,note:"Mọi giao dịch Online"},
-  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",stmtDay:20,dueDay:4,color:"#0C4DA2",
-    cashbackCategories:[{category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},{category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},{category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}],
-    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
-  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",stmtDay:20,dueDay:4,color:"#E87722",
+    minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)"},
+
+  // ── LPB JCB Ultimate (minSpend 8tr) ──
+  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",cardNum:"356772****2059",stmtDay:20,dueDay:4,color:"#0C4DA2",
+    cashbackCategories:[
+      {category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},
+      {category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},
+      {category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}
+    ],
+    minSpend:8000000,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K; Chi tiêu tối thiểu 8tr/kỳ"},
+
+  // ── HDB Visa EZ Gold (calendar month) ──
+  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",cardNum:"498767****4497",stmtDay:0,dueDay:4,color:"#E87722",
     cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],
-    minSpend:0,note:"Online 6% max 200K và Ẩm thực 4% max 100K — 2 lĩnh vực CB độc lập"},
-  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",stmtDay:20,dueDay:4,color:"#D4602E",
-    cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Du lịch",rate:.10,maxCashback:200000,maxSpend:2000000},{category:"Vé Vietjet",rate:.10,maxCashback:300000,maxSpend:3000000}],
-    minSpend:0,sharedMaxCashback:200000,sharedCats:["Ẩm thực","Du lịch"],
-    note:"Ẩm thực & Du lịch max CB 200K chung; Vé Vietjet riêng max 300K"},
-  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",stmtDay:8,dueDay:4,color:"#1B8A6B",
-    cashbackCategories:[{category:"Thời trang",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Ẩm thực",rate:.10,maxCashback:600000,maxSpend:6000000},{category:"Du lịch",rate:.15,maxCashback:600000,maxSpend:4000000},{category:"Giải trí",rate:.20,maxCashback:600000,maxSpend:3000000}],
-    minSpend:0,sharedMaxCashback:600000,firstCatOnly:true,
-    note:"Max 600K/tháng chung. Trong kỳ = lĩnh vực GD đầu tiên nhập vào"},
-  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",stmtDay:30,dueDay:8,color:"#F26522",
+    minSpend:0,calendarMonth:true,note:"Online 6% max 200K và Ẩm thực 4% max 100K — 2 lĩnh vực CB độc lập; chu kỳ tháng lịch"},
+
+  // ── HDB Vietjet Platinum (calendar month, corrected caps) ──
+  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",cardNum:"416259****1541",stmtDay:0,dueDay:4,color:"#D4602E",
+    cashbackCategories:[
+      {category:"Ẩm thực",rate:.10,maxCashback:300000,maxSpend:3000000},
+      {category:"Du lịch",rate:.10,maxCashback:300000,maxSpend:3000000},
+      {category:"Vé Vietjet",rate:.10,maxCashback:500000,maxSpend:5000000}
+    ],
+    minSpend:0,calendarMonth:true,sharedMaxCashback:300000,sharedCats:["Ẩm thực","Du lịch"],
+    note:"Ẩm thực & Du lịch max CB 300K chung (không bao gồm Fastfood); Vé Vietjet riêng max 500K; chu kỳ tháng lịch"},
+
+  // ── BVB Lifestyle (CORRECTED: calendar month, stmtDay=20, dueDay=15, minSpend=3tr, new rates) ──
+  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",cardNum:"420694****0202",stmtDay:20,dueDay:15,color:"#1B8A6B",
+    cashbackCategories:[
+      {category:"Thời trang",rate:.05,maxCashback:200000,maxSpend:4000000},
+      {category:"Ẩm thực",rate:.01,maxCashback:200000,maxSpend:20000000},
+      {category:"Du lịch",rate:.03,maxCashback:200000,maxSpend:6666667}
+    ],
+    minSpend:3000000,sharedMaxCashback:200000,firstCatOnly:true,calendarMonth:true,
+    note:"Max 200K/tháng chung; lĩnh vực CB = GD đầu tiên nhập vào; chi tiêu tối thiểu 3tr; chu kỳ tháng lịch"},
+
+  // ── Seabank Sea-Easy (calendar month) ──
+  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",cardNum:"426545****6891",stmtDay:30,dueDay:8,color:"#F26522",
     cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],
-    minSpend:0,note:"Mọi giao dịch tại Shopee"},
-  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",stmtDay:27,dueDay:20,color:"#8B5CF6",
-    cashbackCategories:[{category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},{category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
+    minSpend:0,calendarMonth:true,note:"Chỉ áp dụng GD tại Shopee; chu kỳ tháng lịch"},
+
+  // ── VIB SuperCard ──
+  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",cardNum:"370990****4549",stmtDay:27,dueDay:20,color:"#8B5CF6",
+    cashbackCategories:[
+      {category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},
+      {category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},
+      {category:"Du lịch",rate:.10,maxCashback:500000,maxSpend:5000000},
+      {category:"Nước ngoài",rate:.15,maxCashback:500000,maxSpend:3333333},
+      {category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}
+    ],
     minSpend:0,sharedMaxCashback:1000000,
     note:"Max 1tr/tháng tổng; mỗi danh mục max 500K"},
-  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",stmtDay:30,dueDay:20,color:"#006B3F",
+
+  // ── Sacombank Platinum AMEX ──
+  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",cardNum:"370989****9870",stmtDay:30,dueDay:20,color:"#006B3F",
     cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],
-    minSpend:0,note:"Max 1tr/tháng chung Du lịch"},
-  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",stmtDay:8,dueDay:20,color:"#004A98",
-    cashbackCategories:[{category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},{category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},{category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}],
+    minSpend:0,note:"Max 1tr/tháng; Du lịch gồm Agoda, hotel, vé máy bay"},
+
+  // ── MB JCB Ultimate (2 cards) ──
+  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",cardNum:"356772****4887",stmtDay:8,dueDay:20,color:"#004A98",
+    cashbackCategories:[
+      {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
+      {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
+      {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
+    ],
     minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
-  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",stmtDay:4,dueDay:27,color:"#DB0011",
-    cashbackCategories:[{category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}],
-    minSpend:0,sharedMaxCashback:200000,note:"Max 200K chung Ẩm thực & Thời trang"},
-  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",stmtDay:5,dueDay:27,color:"#0F7B5F",
-    cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],
+  {id:"mb-8026",name:"MB JCB Ultimate",network:"JCB",last4:"8026",cardNum:"356772****8026",stmtDay:8,dueDay:20,color:"#1A5EA8",
+    cashbackCategories:[
+      {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
+      {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
+      {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
+    ],
+    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
+
+  // ── HSBC Live+ (calendar month) ──
+  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",cardNum:"437841****3008",stmtDay:4,dueDay:27,color:"#DB0011",
+    cashbackCategories:[
+      {category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},
+      {category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}
+    ],
+    minSpend:0,sharedMaxCashback:200000,calendarMonth:true,note:"Max 200K chung Ẩm thực & Thời trang; chu kỳ tháng lịch"},
+
+  // ── Sacombank Uniq 4499 ──
+  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",cardNum:"436438****4499",stmtDay:5,dueDay:27,color:"#0F7B5F",
+    cashbackCategories:[
+      {category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},
+      {category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}
+    ],
     minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
-  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",stmtDay:25,dueDay:15,color:"#0A6B50",
-    cashbackCategories:[{category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}],
-    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"}
+
+  // ── Sacombank Uniq 3007 (stmtDay=27, dueDay=22) ──
+  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",cardNum:"436438****3007",stmtDay:27,dueDay:22,color:"#0A6B50",
+    cashbackCategories:[
+      {category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},
+      {category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}
+    ],
+    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
+
+  // ── CIMB (new card, calendar month, independent cats) ──
+  {id:"cimb-6112",name:"CIMB",network:"Visa",last4:"6112",cardNum:"472626****6112",stmtDay:25,dueDay:8,color:"#E2001A",
+    cashbackCategories:[
+      {category:"Siêu thị",rate:.20,maxCashback:100000,maxSpend:500000},
+      {category:"Du lịch",rate:.20,maxCashback:100000,maxSpend:500000},
+      {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000},
+      {category:"Di chuyển",rate:.20,maxCashback:100000,maxSpend:500000}
+    ],
+    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập, mỗi lĩnh vực max 100K; Chi tiêu tối thiểu 3tr/tháng; chu kỳ tháng lịch"}
 ];
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
-const SHOP_SUGGESTIONS={"Siêu thị":["KingFood","BHX","MM","AnNam","Winmart","BigC","Glam Beautique"],"Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps","Starbucks","Highlands","Phuc Long","Katinat","Domino","McDonalds","KFC","Takashimaya"],"Y tế":["Vinmec","Á Châu","Pharmacity","VNVC","Long Chau","Hai Yen EYE-CARE","TaimuihongSG","Tâm Anh","MATSUKIYO"],"Giáo dục":["SSC","ReadingQ"],"Online":["Shopee","Lazada","Tiktok"],"Bảo hiểm":["Bảo Việt"],"Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon"],"Du lịch":["Agoda","Traveloka","Booking","Ttip"],"Di chuyển":["Grab","Taxi"],"Vé Vietjet":["Vietjet"],"Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],"Nước ngoài":[]};
+const SHOP_SUGGESTIONS={
+  "Siêu thị":["KingFood","BHX","AnNam","Winmart","BigC","Emart","MegaM","Coop","Muji","Glam Beautique"],
+  "Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Manwah","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps",
+    "Starbucks","Highlands","Phuc Long","CoffeeHouse","TrungNguyen","ThreeOClock","Katinat","PheLa","GongCha","KoiThe","Domino","McDonalds","KFC","Takashimaya"],
+  "Y tế":["VNVC","TMH SG","Victoria HC","Vinmec","YDuoc","Choray","HaiYen","Á Châu","Pharmacity"],
+  "Giáo dục":["SSC","ReadingQ","NS PhuongNam","Fahasa","MyKingdom"],
+  "Online":["Shopee","Lazada","Adidas Online","Tiktok"],
+  "Bảo hiểm":["Bảo Việt","Manulife"],
+  "Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon","SuperSports","Bath Body Works"],
+  "Du lịch":["Agoda","Traveloka","Trip","Booking"],
+  "Di chuyển":["Grab","Be"],
+  "Vé Vietjet":["Vietjet"],
+  "Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],
+  "Nước ngoài":[]
+};
 
 const SHOP_CARD_MAP=[
-  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"MM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-3007","sacom-4499"]},
-  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-4232","hdb-1541","bvb-0202","vib-4549"]},
-  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Domino",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"KFC",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-4232","vib-4549"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"Hai Yen EYE-CARE",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"TaimuihongSG",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"ĐH YD",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"Tâm Anh",category:"Y tế",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887"]},
-  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887"]},
-  {shop:"Long Chau",category:"Y tế",cardIds:["mb-4887"]},
-  {shop:"MATSUKIYO",category:"Y tế",cardIds:["mb-4887"]},
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","lpb-2059"]},
-  {shop:"Shopee",category:"Online",cardIds:["msb-1712","tcb-5166","seabank-6891","vib-4549"]},
-  {shop:"Lazada",category:"Online",cardIds:["msb-1712","tcb-5166","vib-4549"]},
-  {shop:"Điện nước (Shopee)",category:"Online",cardIds:["msb-1712"]},
-  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887"]},
-  {shop:"Uniqlo",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"H&M",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Adidas",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Zara",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Decathlon",category:"Thời trang",cardIds:["bvb-0202","vib-4549","hsbc-3008"]},
-  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4549","hdb-1541"]},
-  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4549","hdb-1541"]},
-  {shop:"Ttip",category:"Du lịch",cardIds:["sacom-9870","vib-4549"]},
+  // ── Siêu thị (Shinhan + Sacom only per new list) ──
+  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Emart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"MegaM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Coop",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Muji",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+
+  // ── Ẩm thực nhà hàng (MSB MC + HDB Gold + VIB + HSBC) ──
+  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Manwah",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  // Fastfood (MSB MC + HDB Gold + HSBC only)
+  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"CoffeeHouse",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"TrungNguyen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"ThreeOClock",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"PheLa",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"GongCha",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"KoiThe",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Domino",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"KFC",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+
+  // ── Online ──
+  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549","seabank-6891"]},
+  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549"]},
+  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549"]},
+  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712"]},
+  {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712"]},
+
+  // ── Thời trang ──
+  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+
+  // ── Di chuyển ──
   {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
-  {shop:"Taxi",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
+  {shop:"Be",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
+
+  // ── Du lịch ──
+  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
+  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
+  {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
+  {shop:"Booking",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
+
+  // ── Y tế (Bệnh viện: LPB+MB; Nhà thuốc: MB only) ──
+  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
+
+  // ── Giáo dục ──
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+
+  // ── Bảo hiểm ──
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+
+  // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
+
+  // ── Giải trí ──
   {shop:"CGV",category:"Giải trí",cardIds:["bvb-0202"]},
   {shop:"Galaxy Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
   {shop:"Lotte Cinema",category:"Giải trí",cardIds:["bvb-0202"]}
 ];
+
 
 const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
@@ -347,6 +504,10 @@ function parseLocalDate(s){
 }
 
 function cycleStart(card,ref){
+  if(card.calendarMonth){
+    const d=new Date(ref);
+    return new Date(d.getFullYear(),d.getMonth(),1);
+  }
   const d=new Date(ref),day=card.stmtDay,y=d.getFullYear(),m=d.getMonth();
   return d.getDate()>=day?new Date(y,m,day):new Date(y,m-1,day);
 }
@@ -411,19 +572,44 @@ function calcTxnCb(tx,card,ct){
   return 0;
 }
 
+
+// ═══ MINSPEND ROW RENDER ═══
+function renderMinSpendRow(card,ct){
+  if(!card.minSpend||card.minSpend<=0)return null;
+  const ts=ct.reduce((s,t)=>s+t.amount,0);
+  const pct=Math.min(ts/card.minSpend*100,100);
+  const met=ts>=card.minSpend;
+  const remaining=Math.max(card.minSpend-ts,0);
+  const row=h("div",{className:"minspend-row "+(met?"met":"unmet")},
+    h("div",{className:"minspend-head"},
+      h("span",{className:"minspend-label"},"Chi tiêu tối thiểu"),
+      h("span",{className:"minspend-val "+(met?"met":"unmet")},`${fmtK(ts)} / ${fmtK(card.minSpend)}`)
+    ),
+    h("div",{className:"bar-track"},
+      h("div",{className:"bar-fill",style:{width:pct+"%",background:met?"var(--green)":"var(--warn)",transition:"width .5s cubic-bezier(.4,0,.2,1)"}})
+    ),
+    h("div",{className:"minspend-sub"},
+      met
+        ? "✓ Đã đạt mức chi tiêu tối thiểu — cashback được kích hoạt"
+        : `Còn thiếu ${fmtK(remaining)} để kích hoạt cashback`
+    )
+  );
+  return row;
+}
+
 // ═══ STORAGE ═══
 function load(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb}catch{return fb}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
-function getTheme(){return load("ct5-theme","dark")}
-function setTheme(t){save("ct5-theme",t);document.documentElement.setAttribute("data-theme",t);document.querySelector('meta[name="theme-color"]').content=t==="light"?"#f8f9fc":"#080c14";render()}
+function getTheme(){return load("ct7-theme","dark")}
+function setTheme(t){save("ct7-theme",t);document.documentElement.setAttribute("data-theme",t);document.querySelector('meta[name="theme-color"]').content=t==="light"?"#f8f9fc":"#080c14";render()}
 document.documentElement.setAttribute("data-theme",getTheme());
 
 // ═══ STATE ═══
 let state={
   tab:"cards",
-  selectedCardIds:load("ct5-sel",["shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887"]),
-  transactions:load("ct5-txns",[]),
-  events:load("ct5-events",[]),
+  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887","mb-8026","cimb-6112"]),
+  transactions:load("ct7-txns",[]),
+  events:load("ct7-events",[]),
   detailCardId:null,addMode:"txn",
   addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:toLocalDateStr(new Date()),
   addEventDate:"",addEventCard:"",addEventNote:"",
@@ -435,7 +621,7 @@ let _shopTimer=null;
 let _addInputTimer=null;
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
-function persist(){save("ct5-sel",state.selectedCardIds);save("ct5-txns",state.transactions);save("ct5-events",state.events)}
+function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events)}
 function purgeOldTxns(){
   const now=new Date(),b=state.transactions.length;
   state.transactions=state.transactions.filter(tx=>{
@@ -459,7 +645,7 @@ function getAutoEvents(){
   state.selectedCardIds.forEach(id=>{
     const c=ALL_CARDS.find(x=>x.id===id);if(!c)return;
     const due=nextDueDate(c),diff=Math.ceil((due-now)/864e5);
-    if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ****${c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
+    if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ${c.cardNum||"****"+c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
   });return evts;
 }
 function urgentCount(){const now=new Date();return[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].filter(e=>e.diff>=0&&e.diff<=3).length}
@@ -532,7 +718,7 @@ function renderSelectTab(){
     w.appendChild(h("div",{className:"sel-item"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
       setState({selectedCardIds:on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id]});
     }},h("span",{className:"net",style:{background:c.color}},NET_ICONS[c.network]),
-      h("div",{style:{flex:1,minWidth:0}},h("div",{className:"sel-name"},c.name),h("div",{className:"sel-sub"},`****${c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)),
+      h("div",{style:{flex:1,minWidth:0}},h("div",{className:"sel-name"},c.name),h("div",{className:"sel-sub"},`${c.cardNum||"****"+c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)),
       h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")));
   });return w;
 }
@@ -546,18 +732,19 @@ function renderCardsTab(){
     const bl=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id})},
       h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}},
         h("span",{className:"net",style:{background:card.color}},NET_ICONS[card.network]),
-        h("div",{style:{flex:1}},h("div",{className:"card-name"},`${card.name} ****${card.last4}`),
-          h("div",{className:"card-meta"},`Hạn ${dl}d · Chi ${fmtK(ts)} · CB ${fmtK(tc)}`,
-            card.minSpend>0?(ts<card.minSpend?h("span",{className:"badge badge-warn",style:{marginLeft:"6px"}},"!Min"):h("span",{className:"badge badge-ok",style:{marginLeft:"6px"}},"✓Min")):null)),
+        h("div",{style:{flex:1}},h("div",{className:"card-name"},`${card.name} ${card.cardNum||"****"+card.last4}`),
+          h("div",{className:"card-meta"},`Hạn ${dl}d · Chi ${fmtK(ts)} · CB ${fmtK(tc)}`)),
         h("span",{style:{color:"var(--text3)",fontSize:"14px"}},"›")));
 
+    {const msRow=renderMinSpendRow(card,ct);if(msRow)bl.appendChild(msRow);}
     card.cashbackCategories.forEach(cb=>{
       const active=isCatActive(card,ct,cb.category),cs=calcCatSpend(card,ct,cb.category),ec=calcCatCb(card,ct,cb.category);
       const pct=active?Math.min(cs/cb.maxSpend*100,100):0;
       const isFull=active&&(pct>=100||(shared&&shared.cats&&shared.cats.includes(cb.category)&&shared.isFull));
       const badges=[];
       if(card.firstCatOnly){const ac=getActiveCat(card,ct);if(ac)badges.push(active?h("span",{className:"badge badge-active",style:{marginLeft:"5px"}},"✓"):h("span",{className:"badge badge-muted",style:{marginLeft:"5px"}},"✗"))}
-      bl.appendChild(h("div",{className:"cb-row"+(active?"":" off")},
+      const minNotMet=card.minSpend>0&&ts<card.minSpend;
+      bl.appendChild(h("div",{className:"cb-row"+(active&&!minNotMet?"":" off")},
         h("div",{className:"cb-head"},h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),h("span",{className:"cb-amt"},`${fmtK(cs)}/${fmtK(cb.maxSpend)}`)),
         h("div",{className:"bar-track"},h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
         h("div",{className:"cb-foot"},h("span",null,`CB ≈${fmtK(ec)}/${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"badge badge-warn"},"⚠ Tối ưu"):null)));
@@ -573,19 +760,21 @@ function renderCardDetail(){
   const card=ALL_CARDS.find(c=>c.id===state.detailCardId);if(!card)return h("div",null,"?");
   const ct=getCycleTxns(card),ts=ct.reduce((s,t)=>s+t.amount,0),tc=calcTotalCb(card,ct),dl=daysUntilDue(card),shared=calcSharedCb(card,ct);
   const w=h("div",null);
-  w.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},"‹ ",`${card.name} ****${card.last4}`));
+  w.appendChild(h("div",{className:"back-btn",onClick:()=>setState({detailCardId:null})},"‹ ",`${card.name} ${card.cardNum||"****"+card.last4}`));
   w.appendChild(h("div",{className:"stat-row"},
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Tổng chi kỳ"),h("div",{className:"stat-val"},fmtK(ts)+"₫")),
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"CB ước tính"),h("div",{className:"stat-val",style:{color:"var(--green)"}},fmtK(tc)+"₫")),
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Hạn TT"),h("div",{className:"stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))));
 
+  {const msRow=renderMinSpendRow(card,ct);if(msRow)w.appendChild(msRow);}
   card.cashbackCategories.forEach(cb=>{
     const active=isCatActive(card,ct,cb.category),cs=calcCatSpend(card,ct,cb.category),ec=calcCatCb(card,ct,cb.category);
     const pct=active?Math.min(cs/cb.maxSpend*100,100):0;
     const isFull=active&&(pct>=100||(shared&&shared.cats&&shared.cats.includes(cb.category)&&shared.isFull));
     const badges=[];
     if(card.firstCatOnly){const ac=getActiveCat(card,ct);if(ac)badges.push(active?h("span",{className:"badge badge-active",style:{marginLeft:"5px"}},"✓ Active"):h("span",{className:"badge badge-muted",style:{marginLeft:"5px"}},"✗ No CB"))}
-    w.appendChild(h("div",{className:"cb-row"+(active?"":" off")},
+    const minNotMetD=card.minSpend>0&&ts<card.minSpend;
+    w.appendChild(h("div",{className:"cb-row"+(active&&!minNotMetD?"":" off")},
       h("div",{className:"cb-head"},h("span",null,h("span",{className:"cb-cat"},`${cb.category} ${Math.round(cb.rate*100)}%`),...badges),h("span",{className:"cb-amt"},`${fmtK(cs)} / ${fmtK(cb.maxSpend)}`)),
       h("div",{className:"bar-track"},h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--warn)":card.color}})),
       h("div",{className:"cb-foot"},h("span",null,`CB ≈ ${fmtK(ec)} / ${fmtK(cb.maxCashback)}`),isFull?h("span",{className:"badge badge-warn"},"⚠ Đã đạt tối ưu"):null)));
@@ -639,7 +828,7 @@ function renderShopList(el){
       if(active&&shared&&shared.cats&&shared.cats.includes(s.category)){remCb=Math.max(shared.max-shared.total,0);if(shared.isFull)isFull=true}
       const inNote=(!active&&card.firstCatOnly)?getActiveCat(card,ct):null;
       se.appendChild(h("div",{className:"shop-rec",style:{borderColor:isFull?"var(--warnBorder)":`${card.color}40`,background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,opacity:active?1:.4}},
-        h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"4px"}},h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),h("span",{style:{fontWeight:700,fontSize:"12px"}},`${card.name} ****${card.last4}`),isFull?(inNote?h("span",{className:"badge badge-warn"},"🔒 "+inNote):h("span",{className:"badge badge-warn"},"⚠ Full")):null),
+        h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"4px"}},h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),h("span",{style:{fontWeight:700,fontSize:"12px"}},`${card.name} ${card.cardNum||"****"+card.last4}`),isFull?(inNote?h("span",{className:"badge badge-warn"},"🔒 "+inNote):h("span",{className:"badge badge-warn"},"⚠ Full")):null),
         h("div",{className:"shop-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
         active&&!isFull?h("div",{className:"shop-detail"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remS)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remCb))):h("div",{className:"shop-detail",style:{color:"var(--warn)"}},inNote?`Kỳ này đang active "${inNote}"`:"Đã hết cashback kỳ này"),
         h("div",{className:"mini-bar"},h("div",{style:{height:"100%",borderRadius:"2px",width:pct+"%",background:isFull?"var(--warn)":card.color,transition:"width .3s"}}))));
@@ -652,7 +841,7 @@ function renderTxnTab(){
   const w=h("div",null),cards=selectedCards();
   const selC=h("select",{onChange:e=>setState({filterCard:e.target.value})});
   selC.appendChild(h("option",{value:"all"},"Tất cả thẻ"));
-  cards.forEach(c=>selC.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));selC.value=state.filterCard;
+  cards.forEach(c=>selC.appendChild(h("option",{value:c.id},`${c.name} ${c.cardNum||"****"+c.last4}`)));selC.value=state.filterCard;
   const mIn=h("input",{type:"month",className:"month-in",onChange:e=>setState({filterMonth:e.target.value})});mIn.value=state.filterMonth;
   w.appendChild(h("div",{className:"filter-row"},selC,mIn));
 
@@ -665,7 +854,7 @@ function renderTxnTab(){
   filtered.forEach(tx=>{
     const card=ALL_CARDS.find(c=>c.id===tx.cardId),cb=card?calcTxnCb(tx,card,getCycleTxns(card)):0;
     w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},
-      h("span",{className:"tx-tag",style:{background:`${card?.color||"#555"}20`,color:card?.color||"#aaa"}},card?`****${card.last4}`:"?"),
+      h("span",{className:"tx-tag",style:{background:`${card?.color||"#555"}20`,color:card?.color||"#aaa"}},card?`${card.cardNum||"****"+card.last4}`:"?"),
       h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"9px",color:"var(--text3)"}},tx.date))),
       h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"+"+fmtK(cb)):null,
         h("button",{className:"del",onClick:()=>{state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕"))));
@@ -712,7 +901,7 @@ function renderAddTxn(){
   }
 
   const cs=h("select",{onChange:e=>{const nc=ALL_CARDS.find(c=>c.id===e.target.value);setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""})}});
-  cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));cs.value=state.addCardId;
+  cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ${c.cardNum||"****"+c.last4}`)));cs.value=state.addCardId;
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Thẻ"),cs));
 
   const catS=h("select",{onChange:e=>setState({addCategory:e.target.value,addShop:""})});
@@ -771,7 +960,7 @@ function renderAddEv(){
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Ngày event"),h("input",{type:"date",className:"input",value:state.addEventDate,onChange:e=>setState({addEventDate:e.target.value})})));
   const cs=h("select",{onChange:e=>setState({addEventCard:e.target.value})});
   cs.appendChild(h("option",{value:""},"-- Không gắn thẻ --"));
-  cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ****${c.last4}`)));cs.value=state.addEventCard;
+  cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ${c.cardNum||"****"+c.last4}`)));cs.value=state.addEventCard;
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Thẻ (tuỳ chọn)"),cs));
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Nội dung"),h("input",{type:"text",className:"input","data-fid":"add-evnote",placeholder:"Nội dung sự kiện",value:state.addEventNote,onInput:e=>{setQ({addEventNote:e.target.value});clearTimeout(_addInputTimer);_addInputTimer=setTimeout(render,350)}})));
 
@@ -780,7 +969,7 @@ function renderAddEv(){
     clearTimeout(_addInputTimer);
     const liveCanS=state.addEventDate&&state.addEventNote.trim();
     if(!liveCanS)return;const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
-    state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote.trim(),sub:card?`${card.name} ****${card.last4}`:null,cardId:state.addEventCard||null});
+    state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote.trim(),sub:card?`${card.name} ${card.cardNum||"****"+card.last4}`:null,cardId:state.addEventCard||null});
     state.addEventDate="";state.addEventNote="";state.addEventCard="";persist();showToast("✓ Đã thêm event");render();
   }},"+ Thêm Event"));
 
