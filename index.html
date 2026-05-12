@@ -219,7 +219,7 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 // ═══════════════════════════════════════════
 const ALL_CARDS=[
   // ── VIB MAX ──
-  {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:4,color:"#7C3AED",
+  {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:4,color:"#ADFF00",
     cashbackCategories:[
       {category:"Online",rate:.10,maxCashback:1500000,maxSpend:15000000},
       {category:"Ẩm thực",rate:.10,maxCashback:1500000,maxSpend:15000000},
@@ -230,38 +230,38 @@ const ALL_CARDS=[
     note:"Max 1.5tr/tháng chung tất cả danh mục. Nhớ đăng ký gói Hội viên mỗi 3 tháng"},
 
   // ── SHINHAN ──
-  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#0066B3",
+  {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#004996",
     cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:400000,maxSpend:4000000}],
     minSpend:3000000,note:"CB chỉ cho POS/Apple-Pay tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng"},
 
   // ── MSB mDigi ──
-  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#E31937",
+  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
     note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
-  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",cardNum:"532451****4232",stmtDay:20,dueDay:4,color:"#C41230",
+  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",cardNum:"532451****4232",stmtDay:20,dueDay:4,color:"#EB5B21",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
     note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
 
   // ── MSB Visa Online (2 cards, stmtDay=25, dueDay=10) ──
-  {id:"msb-9372",name:"MSB Visa Online",network:"Visa",last4:"9372",cardNum:"402215****9372",stmtDay:25,dueDay:10,color:"#B01C30",
+  {id:"msb-9372",name:"MSB Visa Online",network:"Visa",last4:"9372",cardNum:"402215****9372",stmtDay:25,dueDay:10,color:"#EB5B21",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
-  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",cardNum:"402215****1712",stmtDay:25,dueDay:10,color:"#D4213D",
+  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",cardNum:"402215****1712",stmtDay:25,dueDay:10,color:"#EB5B21",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
 
   // ── TCB Everyday (calendar month cycle, minTxn 200K) ──
-  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",cardNum:"403280****7929",stmtDay:0,dueDay:4,color:"#E4002B",
+  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",cardNum:"403280****7929",stmtDay:0,dueDay:4,color:"#C8102E",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
     minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)"},
-  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",cardNum:"403280****5166",stmtDay:0,dueDay:4,color:"#CC0028",
+  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",cardNum:"403280****5166",stmtDay:0,dueDay:4,color:"#C8102E",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
     minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)"},
 
   // ── LPB JCB Ultimate (minSpend 8tr) ──
-  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",cardNum:"356772****2059",stmtDay:20,dueDay:4,color:"#0C4DA2",
+  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",cardNum:"356772****2059",stmtDay:20,dueDay:4,color:"#DA251D",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},
       {category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},
@@ -270,12 +270,12 @@ const ALL_CARDS=[
     minSpend:8000000,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K; Chi tiêu tối thiểu 8tr/kỳ"},
 
   // ── HDB Visa EZ Gold (calendar month) ──
-  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",cardNum:"498767****4497",stmtDay:0,dueDay:4,color:"#E87722",
+  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",cardNum:"498767****4497",stmtDay:0,dueDay:4,color:"#ED1C24",
     cashbackCategories:[{category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333},{category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000}],
     minSpend:0,calendarMonth:true,note:"Online 6% max 200K và Ẩm thực 4% max 100K — 2 lĩnh vực CB độc lập; chu kỳ tháng lịch"},
 
   // ── HDB Vietjet Platinum (calendar month, corrected caps) ──
-  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",cardNum:"416259****1541",stmtDay:0,dueDay:4,color:"#D4602E",
+  {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",cardNum:"416259****1541",stmtDay:0,dueDay:4,color:"#ED1C24",
     cashbackCategories:[
       {category:"Ẩm thực",rate:.10,maxCashback:300000,maxSpend:3000000},
       {category:"Du lịch",rate:.10,maxCashback:300000,maxSpend:3000000},
@@ -285,7 +285,7 @@ const ALL_CARDS=[
     note:"Ẩm thực & Du lịch max CB 300K chung (không bao gồm Fastfood); Vé Vietjet riêng max 500K; chu kỳ tháng lịch"},
 
   // ── BVB Lifestyle (CORRECTED: calendar month, stmtDay=20, dueDay=15, minSpend=3tr, new rates) ──
-  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",cardNum:"420694****0202",stmtDay:20,dueDay:15,color:"#1B8A6B",
+  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",cardNum:"420694****0202",stmtDay:20,dueDay:15,color:"#00AEEF",
     cashbackCategories:[
       {category:"Thời trang",rate:.05,maxCashback:200000,maxSpend:4000000},
       {category:"Ẩm thực",rate:.01,maxCashback:200000,maxSpend:20000000},
@@ -295,12 +295,12 @@ const ALL_CARDS=[
     note:"Max 200K/tháng chung; lĩnh vực CB = GD đầu tiên nhập vào; chi tiêu tối thiểu 3tr; chu kỳ tháng lịch"},
 
   // ── Seabank Sea-Easy (calendar month) ──
-  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",cardNum:"426545****6891",stmtDay:30,dueDay:8,color:"#F26522",
+  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",cardNum:"426545****6891",stmtDay:30,dueDay:8,color:"#E31B23",
     cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],
     minSpend:0,calendarMonth:true,note:"Chỉ áp dụng GD tại Shopee; chu kỳ tháng lịch"},
 
   // ── VIB SuperCard ──
-  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",cardNum:"370990****4549",stmtDay:27,dueDay:20,color:"#8B5CF6",
+  {id:"vib-4549",name:"VIB SuperCard",network:"Amex",last4:"4549",cardNum:"370990****4549",stmtDay:27,dueDay:20,color:"#ADFF00",
     cashbackCategories:[
       {category:"Ẩm thực",rate:.10,maxCashback:500000,maxSpend:5000000},
       {category:"Thời trang",rate:.10,maxCashback:500000,maxSpend:5000000},
@@ -312,19 +312,19 @@ const ALL_CARDS=[
     note:"Max 1tr/tháng tổng; mỗi danh mục max 500K"},
 
   // ── Sacombank Platinum AMEX ──
-  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",cardNum:"370989****9870",stmtDay:30,dueDay:20,color:"#006B3F",
+  {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",cardNum:"370989****9870",stmtDay:30,dueDay:20,color:"#0054A4",
     cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],
     minSpend:0,note:"Max 1tr/tháng; Du lịch gồm Agoda, hotel, vé máy bay"},
 
   // ── MB JCB Ultimate (2 cards) ──
-  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",cardNum:"356772****4887",stmtDay:8,dueDay:20,color:"#004A98",
+  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",cardNum:"356772****4887",stmtDay:8,dueDay:20,color:"#003399",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
       {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
       {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
     ],
     minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
-  {id:"mb-8026",name:"MB JCB Ultimate",network:"JCB",last4:"8026",cardNum:"356772****8026",stmtDay:8,dueDay:20,color:"#1A5EA8",
+  {id:"mb-8026",name:"MB JCB Ultimate",network:"JCB",last4:"8026",cardNum:"356772****8026",stmtDay:8,dueDay:20,color:"#1A4DB3",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
       {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
@@ -333,7 +333,7 @@ const ALL_CARDS=[
     minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
 
   // ── HSBC Live+ (calendar month) ──
-  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",cardNum:"437841****3008",stmtDay:4,dueDay:27,color:"#DB0011",
+  {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",cardNum:"437841****3008",stmtDay:4,dueDay:27,color:"#C8102E",
     cashbackCategories:[
       {category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},
       {category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}
@@ -341,7 +341,7 @@ const ALL_CARDS=[
     minSpend:0,sharedMaxCashback:200000,calendarMonth:true,note:"Max 200K chung Ẩm thực & Thời trang; chu kỳ tháng lịch"},
 
   // ── Sacombank Uniq 4499 ──
-  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",cardNum:"436438****4499",stmtDay:5,dueDay:27,color:"#0F7B5F",
+  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",cardNum:"436438****4499",stmtDay:5,dueDay:27,color:"#0054A4",
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},
       {category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}
@@ -349,7 +349,7 @@ const ALL_CARDS=[
     minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
 
   // ── Sacombank Uniq 3007 (stmtDay=27, dueDay=22) ──
-  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",cardNum:"436438****3007",stmtDay:27,dueDay:22,color:"#0A6B50",
+  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",cardNum:"436438****3007",stmtDay:27,dueDay:22,color:"#0054A4",
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},
       {category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}
@@ -357,7 +357,7 @@ const ALL_CARDS=[
     minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
 
   // ── CIMB (new card, calendar month, independent cats) ──
-  {id:"cimb-6112",name:"CIMB",network:"Visa",last4:"6112",cardNum:"472626****6112",stmtDay:25,dueDay:8,color:"#E2001A",
+  {id:"cimb-6112",name:"CIMB",network:"Visa",last4:"6112",cardNum:"472626****6112",stmtDay:25,dueDay:8,color:"#ED1C24",
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:100000,maxSpend:500000},
       {category:"Du lịch",rate:.20,maxCashback:100000,maxSpend:500000},
@@ -703,34 +703,140 @@ function renderSelectTab(){
   const w=h("div",null,h("p",{className:"hint"},"// chọn thẻ cần theo dõi"));
   const allSelected=ALL_CARDS.every(c=>state.selectedCardIds.includes(c.id));
   const someSelected=ALL_CARDS.some(c=>state.selectedCardIds.includes(c.id));
-  w.appendChild(h("div",{className:"sel-item"+(allSelected?" on":""),style:{"--card-color":"var(--accent)","marginBottom":"12px","borderStyle":allSelected?"solid":"dashed"},
-    onClick:()=>{
-      setState({selectedCardIds:allSelected?[]:[...ALL_CARDS.map(c=>c.id)]});
-    }},
-    h("span",{className:"net",style:{background:"var(--accent)",fontSize:"16px"}},"☰"),
+
+  // ── Select All row ──
+  w.appendChild(h("div",{
+    style:{display:"flex",alignItems:"center",gap:"10px",padding:"11px 14px",
+      background:"var(--bg4)",border:"1.5px solid var(--border2)",
+      borderRadius:"var(--radius)",cursor:"pointer",marginBottom:"12px",
+      boxShadow:"var(--shadow)"},
+    onClick:()=>setState({selectedCardIds:allSelected?[]:[...ALL_CARDS.map(c=>c.id)]})},
+    h("span",{className:"net",style:{background:"linear-gradient(135deg,var(--accent2),var(--purple))",fontSize:"15px"}},"✦"),
     h("div",{style:{flex:1}},
-      h("div",{className:"sel-name"},allSelected?"Tất cả thẻ (bỏ chọn hết)":"Chọn tất cả thẻ"),
-      h("div",{className:"sel-sub"},`${ALL_CARDS.length} thẻ · ${state.selectedCardIds.length} đang chọn`)
+      h("div",{style:{fontWeight:800,fontSize:"14px",color:"var(--accent)"}},
+        allSelected?"☑ Chọn tất cả Thẻ":"☐ Chọn tất cả Thẻ"),
+      h("div",{className:"sel-sub"},`${state.selectedCardIds.length} / ${ALL_CARDS.length} thẻ đang được chọn`)
     ),
-    h("div",{className:"chk"+(allSelected?" on":""),style:{"--card-color":"var(--accent)"}},
+    h("div",{className:"chk"+(allSelected?" on":""),style:{"--card-color":"var(--accent)","borderColor":someSelected&&!allSelected?"var(--accent)":""}},
       allSelected?"✓":someSelected?"—":""
     )
   ));
-  ALL_CARDS.forEach(c=>{
-    const on=state.selectedCardIds.includes(c.id);
-    w.appendChild(h("div",{className:"sel-item"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
-      setState({selectedCardIds:on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id]});
-    }},h("span",{className:"net",style:{background:c.color}},NET_ICONS[c.network]),
-      h("div",{style:{flex:1,minWidth:0}},h("div",{className:"sel-name"},c.name),h("div",{className:"sel-sub"},`${c.cardNum||"****"+c.last4} · Sao kê ${c.stmtDay} · Hạn ${c.dueDay}`)),
-      h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")));
-  });return w;
+
+  // ── Group by bank ──
+  function getBankKey(card){
+    const id=card.id;
+    if(id.startsWith("bvb"))return"BVBank";
+    if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("hdb"))return"HDBank";
+    if(id.startsWith("hsbc"))return"HSBC";
+    if(id.startsWith("lpb"))return"LPBank";
+    if(id.startsWith("mb"))return"MB Bank";
+    if(id.startsWith("msb"))return"MSB";
+    if(id.startsWith("sacom"))return"Sacombank";
+    if(id.startsWith("seabank"))return"SeaBank";
+    if(id.startsWith("shinhan"))return"Shinhan";
+    if(id.startsWith("tcb"))return"Techcombank";
+    if(id.startsWith("vib"))return"VIB";
+    return"Khác";
+  }
+
+  const groups={};
+  ALL_CARDS.forEach(c=>{const bank=getBankKey(c);if(!groups[bank])groups[bank]=[];groups[bank].push(c)});
+  const sortedBanks=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+
+  sortedBanks.forEach(bank=>{
+    const cards=groups[bank];
+    const bankColor=cards[0].color;
+    const bankAllSel=cards.every(c=>state.selectedCardIds.includes(c.id));
+    const bankSomeSel=cards.some(c=>state.selectedCardIds.includes(c.id));
+    const selCount=cards.filter(c=>state.selectedCardIds.includes(c.id)).length;
+
+    // Outer card — like shop-card
+    const bankCard=h("div",{className:"shop-card",style:{
+      marginBottom:"8px",
+      borderColor:bankAllSel?bankColor+"80":bankSomeSel?bankColor+"40":"var(--card-border)",
+      background:bankAllSel?`color-mix(in srgb,${bankColor} 8%,var(--card-bg))`:"var(--card-bg)"
+    }});
+
+    // Bank header row — tap to toggle all cards of this bank
+    bankCard.appendChild(h("div",{className:"shop-head",style:{cursor:"pointer",marginBottom:"8px"},
+      onClick:()=>{
+        const ids=cards.map(c=>c.id),nowSel=state.selectedCardIds;
+        bankAllSel?setState({selectedCardIds:nowSel.filter(x=>!ids.includes(x))}):setState({selectedCardIds:[...new Set([...nowSel,...ids])]});
+      }},
+      h("span",{className:"net-sm",style:{background:bankColor,width:"24px",height:"24px",fontSize:"11px"}},NET_ICONS[cards[0].network]),
+      h("div",{style:{flex:1}},
+        h("div",{className:"shop-name",style:{color:bankAllSel?bankColor:"var(--text)"}},bank),
+        h("div",{className:"shop-cat"},`${selCount}/${cards.length} thẻ đang chọn`)
+      ),
+      h("div",{className:"chk"+(bankAllSel?" on":""),style:{"--card-color":bankColor,"borderColor":bankSomeSel&&!bankAllSel?bankColor+"80":"","flexShrink":0}},
+        bankAllSel?"✓":bankSomeSel?"—":""
+      )
+    ));
+
+    // Individual cards inside
+    cards.forEach(c=>{
+      const on=state.selectedCardIds.includes(c.id);
+      bankCard.appendChild(h("div",{
+        style:{display:"flex",alignItems:"center",gap:"10px",
+          padding:"9px 11px",
+          background:on?`color-mix(in srgb,${c.color} 10%,var(--bg3))`:"var(--bg3)",
+          border:`1.5px solid ${on?c.color+"70":"var(--border)"}`,
+          borderRadius:"var(--radius-sm)",cursor:"pointer",marginBottom:"6px",
+          transition:"all .15s"},
+        onClick:()=>setState({selectedCardIds:on?state.selectedCardIds.filter(x=>x!==c.id):[...state.selectedCardIds,c.id]})},
+        h("div",{style:{flex:1,minWidth:0}},
+          h("div",{style:{display:"flex",alignItems:"baseline",gap:"7px"}},
+            h("div",{style:{fontWeight:700,fontSize:"13px",color:on?c.color:"var(--text)"}},c.name),
+            h("div",{className:"sel-sub",style:{fontSize:"11px"}},
+              (c.cardNum||"****"+c.last4).slice(0,-4),
+              h("span",{style:{fontWeight:800,color:"var(--text2)"}},
+                (c.cardNum||"****"+c.last4).slice(-4))
+            )
+          ),
+          h("div",{className:"sel-sub",style:{marginTop:"2px"}},
+            `Sao kê: ${c.stmtDay>0?c.stmtDay+"th":"1st"} · Hạn TT: ${c.dueDay}th · CB: ${c.calendarMonth?"tháng lịch":"theo sao kê"}`)
+        ),
+        h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")
+      ));
+    });
+
+    w.appendChild(bankCard);
+  });
+  return w;
 }
+
 
 // ═══ CARDS TAB ═══
 function renderCardsTab(){
-  const w=h("div",null),cards=selectedCards();
-  if(!cards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
+  const w=h("div",null);
+  const rawCards=selectedCards();
+  if(!rawCards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
+  function getBankKeyC(card){
+    const id=card.id;
+    if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
+    if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
+    if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
+    if(id.startsWith("seabank"))return"SeaBank";if(id.startsWith("shinhan"))return"Shinhan";
+    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";
+    return"Khác";
+  }
+  const cards=[...rawCards].sort((a,b)=>{
+    const ba=getBankKeyC(a),bb=getBankKeyC(b);
+    if(ba!==bb)return ba.localeCompare(bb);
+    return a.name.localeCompare(b.name,"vi");
+  });
+  // Group header tracking
+  let lastBank="";
   cards.forEach(card=>{
+    const bankName=getBankKeyC(card);
+    if(bankName!==lastBank){
+      lastBank=bankName;
+      w.appendChild(h("div",{style:{fontSize:"11px",fontWeight:800,color:"var(--text3)",
+        fontFamily:"var(--font-mono)",textTransform:"uppercase",letterSpacing:".6px",
+        margin:"12px 0 6px 2px"}},bankName));
+    }
     const ct=getCycleTxns(card),dl=daysUntilDue(card),ts=ct.reduce((s,t)=>s+t.amount,0),tc=calcTotalCb(card,ct),shared=calcSharedCb(card,ct);
     const bl=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id})},
       h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}},
