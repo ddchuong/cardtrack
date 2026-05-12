@@ -231,7 +231,7 @@ const ALL_CARDS=[
 
   // ── SHINHAN ──
   {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#004996",
-    cashbackCategories:[{category:"Siêu thị",rate:.10,maxCashback:400000,maxSpend:4000000}],
+    cashbackCategories:[{category:"Siêu thị",rate:.12,maxCashback:400000,maxSpend:3333333}],
     minSpend:3000000,note:"CB chỉ cho POS/Apple-Pay tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng"},
 
   // ── MSB mDigi ──
@@ -1001,8 +1001,23 @@ function renderAddTab(){
 }
 
 function renderAddTxn(){
-  const w=h("div",null),cards=selectedCards();
-  if(!cards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
+  const w=h("div",null);
+  const rawCards=selectedCards();
+  if(!rawCards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
+  function getBK(id){
+    if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
+    if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
+    if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
+    if(id.startsWith("seabank"))return"SeaBank";if(id.startsWith("shinhan"))return"Shinhan";
+    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";
+    return"Khác";
+  }
+  const cards=[...rawCards].sort((a,b)=>{
+    const ba=getBK(a.id),bb=getBK(b.id);
+    if(ba!==bb)return bb.localeCompare(ba);
+    return b.name.localeCompare(a.name,"vi");
+  });
   if(!state.addCardId||!cards.find(c=>c.id===state.addCardId))state.addCardId=cards[0].id;
   const selCard=ALL_CARDS.find(c=>c.id===state.addCardId);
   if(selCard){
@@ -1067,7 +1082,21 @@ function renderAddTxn(){
 }
 
 function renderAddEv(){
-  const w=h("div",null),cards=selectedCards();
+  const w=h("div",null);
+  function getBKe(id){
+    if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
+    if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
+    if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
+    if(id.startsWith("seabank"))return"SeaBank";if(id.startsWith("shinhan"))return"Shinhan";
+    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";
+    return"Khác";
+  }
+  const cards=[...selectedCards()].sort((a,b)=>{
+    const ba=getBKe(a.id),bb=getBKe(b.id);
+    if(ba!==bb)return bb.localeCompare(ba);
+    return b.name.localeCompare(a.name,"vi");
+  });
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Ngày event"),h("input",{type:"date",className:"input",value:state.addEventDate,onChange:e=>setState({addEventDate:e.target.value})})));
   const cs=h("select",{onChange:e=>setState({addEventCard:e.target.value})});
   cs.appendChild(h("option",{value:""},"-- Không gắn thẻ --"));
