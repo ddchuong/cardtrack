@@ -701,6 +701,21 @@ function renderTabBar(){
 // ═══ SELECT TAB ═══
 function renderSelectTab(){
   const w=h("div",null,h("p",{className:"hint"},"// chọn thẻ cần theo dõi"));
+  const allSelected=ALL_CARDS.every(c=>state.selectedCardIds.includes(c.id));
+  const someSelected=ALL_CARDS.some(c=>state.selectedCardIds.includes(c.id));
+  w.appendChild(h("div",{className:"sel-item"+(allSelected?" on":""),style:{"--card-color":"var(--accent)","marginBottom":"12px","borderStyle":allSelected?"solid":"dashed"},
+    onClick:()=>{
+      setState({selectedCardIds:allSelected?[]:[...ALL_CARDS.map(c=>c.id)]});
+    }},
+    h("span",{className:"net",style:{background:"var(--accent)",fontSize:"16px"}},"☰"),
+    h("div",{style:{flex:1}},
+      h("div",{className:"sel-name"},allSelected?"Tất cả thẻ (bỏ chọn hết)":"Chọn tất cả thẻ"),
+      h("div",{className:"sel-sub"},`${ALL_CARDS.length} thẻ · ${state.selectedCardIds.length} đang chọn`)
+    ),
+    h("div",{className:"chk"+(allSelected?" on":""),style:{"--card-color":"var(--accent)"}},
+      allSelected?"✓":someSelected?"—":""
+    )
+  ));
   ALL_CARDS.forEach(c=>{
     const on=state.selectedCardIds.includes(c.id);
     w.appendChild(h("div",{className:"sel-item"+(on?" on":""),style:{"--card-color":c.color},onClick:()=>{
