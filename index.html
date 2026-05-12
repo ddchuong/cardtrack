@@ -369,120 +369,108 @@ const ALL_CARDS=[
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 const SHOP_SUGGESTIONS={
-  "Siêu thị":["KingFood","BHX","AnNam","Winmart","BigC","Emart","MegaM","Coop","Muji","Glam Beautique"],
-  "Ẩm thực":["ShopeeFood","Hokkaido","Golden Gate","Manwah","Wrap n Roll","Changkangkung","Clemence","Paris Baguette","Hoang Yen","BE AN 1","WarningZone","Petit Spearl","Pizza4Ps",
-    "Starbucks","Highlands","Phuc Long","CoffeeHouse","TrungNguyen","ThreeOClock","Katinat","PheLa","GongCha","KoiThe","Domino","McDonalds","KFC","Takashimaya"],
-  "Y tế":["VNVC","TMH SG","Victoria HC","Vinmec","YDuoc","Choray","HaiYen","Á Châu","Pharmacity"],
-  "Giáo dục":["SSC","ReadingQ","NS PhuongNam","Fahasa","MyKingdom"],
-  "Online":["Shopee","Lazada","Adidas Online","Tiktok"],
+  "Siêu thị":["AnNam","BHX","BigC","Coop","Emart","Glam Beautique","KingFood","MegaM","Muji","Winmart"],
+  "Ẩm thực":["BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","ShopeeFood","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
+  "Y tế":["Choray","HaiYen","Pharmacity","TMH SG","Victoria HC","Vinmec","VNVC","YDuoc","Á Châu"],
+  "Giáo dục":["Fahasa","MyKingdom","NS PhuongNam","ReadingQ","SSC"],
+  "Online":["Adidas Online","Lazada","Shopee","Tiktok"],
   "Bảo hiểm":["Bảo Việt","Manulife"],
-  "Thời trang":["Uniqlo","H&M","Adidas","Zara","Decathlon","SuperSports","Bath Body Works"],
-  "Du lịch":["Agoda","Traveloka","Trip","Booking"],
-  "Di chuyển":["Grab","Be"],
+  "Thời trang":["Adidas","Bath Body Works","Decathlon","H&M","SuperSports","Uniqlo","Zara"],
+  "Du lịch":["Agoda","Booking","Traveloka","Trip"],
+  "Di chuyển":["Be","Grab"],
   "Vé Vietjet":["Vietjet"],
   "Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],
   "Nước ngoài":[]
 };
 
 const SHOP_CARD_MAP=[
-  // ── Siêu thị (Shinhan + Sacom only per new list) ──
-  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  // ── Siêu thị ──
   {shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
   {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Emart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"MegaM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
   {shop:"Coop",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Muji",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Emart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
   {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-
-  // ── Ẩm thực nhà hàng (MSB MC + HDB Gold + VIB + HSBC) ──
-  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Manwah",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"MegaM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Muji",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  // ── Ẩm thực ──
+  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
   {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
   {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
-  // Fastfood (MSB MC + HDB Gold + HSBC only)
-  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
   {shop:"CoffeeHouse",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"TrungNguyen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"ThreeOClock",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"PheLa",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"GongCha",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"KoiThe",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
   {shop:"Domino",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"GongCha",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
   {shop:"KFC",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"KoiThe",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Manwah",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"PheLa",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
   {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-
+  {shop:"ThreeOClock",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"TrungNguyen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
+  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
+  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4434","vib-4549","hsbc-3008"]},
   // ── Online ──
-  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549","seabank-6891"]},
-  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549"]},
   {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549"]},
-  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712"]},
   {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712"]},
-
+  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549"]},
+  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","vib-4549","seabank-6891"]},
+  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712"]},
   // ── Thời trang ──
-  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
-  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
   {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
-  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
-  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
-  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
   {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
-
+  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
+  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","bvb-0202"]},
   // ── Di chuyển ──
-  {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
   {shop:"Be",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
-
+  {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
   // ── Du lịch ──
   {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
+  {shop:"Booking",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
   {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
   {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
-  {shop:"Booking",category:"Du lịch",cardIds:["sacom-9870","vib-4549","vib-4434"]},
-
-  // ── Y tế (Bệnh viện: LPB+MB; Nhà thuốc: MB only) ──
-  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  // ── Y tế ──
+  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
   {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
   {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
   {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
   {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
   {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
-  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
-
   // ── Giáo dục ──
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
   {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
   {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-
+  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
   // ── Bảo hiểm ──
   {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026"]},
   {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-
   // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
-
   // ── Giải trí ──
   {shop:"CGV",category:"Giải trí",cardIds:["bvb-0202"]},
   {shop:"Galaxy Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
   {shop:"Lotte Cinema",category:"Giải trí",cardIds:["bvb-0202"]}
-];
+]
 
 
 const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
@@ -695,7 +683,7 @@ function renderHeader(){
     h("span",{className:"header-title"},"CardTrack"),
     h("div",{className:"header-right"},
       h("span",{className:"hbadge mono"},selectedCards().length+" thẻ"),
-      uc>0?h("span",{className:"hbadge warn mono"},uc+" ⚡"):null,
+      uc>0?h("span",{className:"hbadge warn mono",style:{cursor:"pointer"},onClick:()=>setState({tab:"events",detailCardId:null})},uc+" ⚡"):null,
       h("button",{className:"theme-btn",onClick:()=>setTheme(theme==="dark"?"light":"dark")},theme==="dark"?"☀️":"🌙")));
 }
 
@@ -813,7 +801,8 @@ function renderShopList(el){
   const selIds=state.selectedCardIds;
   const filtered=SHOP_CARD_MAP.filter(s=>state.shopCatFilter==="all"||s.category===state.shopCatFilter)
     .filter(s=>!state.shopSearch||s.shop.toLowerCase().includes(state.shopSearch.toLowerCase()))
-    .map(s=>({...s,cardIds:s.cardIds.filter(id=>selIds.includes(id))})).filter(s=>s.cardIds.length>0);
+    .map(s=>({...s,cardIds:s.cardIds.filter(id=>selIds.includes(id))})).filter(s=>s.cardIds.length>0)
+    .sort((a,b)=>a.shop.localeCompare(b.shop,'vi'));
   if(!filtered.length){el.appendChild(h("p",{className:"empty"},"// không tìm thấy shop"));return}
   filtered.forEach(s=>{
     const se=h("div",{className:"shop-card"},h("div",{className:"shop-head"},h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))));
