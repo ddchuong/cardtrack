@@ -607,7 +607,7 @@ document.documentElement.setAttribute("data-theme",getTheme());
 // ═══ STATE ═══
 let state={
   tab:"cards",
-  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","msb-4232","msb-1712","tcb-5166","lpb-2059","hdb-1541","bvb-0202","mb-4887","mb-8026","cimb-6112"]),
+  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","lpb-2059","hdb-4497","hdb-1541","bvb-0202","seabank-6891","vib-4549","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112"]),
   transactions:load("ct7-txns",[]),
   events:load("ct7-events",[]),
   detailCardId:null,addMode:"txn",
@@ -797,13 +797,14 @@ function renderCardDetail(){
 // ═══ SHOP TAB ═══
 function renderShopTab(){
   const w=h("div",null);
-  w.appendChild(h("div",{style:{marginBottom:"8px"}},h("input",{className:"input",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
-    onInput:e=>{setQ({shopSearch:e.target.value});if(_shopTimer)clearTimeout(_shopTimer);_shopTimer=setTimeout(()=>{const l=document.getElementById("slist");if(l){l.innerHTML="";renderShopList(l)}},200)}})));
+  // Search input — debounce triggers full render
+  w.appendChild(h("div",{style:{marginBottom:"8px"}},h("input",{className:"input","data-fid":"shop-search",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
+    onInput:e=>{setQ({shopSearch:e.target.value});if(_shopTimer)clearTimeout(_shopTimer);_shopTimer=setTimeout(render,250)}})));
+  // Category filter chips — use setState so full render fires → chips re-paint correctly
   const cats=[...new Set(SHOP_CARD_MAP.map(s=>s.category))];
   const fw=h("div",{className:"cat-filter"});
-  const setCat=c=>{state.shopCatFilter=c;const l=document.getElementById("slist");if(l){l.innerHTML="";renderShopList(l)}else render()};
-  fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter==="all"?" sel":""),onClick:()=>setCat("all")},"All"));
-  cats.forEach(c=>fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter===c?" sel":""),onClick:()=>setCat(c)},(CAT_ICONS[c]||"📦")+" "+c)));
+  fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter==="all"?" sel":""),onClick:()=>setState({shopCatFilter:"all"})},"All"));
+  cats.forEach(c=>fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter===c?" sel":""),onClick:()=>setState({shopCatFilter:c})},(CAT_ICONS[c]||"📦")+" "+c)));
   w.appendChild(fw);
   const list=h("div",{id:"slist"});renderShopList(list);w.appendChild(list);return w;
 }
@@ -827,7 +828,7 @@ function renderShopList(el){
       const shared=calcSharedCb(card,ct);
       if(active&&shared&&shared.cats&&shared.cats.includes(s.category)){remCb=Math.max(shared.max-shared.total,0);if(shared.isFull)isFull=true}
       const inNote=(!active&&card.firstCatOnly)?getActiveCat(card,ct):null;
-      se.appendChild(h("div",{className:"shop-rec",style:{borderColor:isFull?"var(--warnBorder)":`${card.color}40`,background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,opacity:active?1:.4}},
+      se.appendChild(h("div",{className:"shop-rec",style:{borderColor:isFull?"var(--warnBorder)":`${card.color}40`,background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,opacity:(active&&!(card.minSpend>0&&getCycleTxns(card).reduce((s,t)=>s+t.amount,0)<card.minSpend))?1:.4}},
         h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"4px"}},h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),h("span",{style:{fontWeight:700,fontSize:"12px"}},`${card.name} ${card.cardNum||"****"+card.last4}`),isFull?(inNote?h("span",{className:"badge badge-warn"},"🔒 "+inNote):h("span",{className:"badge badge-warn"},"⚠ Full")):null),
         h("div",{className:"shop-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
         active&&!isFull?h("div",{className:"shop-detail"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remS)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remCb))):h("div",{className:"shop-detail",style:{color:"var(--warn)"}},inNote?`Kỳ này đang active "${inNote}"`:"Đã hết cashback kỳ này"),
@@ -872,7 +873,7 @@ function renderEventsTab(){
   return w;
 }
 function renderEvCard(ev,urg){
-  const d=new Date(ev.date),dotCls=urg?"urgent":(ev.isAuto?"due":"custom");
+  const d=parseLocalDate(ev.date),dotCls=urg?"urgent":(ev.isAuto?"due":"custom");
   const el=h("div",{className:`ev-card ${urg?"urgent":"normal"}`},
     h("div",{className:`ev-dot ${dotCls}`},h("span",{className:"ev-day"},d.getDate()),h("span",{className:"ev-mon"},MONTHS_VI[d.getMonth()])),
     h("div",{className:"ev-body"},h("div",{className:"ev-title"},ev.title),ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
