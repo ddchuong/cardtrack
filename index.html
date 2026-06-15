@@ -144,7 +144,7 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .tx-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .tx-amount{font-weight:800;font-size:16px;font-family:var(--font-mono)}
 .tx-cb{font-size:13px;color:var(--green);font-family:var(--font-mono)}
-.del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 4px;border-radius:4px;line-height:1}
+.del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:6px 9px;margin:-4px -3px;border-radius:6px;line-height:1;min-width:34px;min-height:32px;display:inline-flex;align-items:center;justify-content:center}
 .del:active{color:var(--red);background:var(--redBg)}
 
 /* Form */
@@ -190,8 +190,8 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .ev-title{font-weight:700;font-size:16px}
 .ev-sub{font-size:13px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
 .ev-urg{display:inline-block;font-size:12px;background:var(--warnBg);color:var(--warn);padding:2px 7px;border-radius:var(--radius-xs);font-weight:700;font-family:var(--font-mono);margin-top:4px;animation:shimmer 1.5s infinite}
-.ev-del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
-.ev-del:active{color:var(--red)}
+.ev-del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:6px;margin:-4px;border-radius:6px;flex-shrink:0;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.ev-del:active{color:var(--red);background:var(--redBg)}
 .ev-section{font-size:13px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 7px;padding-left:2px}
 
 
@@ -208,6 +208,19 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 
 .toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#000;font-weight:700;font-size:15px;padding:10px 20px;border-radius:12px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1);font-family:var(--font-mono)}
 .toast.show{transform:translateX(-50%) translateY(8px)}
+.toast.undo{display:flex;align-items:center;gap:14px;background:var(--bg4);color:var(--text);border:1px solid var(--border2);box-shadow:var(--shadow)}
+.toast-undo{background:var(--accent);color:#001018;border:none;border-radius:8px;padding:5px 12px;font-weight:800;font-size:14px;font-family:var(--font-body);cursor:pointer}
+.toast-undo:active{transform:scale(.95)}
+
+/* Segmented control */
+.seg{display:flex;gap:4px;margin-bottom:12px;background:var(--bg3);border-radius:10px;padding:3px}
+.seg-btn{flex:1;text-align:center;padding:8px 4px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s}
+.seg-btn.on{background:var(--card-bg);color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+
+/* Summary sub-line + date group header */
+.summary-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono);margin:-4px 0 12px;padding-left:2px}
+.tx-date-head{font-size:12px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 2px;padding-left:2px}
+.tx-date-head:first-child{margin-top:4px}
 </style>
 </head>
 <body>
@@ -493,6 +506,8 @@ function toLocalDateStr(d){
 function parseLocalDate(s){
   const p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]);
 }
+// "YYYY-MM-DD" → "T2, 15/6" (Vietnamese weekday + day/month)
+function fmtDateVi(s){const d=parseLocalDate(s),wd=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()];return `${wd}, ${d.getDate()}/${d.getMonth()+1}`}
 
 function cycleStart(card,ref){
   if(card.calendarMonth){
@@ -639,7 +654,8 @@ let state={
   addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:toLocalDateStr(new Date()),
   addEventDate:"",addEventCard:"",addEventNote:"",
   filterCard:"all",filterMonth:new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"),
-  shopSearch:"",shopCatFilter:"all"
+  shopSearch:"",shopCatFilter:"all",
+  cardSort:"bank",cardSearch:"",filterCat:"all"
 };
 
 let _shopTimer=null;
@@ -675,7 +691,28 @@ function getAutoEvents(){
   });return evts;
 }
 function urgentCount(){const now=new Date();return[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].filter(e=>e.diff>=0&&e.diff<=3).length}
-function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000)}
+// Light haptic feedback on iPhone (no-op where unsupported)
+function buzz(p){try{if(navigator.vibrate)navigator.vibrate(p)}catch{}}
+let _lastDeleted=null,_toastTimer=null;
+function showToast(msg){const t=document.getElementById("toast");t.classList.remove("undo");t.textContent=msg;t.classList.add("show");clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove("show"),2000)}
+function showToastUndo(msg,onUndo){
+  const t=document.getElementById("toast");t.classList.add("undo");t.textContent="";
+  t.appendChild(document.createTextNode(msg));
+  t.appendChild(h("button",{className:"toast-undo",onClick:()=>{t.classList.remove("show");onUndo()}},"↶ Hoàn tác"));
+  t.classList.add("show");clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{t.classList.remove("show");_lastDeleted=null},4500);
+}
+// Delete a transaction with a 4.5s undo window
+function deleteTxn(id){
+  const idx=state.transactions.findIndex(t=>t.id===id);if(idx<0)return;
+  _lastDeleted={tx:state.transactions[idx],idx};
+  state.transactions.splice(idx,1);persist();buzz(12);render();
+  showToastUndo("✓ Đã xoá giao dịch",()=>{
+    if(!_lastDeleted)return;
+    state.transactions.splice(Math.min(_lastDeleted.idx,state.transactions.length),0,_lastDeleted.tx);
+    _lastDeleted=null;persist();buzz(8);render();showToast("↶ Đã hoàn tác");
+  });
+}
 
 // ═══ RENDER ENGINE ═══
 function h(tag,attrs,...ch){
@@ -724,83 +761,60 @@ function renderHeader(){
     h("div",{className:"header-logo"},"CT"),
     h("span",{className:"header-title"},"CardTrack"),
     h("div",{className:"header-right"},
-      h("span",{className:"hbadge mono"},selectedCards().length+" thẻ"),
+      h("span",{className:"hbadge mono",style:{cursor:"pointer"},onClick:()=>setState({tab:"select",detailCardId:null})},selectedCards().length+" thẻ"),
       uc>0?h("span",{className:"hbadge warn mono",style:{cursor:"pointer"},onClick:()=>setState({tab:"events",detailCardId:null})},uc+" ⚡"):null,
       h("button",{className:"theme-btn",onClick:()=>setTheme(theme==="dark"?"light":"dark")},theme==="dark"?"☀️":"🌙")));
 }
 
 function renderTabBar(){
-  const tabs=[{key:"select",label:"Chọn",icon:"◎"},{key:"cards",label:"Thẻ",icon:"▦"},{key:"shop",label:"Shop",icon:"⌘"},{key:"txns",label:"GD",icon:"≡"},{key:"events",label:"Event",icon:"◷"},{key:"add",label:"Thêm",icon:"＋"}];
+  const tabs=[{key:"select",label:"Chọn",icon:"🗂️"},{key:"cards",label:"Thẻ",icon:"💳"},{key:"shop",label:"Shop",icon:"🔎"},{key:"txns",label:"GD",icon:"🧾"},{key:"events",label:"Event",icon:"🔔"},{key:"add",label:"Thêm",icon:"➕"}];
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
     const uc=t.key==="events"?urgentCount():0;
-    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>setState({tab:t.key,detailCardId:null})},
+    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null})}},
       h("span",{className:"ico",style:{position:"relative"}},t.icon,uc>0?h("span",{className:"tab-dot"}):null),h("span",null,t.label));
     bar.appendChild(btn);
   });return bar;
 }
 
 // ═══ SELECT TAB ═══
-function renderSelectTab(){
-  const w=h("div",null,h("p",{className:"hint"},"// chọn thẻ cần theo dõi"));
-  const allSelected=ALL_CARDS.every(c=>state.selectedCardIds.includes(c.id));
-  const someSelected=ALL_CARDS.some(c=>state.selectedCardIds.includes(c.id));
-
-  // ── Select All row ──
-  w.appendChild(h("div",{
-    style:{display:"flex",alignItems:"center",gap:"10px",padding:"11px 14px",
-      background:"var(--bg4)",border:"1.5px solid var(--border2)",
-      borderRadius:"var(--radius)",cursor:"pointer",marginBottom:"12px",
-      boxShadow:"var(--shadow)"},
-    onClick:()=>setState({selectedCardIds:allSelected?[]:[...ALL_CARDS.map(c=>c.id)]})},
-    h("span",{className:"net",style:{background:"linear-gradient(135deg,var(--accent2),var(--purple))",fontSize:"15px"}},"✦"),
-    h("div",{style:{flex:1}},
-      h("div",{style:{fontWeight:800,fontSize:"14px",color:"var(--accent)"}},
-        allSelected?"☑ Chọn tất cả Thẻ":"☐ Chọn tất cả Thẻ"),
-      h("div",{className:"sel-sub"},`${state.selectedCardIds.length} / ${ALL_CARDS.length} thẻ đang được chọn`)
-    ),
-    h("div",{className:"chk"+(allSelected?" on":""),style:{"--card-color":"var(--accent)","borderColor":someSelected&&!allSelected?"var(--accent)":""}},
-      allSelected?"✓":someSelected?"—":""
-    )
-  ));
-
-  // ── Group by bank ──
-  function getBankKey(card){
-    const id=card.id;
-    if(id.startsWith("bvb"))return"BVBank";
-    if(id.startsWith("cimb"))return"CIMB";
-    if(id.startsWith("hdb"))return"HDBank";
-    if(id.startsWith("hsbc"))return"HSBC";
-    if(id.startsWith("lpb"))return"LPBank";
-    if(id.startsWith("mb"))return"MB Bank";
-    if(id.startsWith("msb"))return"MSB";
-    if(id.startsWith("sacom"))return"Sacombank";
-    if(id.startsWith("seabank"))return"SeaBank";
-    if(id.startsWith("shinhan"))return"Shinhan";
-    if(id.startsWith("tcb"))return"Techcombank";
-    if(id.startsWith("vib"))return"VIB";
-    return"Khác";
-  }
-
+// Bank-key resolver shared by select-tab grouping
+function bankKeyOf(card){
+  const id=card.id;
+  if(id.startsWith("bvb"))return"BVBank";
+  if(id.startsWith("cimb"))return"CIMB";
+  if(id.startsWith("hdb"))return"HDBank";
+  if(id.startsWith("hsbc"))return"HSBC";
+  if(id.startsWith("lpb"))return"LPBank";
+  if(id.startsWith("mb"))return"MB Bank";
+  if(id.startsWith("msb"))return"MSB";
+  if(id.startsWith("sacom"))return"Sacombank";
+  if(id.startsWith("seabank"))return"SeaBank";
+  if(id.startsWith("shinhan"))return"Shinhan";
+  if(id.startsWith("tcb"))return"Techcombank";
+  if(id.startsWith("vib"))return"VIB";
+  return"Khác";
+}
+// Build the bank-grouped card list (filtered by state.cardSearch) into `el`.
+// Kept as its own function so the search box can patch just this list in place.
+function renderCardGroups(el){
+  const q=(state.cardSearch||"").trim().toLowerCase();
+  const match=c=>!q||`${c.name} ${bankKeyOf(c)} ${c.cardNum||""} ${c.last4}`.toLowerCase().includes(q);
   const groups={};
-  ALL_CARDS.forEach(c=>{const bank=getBankKey(c);if(!groups[bank])groups[bank]=[];groups[bank].push(c)});
+  ALL_CARDS.filter(match).forEach(c=>{const bank=bankKeyOf(c);if(!groups[bank])groups[bank]=[];groups[bank].push(c)});
   const sortedBanks=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
-
+  if(!sortedBanks.length){el.appendChild(h("p",{className:"empty"},"// không tìm thấy thẻ"));return}
   sortedBanks.forEach(bank=>{
     const cards=groups[bank];
     const bankColor=cards[0].color;
     const bankAllSel=cards.every(c=>state.selectedCardIds.includes(c.id));
     const bankSomeSel=cards.some(c=>state.selectedCardIds.includes(c.id));
     const selCount=cards.filter(c=>state.selectedCardIds.includes(c.id)).length;
-
-    // Outer card — like shop-card
     const bankCard=h("div",{className:"shop-card",style:{
       marginBottom:"8px",
       borderColor:bankAllSel?bankColor+"80":bankSomeSel?bankColor+"40":"var(--card-border)",
       background:bankAllSel?`color-mix(in srgb,${bankColor} 8%,var(--card-bg))`:"var(--card-bg)"
     }});
-
-    // Bank header row — tap to toggle all cards of this bank
     bankCard.appendChild(h("div",{className:"shop-head",style:{cursor:"pointer",marginBottom:"8px"},
       onClick:()=>{
         const ids=cards.map(c=>c.id),nowSel=state.selectedCardIds;
@@ -815,8 +829,6 @@ function renderSelectTab(){
         bankAllSel?"✓":bankSomeSel?"—":""
       )
     ));
-
-    // Individual cards inside
     cards.forEach(c=>{
       const on=state.selectedCardIds.includes(c.id);
       bankCard.appendChild(h("div",{
@@ -842,9 +854,38 @@ function renderSelectTab(){
         h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")
       ));
     });
-
-    w.appendChild(bankCard);
+    el.appendChild(bankCard);
   });
+}
+function renderSelectTab(){
+  const w=h("div",null,h("p",{className:"hint"},"// chọn thẻ cần theo dõi"));
+  const allSelected=ALL_CARDS.every(c=>state.selectedCardIds.includes(c.id));
+  const someSelected=ALL_CARDS.some(c=>state.selectedCardIds.includes(c.id));
+
+  // ── Select All row ──
+  w.appendChild(h("div",{
+    style:{display:"flex",alignItems:"center",gap:"10px",padding:"11px 14px",
+      background:"var(--bg4)",border:"1.5px solid var(--border2)",
+      borderRadius:"var(--radius)",cursor:"pointer",marginBottom:"12px",
+      boxShadow:"var(--shadow)"},
+    onClick:()=>setState({selectedCardIds:allSelected?[]:[...ALL_CARDS.map(c=>c.id)]})},
+    h("span",{className:"net",style:{background:"linear-gradient(135deg,var(--accent2),var(--purple))",fontSize:"15px"}},"✦"),
+    h("div",{style:{flex:1}},
+      h("div",{style:{fontWeight:800,fontSize:"14px",color:"var(--accent)"}},
+        allSelected?"☑ Chọn tất cả Thẻ":"☐ Chọn tất cả Thẻ"),
+      h("div",{className:"sel-sub"},`${state.selectedCardIds.length} / ${ALL_CARDS.length} thẻ đang được chọn`)
+    ),
+    h("div",{className:"chk"+(allSelected?" on":""),style:{"--card-color":"var(--accent)","borderColor":someSelected&&!allSelected?"var(--accent)":""}},
+      allSelected?"✓":someSelected?"—":""
+    )
+  ));
+
+  // ── Card search ──
+  w.appendChild(h("div",{style:{marginBottom:"10px"}},h("input",{className:"input","data-fid":"card-search",placeholder:"🔍  Tìm thẻ (tên / ngân hàng / số)…",value:state.cardSearch,
+    onInput:e=>{setQ({cardSearch:e.target.value});const g=document.getElementById("cardgroups");if(g){g.innerHTML="";renderCardGroups(g)}}})));
+
+  // ── Bank groups (filtered) ──
+  const gc=h("div",{id:"cardgroups"});renderCardGroups(gc);w.appendChild(gc);
 
   // ── Backup / Restore ──
   w.appendChild(h("div",{className:"detail-section",style:{marginTop:"18px"}},"Sao lưu dữ liệu"));
@@ -862,11 +903,15 @@ function renderCardsTab(){
   const rawCards=selectedCards();
   if(!rawCards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
   // ── Cycle summary across all selected cards ──
-  let sumSp=0,sumCb=0;
-  rawCards.forEach(c=>{const t=getCycleTxns(c);sumSp+=t.reduce((s,x)=>s+x.amount,0);sumCb+=calcTotalCb(c,t)});
+  let sumSp=0,sumCb=0,sumPot=0;
+  rawCards.forEach(c=>{const t=getCycleTxns(c);sumSp+=t.reduce((s,x)=>s+x.amount,0);const cb=calcTotalCb(c,t);sumCb+=cb;const maxCb=c.sharedMaxCashback||c.cashbackCategories.reduce((s,x)=>s+x.maxCashback,0);sumPot+=Math.max(maxCb-cb,0)});
   w.appendChild(h("div",{className:"summary-bar"},
     h("span",null,`Chi kỳ này: ${fmtK(sumSp)}₫`),
     h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB ≈ ${fmtK(sumCb)}₫`)));
+  if(sumPot>0)w.appendChild(h("div",{className:"summary-sub"},`💡 Còn có thể nhận thêm ~${fmtK(sumPot)}₫ cashback kỳ này`));
+  const seg=h("div",{className:"seg"});
+  [["bank","Theo ngân hàng"],["due","Sắp đến hạn"]].forEach(([k,l])=>seg.appendChild(h("button",{className:"seg-btn"+(state.cardSort===k?" on":""),onClick:()=>setState({cardSort:k})},l)));
+  w.appendChild(seg);
   function getBankKeyC(card){
     const id=card.id;
     if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
@@ -878,25 +923,31 @@ function renderCardsTab(){
     return"Khác";
   }
   const cards=[...rawCards].sort((a,b)=>{
+    if(state.cardSort==="due")return daysUntilDue(a)-daysUntilDue(b)||getBankKeyC(a).localeCompare(getBankKeyC(b));
     const ba=getBankKeyC(a),bb=getBankKeyC(b);
     if(ba!==bb)return ba.localeCompare(bb);
     return a.name.localeCompare(b.name,"vi");
   });
-  // Group header tracking
+  // Group header tracking (only in bank-sort mode)
   let lastBank="";
   cards.forEach(card=>{
-    const bankName=getBankKeyC(card);
-    if(bankName!==lastBank){
-      lastBank=bankName;
-      w.appendChild(h("div",{style:{fontSize:"11px",fontWeight:800,color:"var(--text3)",
-        fontFamily:"var(--font-mono)",textTransform:"uppercase",letterSpacing:".6px",
-        margin:"12px 0 6px 2px"}},bankName));
+    if(state.cardSort==="bank"){
+      const bankName=getBankKeyC(card);
+      if(bankName!==lastBank){
+        lastBank=bankName;
+        w.appendChild(h("div",{style:{fontSize:"11px",fontWeight:800,color:"var(--text3)",
+          fontFamily:"var(--font-mono)",textTransform:"uppercase",letterSpacing:".6px",
+          margin:"12px 0 6px 2px"}},bankName));
+      }
     }
     const ct=getCycleTxns(card),dl=daysUntilDue(card),ts=ct.reduce((s,t)=>s+t.amount,0),tc=calcTotalCb(card,ct),shared=calcSharedCb(card,ct);
     const bl=h("div",{className:"card-block",style:{"--card-color":card.color},onClick:()=>setState({detailCardId:card.id})},
       h("div",{style:{display:"flex",alignItems:"center",gap:"10px",marginBottom:"10px"}},
         h("span",{className:"net",style:{background:card.color}},NET_ICONS[card.network]),
-        h("div",{style:{flex:1}},h("div",{className:"card-name"},`${card.name} ${card.cardNum||"****"+card.last4}`),
+        h("div",{style:{flex:1}},
+          h("div",{style:{display:"flex",alignItems:"center",gap:"6px",flexWrap:"wrap"}},
+            h("div",{className:"card-name"},`${card.name} ${card.cardNum||"****"+card.last4}`),
+            dl<=3?h("span",{className:"badge badge-warn"},`⏰ ${dl}d`):null),
           h("div",{className:"card-meta"},`Hạn ${dl}d · Chi ${fmtK(ts)} · CB ${fmtK(tc)}`)),
         h("span",{style:{color:"var(--text3)",fontSize:"14px"}},"›")));
 
@@ -954,7 +1005,7 @@ function renderCardDetail(){
     const cb=calcTxnCb(tx,card,ct);
     w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date))),
       h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"CB +"+fmtK(cb)):null,
-        h("button",{className:"del",onClick:e=>{e.stopPropagation();state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕"))));
+        h("button",{className:"del",onClick:e=>{e.stopPropagation();deleteTxn(tx.id)}},"✕"))));
   });return w;
 }
 
@@ -973,6 +1024,19 @@ function renderShopTab(){
   const list=h("div",{id:"slist"});renderShopList(list);w.appendChild(list);return w;
 }
 
+// Ranking score for a card under a shop category: higher = better to use now.
+// Active + min-spend met & most remaining CB rank first; full→0, inactive→-1.
+function shopRemCb(cid,category){
+  const card=ALL_CARDS.find(c=>c.id===cid);if(!card)return -1;
+  const cb=card.cashbackCategories.find(c=>c.category===category);if(!cb)return -1;
+  const ct=getCycleTxns(card),active=isCatActive(card,ct,category);
+  if(!active)return -1;
+  let rem=Math.max(cb.maxCashback-calcCatCb(card,ct,category),0);
+  const shared=calcSharedCb(card,ct);
+  if(shared&&shared.cats&&shared.cats.includes(category))rem=Math.max(shared.max-shared.total,0);
+  const minMet=!(card.minSpend>0&&ct.reduce((s,t)=>s+t.amount,0)<card.minSpend);
+  return minMet?rem:rem*0.001;
+}
 function renderShopList(el){
   const selIds=state.selectedCardIds;
   const filtered=SHOP_CARD_MAP.filter(s=>state.shopCatFilter==="all"||s.category===state.shopCatFilter)
@@ -982,7 +1046,8 @@ function renderShopList(el){
   if(!filtered.length){el.appendChild(h("p",{className:"empty"},"// không tìm thấy shop"));return}
   filtered.forEach(s=>{
     const se=h("div",{className:"shop-card"},h("div",{className:"shop-head"},h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))));
-    s.cardIds.forEach(cid=>{
+    const ranked=[...s.cardIds].sort((a,b)=>shopRemCb(b,s.category)-shopRemCb(a,s.category));
+    ranked.forEach(cid=>{
       const card=ALL_CARDS.find(c=>c.id===cid);if(!card)return;
       const cb=card.cashbackCategories.find(c=>c.category===s.category);if(!cb)return;
       const ct=getCycleTxns(card),active=isCatActive(card,ct,s.category),cs=calcCatSpend(card,ct,s.category);
@@ -1011,19 +1076,32 @@ function renderTxnTab(){
   const mIn=h("input",{type:"month",className:"month-in",onChange:e=>setState({filterMonth:e.target.value})});mIn.value=state.filterMonth;
   w.appendChild(h("div",{className:"filter-row"},selC,mIn));
 
-  const filtered=state.transactions.filter(tx=>state.filterCard==="all"||tx.cardId===state.filterCard).filter(tx=>tx.date.startsWith(state.filterMonth)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  // Base set filtered by card + month
+  const base=state.transactions.filter(tx=>(state.filterCard==="all"||tx.cardId===state.filterCard)&&tx.date.startsWith(state.filterMonth));
+  // Category chips — only categories present in the base set
+  const catsPresent=[...new Set(base.map(t=>t.category))].sort((a,b)=>a.localeCompare(b,'vi'));
+  if(state.filterCat!=="all"&&!catsPresent.includes(state.filterCat))state.filterCat="all";
+  if(catsPresent.length>1){
+    const cf=h("div",{className:"cat-filter"});
+    cf.appendChild(h("button",{className:"chip"+(state.filterCat==="all"?" sel":""),onClick:()=>setState({filterCat:"all"})},"Tất cả"));
+    catsPresent.forEach(c=>cf.appendChild(h("button",{className:"chip"+(state.filterCat===c?" sel":""),onClick:()=>setState({filterCat:c})},(CAT_ICONS[c]||"")+" "+c)));
+    w.appendChild(cf);
+  }
+  const filtered=base.filter(tx=>state.filterCat==="all"||tx.category===state.filterCat).sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id)));
   let tCb=0,tSp=0;
   filtered.forEach(tx=>{tSp+=tx.amount;const c=ALL_CARDS.find(x=>x.id===tx.cardId);if(c)tCb+=calcTxnCb(tx,c,getCycleTxns(c))});
   w.appendChild(h("div",{className:"summary-bar"},h("span",null,`Chi: ${fmtK(tSp)}₫`),h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB: +${fmtK(tCb)}₫`)));
   if(!filtered.length){w.appendChild(h("p",{className:"empty"},"// chưa có giao dịch"));return w}
 
+  let lastDate="";
   filtered.forEach(tx=>{
+    if(tx.date!==lastDate){lastDate=tx.date;w.appendChild(h("div",{className:"tx-date-head"},fmtDateVi(tx.date)));}
     const card=ALL_CARDS.find(c=>c.id===tx.cardId),cb=card?calcTxnCb(tx,card,getCycleTxns(card)):0;
     w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},
       h("span",{className:"tx-tag",style:{background:`${card?.color||"#555"}20`,color:card?.color||"#aaa"}},card?`${card.cardNum||"****"+card.last4}`:"?"),
-      h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"9px",color:"var(--text3)"}},tx.date))),
+      h("span",{className:"tx-cat"},tx.category))),
       h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"+"+fmtK(cb)):null,
-        h("button",{className:"del",onClick:()=>{state.transactions=state.transactions.filter(t=>t.id!==tx.id);persist();render()}},"✕"))));
+        h("button",{className:"del",onClick:e=>{e.stopPropagation();deleteTxn(tx.id)}},"✕"))));
   });return w;
 }
 
@@ -1043,7 +1121,7 @@ function renderEvCard(ev,urg){
     h("div",{className:`ev-dot ${dotCls}`},h("span",{className:"ev-day"},d.getDate()),h("span",{className:"ev-mon"},MONTHS_VI[d.getMonth()])),
     h("div",{className:"ev-body"},h("div",{className:"ev-title"},ev.title),ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
       urg?h("span",{className:"ev-urg"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null));
-  if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
+  if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{buzz(10);state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
   return el;
 }
 
@@ -1147,6 +1225,9 @@ function renderAddTxn(){
   const amtGroup=h("div",{className:"fg",style:{flex:"1"}},h("label",{className:"lbl"},"Số tiền (₫)"),h("input",{type:"text",inputmode:"decimal",className:"input","data-fid":"add-amt",placeholder:"vd 500k, 1.5tr",value:state.addAmount,onInput:e=>{setQ({addAmount:e.target.value});recalcTxnUI()}}));
   const pAmt=parseAmount(state.addAmount);
   w.appendChild(h("div",{style:{display:"flex",gap:"8px"}},amtGroup,dateGroup));
+  const qa=h("div",{className:"chip-row",style:{marginTop:"-2px",marginBottom:"10px"}});
+  ["100k","200k","500k","1tr","2tr"].forEach(lbl=>qa.appendChild(h("button",{className:"chip",onClick:()=>{state.addAmount=lbl;const inp=document.querySelector('[data-fid="add-amt"]');if(inp)inp.value=lbl;buzz(6);recalcTxnUI()}},lbl)));
+  w.appendChild(qa);
   w.appendChild(txnFeedbackNode());
 
   const canS=state.addCardId&&state.addShop.trim()&&state.addAmount&&pAmt>0&&state.addCategory;
@@ -1157,7 +1238,7 @@ function renderAddTxn(){
     const liveCanS=state.addCardId&&state.addShop.trim()&&state.addAmount&&amt>0&&state.addCategory;
     if(!liveCanS)return;if(isNaN(amt)||amt<=0)return;
     state.transactions.unshift({id:"tx-"+Date.now(),cardId:state.addCardId,shop:state.addShop.trim(),amount:amt,category:state.addCategory,date:state.addDate});
-    state.addShop="";state.addAmount="";persist();showToast(`✓ Đã thêm ${fmtK(amt)}₫`);render();
+    state.addShop="";state.addAmount="";persist();buzz(18);showToast(`✓ Đã thêm ${fmtK(amt)}₫`);render();
   }},"+ Thêm giao dịch"));
   return w;
 }
@@ -1191,7 +1272,7 @@ function renderAddEv(){
     const liveCanS=state.addEventDate&&state.addEventNote.trim();
     if(!liveCanS)return;const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
     state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote.trim(),sub:card?`${card.name} ${card.cardNum||"****"+card.last4}`:null,cardId:state.addEventCard||null});
-    state.addEventDate="";state.addEventNote="";state.addEventCard="";persist();showToast("✓ Đã thêm event");render();
+    state.addEventDate="";state.addEventNote="";state.addEventCard="";persist();buzz(18);showToast("✓ Đã thêm event");render();
   }},"+ Thêm Event"));
 
   const past=state.events.filter(e=>e.date<toLocalDateStr(new Date()));
