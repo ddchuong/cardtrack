@@ -221,6 +221,29 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .summary-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono);margin:-4px 0 12px;padding-left:2px}
 .tx-date-head{font-size:12px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 2px;padding-left:2px}
 .tx-date-head:first-child{margin-top:4px}
+
+/* Alerts banner (Cards tab) */
+.alert-box{border-radius:var(--radius-sm);padding:4px 12px;margin-bottom:10px;background:var(--warnBg);border:1px solid var(--warnBorder)}
+.alert-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);font-family:var(--font-mono);padding:7px 0;cursor:pointer}
+.alert-row+.alert-row{border-top:1px dashed var(--warnBorder)}
+.alert-ic{flex-shrink:0;font-size:14px}
+.alert-row b{font-weight:800}
+
+/* Advisor best-card highlight */
+.adv-best{border-color:var(--accent)!important;box-shadow:0 0 0 1.5px var(--accentBorder)}
+
+/* Edit-mode banner */
+.edit-banner{background:var(--accentBg);border:1px solid var(--accentBorder);color:var(--accent);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:12px;font-size:13px;font-weight:700;font-family:var(--font-mono);display:flex;justify-content:space-between;align-items:center}
+
+/* Duplicate button + paid button */
+.dup{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:6px 8px;margin:-4px -2px;border-radius:6px;min-width:32px;min-height:32px;display:inline-flex;align-items:center;justify-content:center}
+.dup:active{color:var(--accent);background:var(--accentBg)}
+.paid-btn{background:var(--greenBg);border:1px solid var(--greenBorder);color:var(--green);border-radius:7px;padding:5px 9px;font-size:12px;font-weight:800;font-family:var(--font-mono);cursor:pointer;flex-shrink:0}
+.paid-btn:active{transform:scale(.95)}
+
+/* Monthly history rows */
+.hist-month{font-size:13px;font-weight:800;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 6px}
+.hist-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -530,6 +553,12 @@ function nextDueDate(card){
   if(d<t&&d.toDateString()!==t.toDateString())d=new Date(y,m+1,card.dueDay);
   return d;
 }
+// End of the current cashback cycle (last eligible spend day)
+function cycleEnd(card){
+  if(card.calendarMonth){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0);}
+  const cs=cycleStart(card,new Date());return new Date(cs.getFullYear(),cs.getMonth()+1,cs.getDate()-1);
+}
+function daysUntilCycleEnd(card){return Math.max(0,Math.ceil((cycleEnd(card)-new Date())/864e5));}
 
 // ═══ FIRST-CAT-ONLY (MSB, BVB) ═══
 function getActiveCat(card,ct){
@@ -582,6 +611,45 @@ function calcTxnCb(tx,card,ct){
 }
 
 
+// ═══ ADVISOR / ALERTS ═══
+// Theoretical max cashback a card can earn in one cycle
+function maxCardCb(card){return card.sharedMaxCashback||card.cashbackCategories.reduce((s,x)=>s+x.maxCashback,0)}
+// Estimate marginal cashback for spending `amt` in `cat` on `card` right now
+function estTxnCb(card,cat,amt){
+  const def=card.cashbackCategories.find(c=>c.category===cat);
+  if(!def)return{has:false,cb:0};
+  const ct=getCycleTxns(card),active=isCatActive(card,ct,cat);
+  const lockCat=card.firstCatOnly?getActiveCat(card,ct):null;
+  const belowMinTxn=!!(card.minTxnAmount&&amt>0&&amt<card.minTxnAmount);
+  const cycleSpend=ct.reduce((s,t)=>s+t.amount,0);
+  const minNotMet=card.minSpend>0&&(cycleSpend+amt)<card.minSpend;
+  const minRemain=card.minSpend>0?Math.max(card.minSpend-cycleSpend,0):0;
+  let cb=0,remCap=0;
+  if(active){
+    const existCb=calcCatCb(card,ct,cat);
+    remCap=Math.max(def.maxCashback-existCb,0);
+    if(card.sharedMaxCashback){const sh=calcSharedCb(card,ct);if(sh)remCap=Math.min(remCap,Math.max(sh.max-sh.total,0))}
+    if(!belowMinTxn)cb=Math.min(amt*def.rate,remCap);
+  }
+  return{has:true,cb:Math.max(cb,0),active,lockCat,belowMinTxn,minNotMet,minRemain,remCap,rate:def.rate,def};
+}
+// Sort key for the advisor (higher = better card to use now)
+function rankAdv(e){if(!e.active||e.belowMinTxn)return -1;return e.minNotMet?e.cb*0.5:e.cb}
+// Actionable alerts for the Cards tab: min-spend not met, or unused CB near cycle end
+function cardAlerts(){
+  const out=[];
+  selectedCards().forEach(c=>{
+    const ct=getCycleTxns(c),sp=ct.reduce((s,t)=>s+t.amount,0),dEnd=daysUntilCycleEnd(c);
+    if(c.minSpend>0&&sp<c.minSpend&&dEnd<=7){
+      out.push({card:c,type:"min",days:dEnd,msg:`còn thiếu ${fmtK(c.minSpend-sp)} để đạt tối thiểu · ${dEnd}d hết kỳ`});
+    }else{
+      const rem=Math.max(maxCardCb(c)-calcTotalCb(c,ct),0);
+      if(sp>0&&rem>=50000&&dEnd<=5)out.push({card:c,type:"cb",days:dEnd,msg:`còn ~${fmtK(rem)} CB chưa khai thác · ${dEnd}d hết kỳ`});
+    }
+  });
+  return out.sort((a,b)=>a.days-b.days);
+}
+
 // ═══ MINSPEND ROW RENDER ═══
 function renderMinSpendRow(card,ct){
   if(!card.minSpend||card.minSpend<=0)return null;
@@ -615,7 +683,7 @@ document.documentElement.setAttribute("data-theme",getTheme());
 
 // ═══ BACKUP / RESTORE ═══
 function exportBackup(){
-  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,theme:getTheme()};
+  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,theme:getTheme()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download="cardtrack-backup-"+toLocalDateStr(new Date())+".json";
@@ -635,6 +703,8 @@ function importBackup(){
         if(!confirm(`Import ${d.transactions.length} GD + ${(d.events||[]).length} event?\nDữ liệu hiện tại sẽ bị ghi đè.`))return;
         state.transactions=d.transactions;
         state.events=Array.isArray(d.events)?d.events:[];
+        if(Array.isArray(d.history))state.history=d.history;
+        if(Array.isArray(d.paidDues))state.paidDues=d.paidDues;
         if(Array.isArray(d.selectedCardIds)&&d.selectedCardIds.length)state.selectedCardIds=d.selectedCardIds.filter(id=>ALL_CARDS.some(c=>c.id===id));
         persist();showToast("✓ Đã import backup");render();
       }catch{showToast("⚠ File backup không hợp lệ")}
@@ -655,7 +725,10 @@ let state={
   addEventDate:"",addEventCard:"",addEventNote:"",
   filterCard:"all",filterMonth:new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"),
   shopSearch:"",shopCatFilter:"all",
-  cardSort:"bank",cardSearch:"",filterCat:"all"
+  cardSort:"bank",cardSearch:"",filterCat:"all",
+  shopMode:"shop",advCat:"",advAmt:"",
+  txnView:"current",editTxnId:null,
+  history:load("ct7-history",[]),paidDues:load("ct7-paid",[])
 };
 
 let _shopTimer=null;
@@ -663,16 +736,36 @@ let _addInputTimer=null;
 let _lastView="";
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
-function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events)}
-function purgeOldTxns(){
-  const now=new Date(),b=state.transactions.length;
-  state.transactions=state.transactions.filter(tx=>{
-    const c=ALL_CARDS.find(c=>c.id===tx.cardId);if(!c)return false;
-    const currentCycleStart=cycleStart(c,now);
-    const txDate=parseLocalDate(tx.date);
-    return txDate>=currentCycleStart;
+function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues)}
+// Snapshot the cashback/spend of cycles whose txns are about to be purged, so the
+// monthly history survives the auto-cleanup. Keyed by card+cycleStart (first write wins).
+function archiveCycles(txns){
+  state.history=state.history||[];
+  const groups={};
+  txns.forEach(tx=>{const c=ALL_CARDS.find(x=>x.id===tx.cardId);if(!c)return;
+    const cs=cycleStart(c,parseLocalDate(tx.date)),key=c.id+"|"+toLocalDateStr(cs);
+    (groups[key]=groups[key]||{card:c,cs:toLocalDateStr(cs),txns:[]}).txns.push(tx);
   });
-  if(state.transactions.length!==b)persist();
+  Object.entries(groups).forEach(([id,g])=>{
+    if(state.history.some(x=>x.id===id))return;
+    state.history.push({id,cardId:g.card.id,cardName:g.card.name,last4:g.card.last4,color:g.card.color,
+      cycleStart:g.cs,month:g.cs.slice(0,7),
+      spend:g.txns.reduce((s,t)=>s+t.amount,0),cb:calcTotalCb(g.card,g.txns),count:g.txns.length});
+  });
+  if(state.history.length>400)state.history=state.history.slice(-400);
+}
+function purgeOldTxns(){
+  const now=new Date(),keep=[],drop=[];
+  state.transactions.forEach(tx=>{
+    const c=ALL_CARDS.find(c=>c.id===tx.cardId);
+    if(!c){drop.push(tx);return}
+    (parseLocalDate(tx.date)>=cycleStart(c,now)?keep:drop).push(tx);
+  });
+  // Prune paid-due markers whose date has passed
+  const pd=(state.paidDues||[]).filter(k=>k.split("|")[1]>=toLocalDateStr(now));
+  const pdChanged=pd.length!==(state.paidDues||[]).length;state.paidDues=pd;
+  if(drop.length){archiveCycles(drop);state.transactions=keep}
+  if(drop.length||pdChanged)persist();
 }
 function selectedCards(){return ALL_CARDS.filter(c=>state.selectedCardIds.includes(c.id))}
 function getCycleTxns(card){
@@ -686,8 +779,9 @@ function getAutoEvents(){
   const now=new Date(),evts=[];
   state.selectedCardIds.forEach(id=>{
     const c=ALL_CARDS.find(x=>x.id===id);if(!c)return;
-    const due=nextDueDate(c),diff=Math.ceil((due-now)/864e5);
-    if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ${c.cardNum||"****"+c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
+    const due=nextDueDate(c),diff=Math.ceil((due-now)/864e5),dueKey=c.id+"|"+toLocalDateStr(due);
+    if((state.paidDues||[]).includes(dueKey))return;
+    if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,dueKey,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ${c.cardNum||"****"+c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
   });return evts;
 }
 function urgentCount(){const now=new Date();return[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].filter(e=>e.diff>=0&&e.diff<=3).length}
@@ -713,6 +807,13 @@ function deleteTxn(id){
     _lastDeleted=null;persist();buzz(8);render();showToast("↶ Đã hoàn tác");
   });
 }
+// Load a transaction into the Add form for editing
+function editTxn(id){const tx=state.transactions.find(t=>t.id===id);if(!tx)return;buzz(6);
+  setState({tab:"add",addMode:"txn",detailCardId:null,editTxnId:id,addCardId:tx.cardId,addCategory:tx.category,addShop:tx.shop,addAmount:String(tx.amount),addDate:tx.date});}
+// Duplicate a transaction with today's date (for recurring spends)
+function dupTxn(id){const tx=state.transactions.find(t=>t.id===id);if(!tx)return;
+  state.transactions.unshift({id:"tx-"+Date.now(),cardId:tx.cardId,shop:tx.shop,amount:tx.amount,category:tx.category,date:toLocalDateStr(new Date())});
+  persist();buzz(12);showToast(`✓ Nhân bản ${fmtK(tx.amount)}₫ (hôm nay)`);render();}
 
 // ═══ RENDER ENGINE ═══
 function h(tag,attrs,...ch){
@@ -771,7 +872,7 @@ function renderTabBar(){
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
     const uc=t.key==="events"?urgentCount():0;
-    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null})}},
+    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null,editTxnId:null})}},
       h("span",{className:"ico",style:{position:"relative"}},t.icon,uc>0?h("span",{className:"tab-dot"}):null),h("span",null,t.label));
     bar.appendChild(btn);
   });return bar;
@@ -912,6 +1013,15 @@ function renderCardsTab(){
   const seg=h("div",{className:"seg"});
   [["bank","Theo ngân hàng"],["due","Sắp đến hạn"]].forEach(([k,l])=>seg.appendChild(h("button",{className:"seg-btn"+(state.cardSort===k?" on":""),onClick:()=>setState({cardSort:k})},l)));
   w.appendChild(seg);
+  // ── Actionable alerts ──
+  const alerts=cardAlerts();
+  if(alerts.length){
+    const ab=h("div",{className:"alert-box"});
+    alerts.forEach(a=>ab.appendChild(h("div",{className:"alert-row",onClick:()=>setState({detailCardId:a.card.id})},
+      h("span",{className:"alert-ic"},a.type==="min"?"⚠️":"💸"),
+      h("span",null,h("b",null,`${a.card.name} ${a.card.cardNum||"****"+a.card.last4}`),`: ${a.msg}`))));
+    w.appendChild(ab);
+  }
   function getBankKeyC(card){
     const id=card.id;
     if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
@@ -997,21 +1107,27 @@ function renderCardDetail(){
   if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtK(shared.total)} / ${fmtK(shared.max)}`));
   if(card.note)w.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
 
-  w.appendChild(h("div",{style:{margin:"12px 0 4px"}},h("button",{className:"submit",style:{background:card.color,fontSize:"12px",padding:"10px"},onClick:()=>setState({tab:"add",addMode:"txn",addCardId:card.id,addCategory:card.cashbackCategories[0]?.category||"",addShop:"",detailCardId:null})},"＋ Thêm giao dịch cho thẻ này")));
+  w.appendChild(h("div",{style:{margin:"12px 0 4px"}},h("button",{className:"submit",style:{background:card.color,fontSize:"12px",padding:"10px"},onClick:()=>setState({tab:"add",addMode:"txn",editTxnId:null,addCardId:card.id,addCategory:card.cashbackCategories[0]?.category||"",addShop:"",detailCardId:null})},"＋ Thêm giao dịch cho thẻ này")));
 
   w.appendChild(h("div",{className:"detail-section"},"Giao dịch kỳ này"));
   if(!ct.length){w.appendChild(h("p",{className:"empty",style:{padding:"20px 0"}},"// chưa có giao dịch"));return w}
   [...ct].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx=>{
     const cb=calcTxnCb(tx,card,ct);
-    w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date))),
+    w.appendChild(h("div",{className:"tx-row",style:{cursor:"pointer"},onClick:()=>editTxn(tx.id)},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},h("span",{className:"tx-cat"},tx.category),h("span",{style:{fontSize:"10px",color:"var(--text3)"}},tx.date))),
       h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"CB +"+fmtK(cb)):null,
-        h("button",{className:"del",onClick:e=>{e.stopPropagation();deleteTxn(tx.id)}},"✕"))));
+        h("div",{style:{display:"flex",gap:"2px",marginTop:"2px"}},
+          h("button",{className:"dup",onClick:e=>{e.stopPropagation();dupTxn(tx.id)}},"⧉"),
+          h("button",{className:"del",onClick:e=>{e.stopPropagation();deleteTxn(tx.id)}},"✕")))));
   });return w;
 }
 
 // ═══ SHOP TAB ═══
 function renderShopTab(){
   const w=h("div",null);
+  const seg=h("div",{className:"seg"});
+  [["shop","🔎 Theo shop"],["advice","💡 Tư vấn thẻ"]].forEach(([k,l])=>seg.appendChild(h("button",{className:"seg-btn"+(state.shopMode===k?" on":""),onClick:()=>setState({shopMode:k})},l)));
+  w.appendChild(seg);
+  if(state.shopMode==="advice")return renderAdvice(w);
   // Search input — debounce triggers full render
   w.appendChild(h("div",{style:{marginBottom:"8px"}},h("input",{className:"input","data-fid":"shop-search",placeholder:"🔍  Tìm shop...",value:state.shopSearch,
     onInput:e=>{setQ({shopSearch:e.target.value});if(_shopTimer)clearTimeout(_shopTimer);_shopTimer=setTimeout(()=>{const l=document.getElementById("slist");if(l){l.innerHTML="";renderShopList(l)}},180)}})));
@@ -1067,9 +1183,57 @@ function renderShopList(el){
   });
 }
 
+// ═══ ADVISOR (Shop tab → Tư vấn thẻ) ═══
+function renderAdvice(w){
+  const cards=selectedCards();
+  if(!cards.length){w.appendChild(h("p",{className:"empty"},"// chưa chọn thẻ nào"));return w}
+  w.appendChild(h("p",{className:"hint"},"// chọn lĩnh vực + số tiền → thẻ nào hoàn nhiều nhất"));
+  const cats=[...new Set(cards.flatMap(c=>c.cashbackCategories.map(x=>x.category)))].sort((a,b)=>a.localeCompare(b,'vi'));
+  if(state.advCat&&!cats.includes(state.advCat))state.advCat="";
+  const cw=h("div",{className:"chip-row"});
+  cats.forEach(c=>cw.appendChild(h("button",{className:"chip"+(state.advCat===c?" sel":""),onClick:()=>setState({advCat:c})},(CAT_ICONS[c]||"")+" "+c)));
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Lĩnh vực"),cw));
+  w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Số tiền dự định chi"),h("input",{type:"text",inputmode:"decimal",className:"input","data-fid":"adv-amt",placeholder:"vd 500k, 2tr",value:state.advAmt,onInput:e=>{setQ({advAmt:e.target.value});recalcAdvice()}})));
+  const r=h("div",{id:"adv-result"});renderAdviceResult(r);w.appendChild(r);
+  return w;
+}
+function recalcAdvice(){const r=document.getElementById("adv-result");if(r){r.innerHTML="";renderAdviceResult(r)}}
+function renderAdviceResult(el){
+  if(!state.advCat){el.appendChild(h("p",{className:"empty"},"// chọn lĩnh vực để xem gợi ý"));return}
+  const amt=parseAmount(state.advAmt),valid=!isNaN(amt)&&amt>0;
+  const cards=selectedCards().filter(c=>c.cashbackCategories.some(x=>x.category===state.advCat));
+  if(!cards.length){el.appendChild(h("p",{className:"empty"},"// không thẻ nào có CB cho lĩnh vực này"));return}
+  const scored=cards.map(c=>({c,e:estTxnCb(c,state.advCat,valid?amt:0)})).sort((a,b)=>rankAdv(b.e)-rankAdv(a.e));
+  if(valid)el.appendChild(h("div",{className:"summary-sub",style:{marginTop:"2px"}},`Chi ${fmt(amt)}₫ cho "${state.advCat}":`));
+  scored.forEach(({c,e},i)=>{
+    const usable=e.active&&!e.belowMinTxn&&e.remCap>0;
+    const best=valid&&i===0&&usable&&e.cb>0;
+    let flag=null;
+    if(e.lockCat&&!e.active)flag=`🔒 kỳ này khoá "${e.lockCat}"`;
+    else if(e.belowMinTxn)flag=`⚠ GD cần ≥${fmtK(c.minTxnAmount)}`;
+    else if(e.remCap<=0)flag="⚠ Đã full CB kỳ này";
+    else if(e.minNotMet)flag=`cần đạt tối thiểu (còn ${fmtK(e.minRemain)})`;
+    const rec=h("div",{className:"shop-rec"+(best?" adv-best":""),style:{borderColor:best?"var(--accent)":`${c.color}40`,background:`color-mix(in srgb,${c.color} 4%,var(--bg3))`,marginBottom:"6px",opacity:usable?1:.55},
+      onClick:()=>setState({tab:"add",addMode:"txn",editTxnId:null,addCardId:c.id,addCategory:state.advCat,addShop:"",addAmount:valid?state.advAmt:""})},
+      h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"3px"}},
+        h("span",{className:"net-sm",style:{background:c.color}},NET_ICONS[c.network]),
+        h("span",{style:{fontWeight:700,fontSize:"13px",flex:1}},`${c.name} ${c.cardNum||"****"+c.last4}`),
+        best?h("span",{className:"badge badge-active"},"👑 Tốt nhất"):null),
+      h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"baseline"}},
+        h("div",{className:"shop-detail"},`Hoàn ${Math.round(e.rate*100)}% · max ${fmtK(e.def.maxCashback)}`),
+        valid&&usable?h("div",{style:{fontWeight:800,color:"var(--green)",fontFamily:"var(--font-mono)"}},`+${fmtK(e.cb)}₫`):null),
+      flag?h("div",{className:"shop-detail",style:{color:"var(--warn)",marginTop:"2px"}},flag):null);
+    el.appendChild(rec);
+  });
+}
+
 // ═══ TXN TAB ═══
 function renderTxnTab(){
   const w=h("div",null),cards=selectedCards();
+  const seg=h("div",{className:"seg"});
+  [["current","Giao dịch"],["history","Lịch sử CB"]].forEach(([k,l])=>seg.appendChild(h("button",{className:"seg-btn"+(state.txnView===k?" on":""),onClick:()=>setState({txnView:k})},l)));
+  w.appendChild(seg);
+  if(state.txnView==="history")return renderTxnHistory(w);
   const selC=h("select",{onChange:e=>setState({filterCard:e.target.value})});
   selC.appendChild(h("option",{value:"all"},"Tất cả thẻ"));
   cards.forEach(c=>selC.appendChild(h("option",{value:c.id},`${c.name} ${c.cardNum||"****"+c.last4}`)));selC.value=state.filterCard;
@@ -1097,12 +1261,33 @@ function renderTxnTab(){
   filtered.forEach(tx=>{
     if(tx.date!==lastDate){lastDate=tx.date;w.appendChild(h("div",{className:"tx-date-head"},fmtDateVi(tx.date)));}
     const card=ALL_CARDS.find(c=>c.id===tx.cardId),cb=card?calcTxnCb(tx,card,getCycleTxns(card)):0;
-    w.appendChild(h("div",{className:"tx-row"},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},
+    w.appendChild(h("div",{className:"tx-row",style:{cursor:"pointer"},onClick:()=>editTxn(tx.id)},h("div",{style:{flex:"1"}},h("div",{className:"tx-shop"},tx.shop),h("div",{className:"tx-meta"},
       h("span",{className:"tx-tag",style:{background:`${card?.color||"#555"}20`,color:card?.color||"#aaa"}},card?`${card.cardNum||"****"+card.last4}`:"?"),
       h("span",{className:"tx-cat"},tx.category))),
       h("div",{className:"tx-right"},h("div",{className:"tx-amount"},fmt(tx.amount)+"₫"),cb>0?h("div",{className:"tx-cb"},"+"+fmtK(cb)):null,
-        h("button",{className:"del",onClick:e=>{e.stopPropagation();deleteTxn(tx.id)}},"✕"))));
+        h("div",{style:{display:"flex",gap:"2px",marginTop:"2px"}},
+          h("button",{className:"dup",onClick:e=>{e.stopPropagation();dupTxn(tx.id)}},"⧉"),
+          h("button",{className:"del",onClick:e=>{e.stopPropagation();deleteTxn(tx.id)}},"✕")))));
   });return w;
+}
+
+// ═══ CASHBACK HISTORY (GD tab → Lịch sử CB) ═══
+function renderTxnHistory(w){
+  const hist=[...(state.history||[])];
+  if(!hist.length){w.appendChild(h("p",{className:"empty"},"// chưa có lịch sử — tự lưu khi GD qua kỳ sao kê"));return w}
+  const byMonth={};
+  hist.forEach(x=>{(byMonth[x.month]=byMonth[x.month]||[]).push(x)});
+  Object.keys(byMonth).sort((a,b)=>b.localeCompare(a)).forEach(m=>{
+    const rows=byMonth[m].sort((a,b)=>b.cb-a.cb);
+    const mSpend=rows.reduce((s,x)=>s+x.spend,0),mCb=rows.reduce((s,x)=>s+x.cb,0);
+    const [yy,mm]=m.split("-");
+    w.appendChild(h("div",{className:"hist-month"},`Tháng ${+mm}/${yy}`));
+    w.appendChild(h("div",{className:"summary-bar",style:{marginBottom:"4px"}},h("span",null,`Chi: ${fmtK(mSpend)}₫`),h("span",{style:{color:"var(--green)",fontWeight:"800"}},`CB: ${fmtK(mCb)}₫`)));
+    rows.forEach(x=>w.appendChild(h("div",{className:"hist-row"},
+      h("div",null,h("div",{style:{fontWeight:700,fontSize:"14px"}},`${x.cardName} ****${x.last4}`),h("div",{style:{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--font-mono)"}},`Kỳ từ ${x.cycleStart} · ${x.count} GD`)),
+      h("div",{style:{textAlign:"right"}},h("div",{className:"mono",style:{fontWeight:800}},fmtK(x.spend)+"₫"),h("div",{className:"mono",style:{fontSize:"13px",color:"var(--green)"}},"CB "+fmtK(x.cb))))));
+  });
+  return w;
 }
 
 // ═══ EVENTS TAB ═══
@@ -1122,6 +1307,7 @@ function renderEvCard(ev,urg){
     h("div",{className:"ev-body"},h("div",{className:"ev-title"},ev.title),ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
       urg?h("span",{className:"ev-urg"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null));
   if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{buzz(10);state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
+  else if(ev.dueKey)el.appendChild(h("button",{className:"paid-btn",onClick:()=>{state.paidDues=[...(state.paidDues||[]),ev.dueKey];persist();buzz(10);showToast("✓ Đã đánh dấu thanh toán");render()}},"✓ Đã TT"));
   return el;
 }
 
@@ -1129,7 +1315,7 @@ function renderEvCard(ev,urg){
 function renderAddTab(){
   const w=h("div",null),tr=h("div",{className:"form-tabs"});
   tr.appendChild(h("button",{className:"form-tab"+(state.addMode==="txn"?" active":""),onClick:()=>setState({addMode:"txn"})},"💳 Giao dịch"));
-  tr.appendChild(h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event"})},"📅 Event"));
+  tr.appendChild(h("button",{className:"form-tab"+(state.addMode==="event"?" active":""),onClick:()=>setState({addMode:"event",editTxnId:null})},"📅 Event"));
   w.appendChild(tr);w.appendChild(state.addMode==="txn"?renderAddTxn():renderAddEv());return w;
 }
 
@@ -1154,7 +1340,11 @@ function txnFeedbackNode(){
       const existCb=calcCatSpend(selCard,ct,state.addCategory)*cb.rate;
       let newCb=Math.min(pAmt*cb.rate,Math.max(cb.maxCashback-existCb,0));
       if(selCard.sharedMaxCashback){const sh=calcSharedCb(selCard,ct);if(sh)newCb=Math.min(newCb,Math.max(sh.max-sh.total,0))}
-      fb.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(Math.max(newCb,0))+"₫"),existCb>0?h("span",{style:{marginLeft:"8px",fontSize:"10px",color:"var(--text3)"}},`(đã CB ${fmtK(Math.min(existCb,cb.maxCashback))} kỳ này)`):null));
+      if(newCb<=0){
+        fb.appendChild(h("div",{className:"no-cb",style:{marginBottom:"12px"}},`⚠ "${state.addCategory}" đã đạt tối đa CB kỳ này — chi thêm sẽ không được hoàn`));
+      }else{
+        fb.appendChild(h("div",{className:"cb-preview"},`CB ước tính: `,h("strong",{style:{color:"var(--green)"}},fmtK(newCb)+"₫"),existCb>0?h("span",{style:{marginLeft:"8px",fontSize:"10px",color:"var(--text3)"}},`(đã CB ${fmtK(Math.min(existCb,cb.maxCashback))} kỳ này)`):null));
+      }
     }else{
       fb.appendChild(h("div",{className:"cb-preview",style:{background:"var(--bg3)",borderColor:"var(--border)"}},`CB: `,h("strong",{style:{color:"var(--text3)"}},"0₫")));
     }
@@ -1175,6 +1365,7 @@ function renderAddTxn(){
   const w=h("div",null);
   const rawCards=selectedCards();
   if(!rawCards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
+  if(state.editTxnId)w.appendChild(h("div",{className:"edit-banner"},h("span",null,"✏️ Đang sửa giao dịch"),h("span",{style:{cursor:"pointer",textDecoration:"underline"},onClick:()=>setState({editTxnId:null,addShop:"",addAmount:""})},"Huỷ")));
   function getBK(id){
     if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
     if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
@@ -1237,9 +1428,14 @@ function renderAddTxn(){
     const amt=parseAmount(state.addAmount);
     const liveCanS=state.addCardId&&state.addShop.trim()&&state.addAmount&&amt>0&&state.addCategory;
     if(!liveCanS)return;if(isNaN(amt)||amt<=0)return;
+    if(state.editTxnId){
+      const tx=state.transactions.find(t=>t.id===state.editTxnId);
+      if(tx){tx.cardId=state.addCardId;tx.shop=state.addShop.trim();tx.amount=amt;tx.category=state.addCategory;tx.date=state.addDate}
+      state.editTxnId=null;state.addShop="";state.addAmount="";persist();buzz(18);showToast("✓ Đã lưu thay đổi");render();return;
+    }
     state.transactions.unshift({id:"tx-"+Date.now(),cardId:state.addCardId,shop:state.addShop.trim(),amount:amt,category:state.addCategory,date:state.addDate});
     state.addShop="";state.addAmount="";persist();buzz(18);showToast(`✓ Đã thêm ${fmtK(amt)}₫`);render();
-  }},"+ Thêm giao dịch"));
+  }},state.editTxnId?"💾 Lưu thay đổi":"+ Thêm giao dịch"));
   return w;
 }
 
