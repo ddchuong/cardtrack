@@ -165,6 +165,9 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 
 /* Category filter */
 .cat-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.cat-filter.scroll-x{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.cat-filter.scroll-x::-webkit-scrollbar{display:none}
+.cat-filter.scroll-x>.chip{flex:0 0 auto}
 
 /* Shop */
 .shop-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:12px;margin-bottom:7px;box-shadow:var(--shadow);transition:all .3s}
@@ -1136,7 +1139,7 @@ function renderShopTab(){
     onInput:e=>{setQ({shopSearch:e.target.value});if(_shopTimer)clearTimeout(_shopTimer);_shopTimer=setTimeout(()=>{const l=document.getElementById("slist");if(l){l.innerHTML="";renderShopList(l)}},180)}})));
   // Category filter chips — use setState so full render fires → chips re-paint correctly
   const cats=[...new Set(SHOP_CARD_MAP.map(s=>s.category))];
-  const fw=h("div",{className:"cat-filter"});
+  const fw=h("div",{className:"cat-filter scroll-x"});
   fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter==="all"?" sel":""),onClick:()=>setState({shopCatFilter:"all"})},"All"));
   cats.forEach(c=>fw.appendChild(h("button",{className:"chip"+(state.shopCatFilter===c?" sel":""),onClick:()=>setState({shopCatFilter:c})},(CAT_ICONS[c]||"📦")+" "+c)));
   w.appendChild(fw);
@@ -1156,6 +1159,18 @@ function shopRemCb(cid,category){
   const minMet=!(card.minSpend>0&&ct.reduce((s,t)=>s+t.amount,0)<card.minSpend);
   return minMet?rem:rem*0.001;
 }
+// Is this card worth using right now for the category? active + min met + CB remaining.
+function shopUsable(cid,category){
+  const card=ALL_CARDS.find(c=>c.id===cid);if(!card)return false;
+  const cb=card.cashbackCategories.find(c=>c.category===category);if(!cb)return false;
+  const ct=getCycleTxns(card),active=isCatActive(card,ct,category);
+  if(!active)return false;
+  const minMet=!(card.minSpend>0&&ct.reduce((a,t)=>a+t.amount,0)<card.minSpend);
+  let rem=Math.max(cb.maxCashback-calcCatCb(card,ct,category),0);
+  const sh=calcSharedCb(card,ct);
+  if(sh&&sh.cats&&sh.cats.includes(category))rem=Math.max(sh.max-sh.total,0);
+  return minMet&&rem>0;
+}
 function renderShopList(el){
   const selIds=state.selectedCardIds;
   // Show ALL cards mapped to each shop (not just selected). Keep every shop that has any known card.
@@ -1168,15 +1183,16 @@ function renderShopList(el){
     const se=h("div",{className:"shop-card"},h("div",{className:"shop-head"},h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))));
     const sel=s.cardIds.filter(id=>selIds.includes(id)).sort((a,b)=>shopRemCb(b,s.category)-shopRemCb(a,s.category));
     const oth=s.cardIds.filter(id=>!selIds.includes(id)).sort((a,b)=>shopRemCb(b,s.category)-shopRemCb(a,s.category));
+    const bestId=sel.find(cid=>shopUsable(cid,s.category))||null; // top usable selected card → 👑
     if(!sel.length)se.appendChild(h("div",{className:"shop-sub-divider"},"Gợi ý · chưa chọn thẻ nào"));
-    sel.forEach(cid=>{const r=renderShopRec(cid,s.category,true);if(r)se.appendChild(r)});
+    sel.forEach(cid=>{const r=renderShopRec(cid,s.category,true,cid===bestId,s.shop);if(r)se.appendChild(r)});
     if(oth.length&&sel.length)se.appendChild(h("div",{className:"shop-sub-divider"},"Thẻ khác · chạm để chọn"));
-    oth.forEach(cid=>{const r=renderShopRec(cid,s.category,false);if(r)se.appendChild(r)});
+    oth.forEach(cid=>{const r=renderShopRec(cid,s.category,false,false,s.shop);if(r)se.appendChild(r)});
     el.appendChild(se);
   });
 }
-// One card row under a shop. isSel=true → highlighted (your card); false → muted + tap-to-select.
-function renderShopRec(cid,category,isSel){
+// One card row under a shop. isSel=true → highlighted (your card), tap → log GD; false → muted, tap → select.
+function renderShopRec(cid,category,isSel,isBest,shopName){
   const card=ALL_CARDS.find(c=>c.id===cid);if(!card)return null;
   const cb=card.cashbackCategories.find(c=>c.category===category);if(!cb)return null;
   const ct=getCycleTxns(card),active=isCatActive(card,ct,category),cs=calcCatSpend(card,ct,category);
@@ -1189,14 +1205,16 @@ function renderShopRec(cid,category,isSel){
   const inNote=(!active&&card.firstCatOnly)?getActiveCat(card,ct):null;
   const minNotMet=card.minSpend>0&&ct.reduce((a,t)=>a+t.amount,0)<card.minSpend;
   const sty=isSel
-    ?{borderColor:isFull?"var(--warnBorder)":`${card.color}40`,background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,boxShadow:`inset 3px 0 0 0 ${card.color}`,opacity:(active&&!minNotMet)?1:.4}
+    ?{borderColor:isBest?"var(--accent)":(isFull?"var(--warnBorder)":`${card.color}40`),background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,boxShadow:isBest?`inset 3px 0 0 0 ${card.color},0 0 0 1.5px var(--accentBorder)`:`inset 3px 0 0 0 ${card.color}`,opacity:(active&&!minNotMet)?1:.4,cursor:"pointer"}
     :{borderColor:`${card.color}33`};
   return h("div",{className:"shop-rec"+(isSel?"":" unsel"),style:sty,
-      onClick:isSel?null:()=>{if(typeof buzz==="function")buzz();setState({selectedCardIds:[...state.selectedCardIds,cid]})}},
+      onClick:isSel
+        ?()=>{if(typeof buzz==="function")buzz();setState({tab:"add",addMode:"txn",editTxnId:null,detailCardId:null,addCardId:cid,addCategory:category,addShop:shopName||"",addAmount:""})}
+        :()=>{if(typeof buzz==="function")buzz();setState({selectedCardIds:[...state.selectedCardIds,cid]})}},
     h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"4px"}},
       h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),
       h("span",{style:{fontWeight:700,fontSize:"12px",flex:1}},`${card.name} ${card.cardNum||"****"+card.last4}`),
-      isSel?(isFull?(inNote?h("span",{className:"badge badge-warn"},"🔒 "+inNote):h("span",{className:"badge badge-warn"},"⚠ Full")):null)
+      isSel?(isBest?h("span",{className:"badge badge-active"},"👑 Nên quẹt"):(isFull?(inNote?h("span",{className:"badge badge-warn"},"🔒 "+inNote):h("span",{className:"badge badge-warn"},"⚠ Full")):null))
            :h("span",{className:"badge badge-muted"},"＋ Chọn")),
     h("div",{className:"shop-detail"},`Hoàn ${Math.round(cb.rate*100)}% · max ${fmtK(cb.maxCashback)}`),
     active&&!isFull?h("div",{className:"shop-detail"},`Còn `,h("strong",{style:{color:"var(--green)"}},fmtK(remS)),` → CB `,h("strong",{style:{color:"var(--green)"}},fmtK(remCb))):h("div",{className:"shop-detail",style:{color:"var(--warn)"}},inNote?`Kỳ này đang active "${inNote}"`:"Đã hết cashback kỳ này"),
