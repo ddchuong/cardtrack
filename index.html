@@ -271,10 +271,32 @@ const ALL_CARDS=[
     minSpend:0,sharedMaxCashback:1500000,
     note:"Max 1.5tr/tháng chung tất cả danh mục. Nhớ đăng ký gói Hội viên mỗi 3 tháng"},
 
+  // ── VIB MAX Elite (Hội viên Elite, dueDay=15) ──
+  {id:"vib-4549",name:"VIB MAX Elite",network:"Visa",last4:"4549",cardNum:"370990****4549",stmtDay:20,dueDay:15,color:"#5B8C00",
+    cashbackCategories:[
+      {category:"Online",rate:.10,maxCashback:1500000,maxSpend:15000000},
+      {category:"Ẩm thực",rate:.10,maxCashback:1500000,maxSpend:15000000},
+      {category:"Thời trang",rate:.10,maxCashback:1500000,maxSpend:15000000},
+      {category:"Du lịch",rate:.10,maxCashback:1500000,maxSpend:15000000}
+    ],
+    minSpend:0,sharedMaxCashback:1500000,
+    note:"Max 1.5tr/tháng chung tất cả danh mục; chỉ 1 danh mục CB tại 1 thời điểm (đổi bất kỳ lúc nào); yêu cầu Hội viên Elite"},
+
   // ── SHINHAN ──
   {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#004996",
     cashbackCategories:[{category:"Siêu thị",rate:.12,maxCashback:400000,maxSpend:3333333}],
     minSpend:3000000,note:"CB chỉ cho POS/Apple-Pay tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng"},
+
+  // ── SHINHAN MyLife (4 lĩnh vực 10%, tổng max 1.2tr, minSpend 3tr) ──
+  {id:"shinhan-2647",name:"Shinhan MyLife",network:"Visa",last4:"2647",cardNum:"420673****2647",stmtDay:20,dueDay:4,color:"#1268B3",
+    cashbackCategories:[
+      {category:"Ẩm thực",rate:.10,maxCashback:300000,maxSpend:3000000},
+      {category:"Siêu thị",rate:.10,maxCashback:300000,maxSpend:3000000},
+      {category:"Di chuyển",rate:.10,maxCashback:300000,maxSpend:3000000},
+      {category:"Giải trí",rate:.10,maxCashback:300000,maxSpend:3000000}
+    ],
+    minSpend:3000000,sharedMaxCashback:1200000,sharedCats:["Ẩm thực","Siêu thị","Di chuyển","Giải trí"],
+    note:"Mỗi lĩnh vực 10% max 300K; tổng max 1.2tr/tháng; GD lĩnh vực khác hoàn 0.4% (app không tính); chi tiêu tối thiểu 3tr/kỳ"},
 
   // ── MSB mDigi ──
   {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
@@ -325,16 +347,6 @@ const ALL_CARDS=[
     ],
     minSpend:0,calendarMonth:true,sharedMaxCashback:300000,sharedCats:["Ẩm thực","Du lịch"],
     note:"Ẩm thực & Du lịch max CB 300K chung (không bao gồm Fastfood); Vé Vietjet riêng max 500K; chu kỳ tháng lịch"},
-
-  // ── BVB Lifestyle (CORRECTED: calendar month, stmtDay=20, dueDay=15, minSpend=3tr, new rates) ──
-  {id:"bvb-0202",name:"BVB Lifestyle",network:"Visa",last4:"0202",cardNum:"420694****0202",stmtDay:20,dueDay:15,color:"#00AEEF",
-    cashbackCategories:[
-      {category:"Thời trang",rate:.05,maxCashback:200000,maxSpend:4000000},
-      {category:"Ẩm thực",rate:.01,maxCashback:200000,maxSpend:20000000},
-      {category:"Du lịch",rate:.03,maxCashback:200000,maxSpend:6666667}
-    ],
-    minSpend:3000000,sharedMaxCashback:200000,firstCatOnly:true,calendarMonth:true,
-    note:"Max 200K/tháng chung; lĩnh vực CB = GD đầu tiên nhập vào; chi tiêu tối thiểu 3tr; chu kỳ tháng lịch"},
 
   // ── Seabank Sea-Easy (calendar month) ──
   {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",cardNum:"426545****6891",stmtDay:30,dueDay:8,color:"#E31B23",
@@ -394,7 +406,29 @@ const ALL_CARDS=[
       {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000},
       {category:"Di chuyển",rate:.20,maxCashback:100000,maxSpend:500000}
     ],
-    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập, mỗi lĩnh vực max 100K; Chi tiêu tối thiểu 3tr/tháng; chu kỳ tháng lịch"}
+    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập, mỗi lĩnh vực max 100K; Chi tiêu tối thiểu 3tr/tháng; chu kỳ tháng lịch"},
+
+  // ── SHB MC Cashback (firstCatOnly; 2 nhóm cap; tổng max 500K/kỳ) ──
+  {id:"shb-7936",name:"SHB MC Cashback",network:"MC",last4:"7936",cardNum:"533398****7936",stmtDay:5,dueDay:20,color:"#E4002B",
+    cashbackCategories:[
+      {category:"Siêu thị",rate:.05,maxCashback:300000,maxSpend:6000000},
+      {category:"Bảo hiểm",rate:.05,maxCashback:300000,maxSpend:6000000},
+      {category:"Thời trang",rate:.05,maxCashback:300000,maxSpend:6000000},
+      {category:"Giáo dục",rate:.05,maxCashback:500000,maxSpend:10000000},
+      {category:"Y tế",rate:.05,maxCashback:500000,maxSpend:10000000}
+    ],
+    minSpend:0,firstCatOnly:true,
+    note:"Chọn 1 lĩnh vực/kỳ (theo GD đầu tiên, đổi áp dụng kỳ sau). Nhóm Siêu thị/Bảo hiểm/Thời trang max 300K; nhóm Giáo dục/Y tế max 500K; tổng tối đa 500K/kỳ"},
+
+  // ── BIDV JCB Well-Being (calendar month; app tính mức <10tr) ──
+  {id:"bidv-3761",name:"BIDV JCB Well-Being",network:"JCB",last4:"3761",cardNum:"356592****3761",stmtDay:20,dueDay:5,color:"#00954C",
+    cashbackCategories:[
+      {category:"Y tế",rate:.05,maxCashback:200000,maxSpend:4000000},
+      {category:"Bảo hiểm",rate:.03,maxCashback:200000,maxSpend:6666667},
+      {category:"Thời trang",rate:.03,maxCashback:200000,maxSpend:6666667}
+    ],
+    minSpend:0,calendarMonth:true,sharedMaxCashback:200000,
+    note:"App tính mức <10tr: Y tế 5%, BH 3%, Thời trang 3%, tổng max 200K/kỳ. Nếu chi ≥10tr: Y tế 10%, BH 6%, Thời trang 6%, tổng max 400K/kỳ. Chu kỳ tháng lịch"}
 ];
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
@@ -415,91 +449,91 @@ const SHOP_SUGGESTIONS={
 
 const SHOP_CARD_MAP=[
   // ── Siêu thị ──
-  {shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Coop",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Emart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"MegaM",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Muji",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
-  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","sacom-4499","sacom-3007"]},
+  {shop:"AnNam",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"BHX",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"BigC",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"Coop",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"Emart",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"Glam Beautique",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"KingFood",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"MegaM",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"Muji",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
+  {shop:"Winmart",category:"Siêu thị",cardIds:["shinhan-6864","shinhan-2647","sacom-4499","sacom-3007","shb-7936"]},
   // ── Ẩm thực ──
-  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"CoffeeHouse",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Domino",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"GongCha",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"KFC",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"KoiThe",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Manwah",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"PheLa",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"ThreeOClock",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"TrungNguyen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hsbc-3008"]},
-  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
-  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","hsbc-3008"]},
+  {shop:"BE AN 1",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Changkangkung",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Clemence",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"CoffeeHouse",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Domino",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Golden Gate",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"GongCha",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Highlands",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Hoang Yen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Hokkaido",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Katinat",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"KFC",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"KoiThe",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Manwah",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"McDonalds",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Paris Baguette",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Petit Spearl",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"PheLa",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Phuc Long",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Pizza4Ps",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"ShopeeFood",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Starbucks",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Takashimaya",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"ThreeOClock",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"TrungNguyen",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
+  {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","vib-4549","shinhan-2647","hsbc-3008"]},
   // ── Online ──
-  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929"]},
+  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","vib-4549","msb-9372","msb-1712","tcb-5166","tcb-7929"]},
   {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712"]},
-  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929"]},
-  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","seabank-6891"]},
-  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712"]},
+  {shop:"Lazada",category:"Online",cardIds:["vib-4434","vib-4549","msb-9372","msb-1712","tcb-5166","tcb-7929"]},
+  {shop:"Shopee",category:"Online",cardIds:["vib-4434","vib-4549","msb-9372","msb-1712","tcb-5166","tcb-7929","seabank-6891"]},
+  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","vib-4549","msb-9372","msb-1712"]},
   // ── Thời trang ──
-  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
-  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
-  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
-  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
-  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
-  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
-  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","hsbc-3008","bvb-0202"]},
+  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","vib-4549","hsbc-3008","shb-7936","bidv-3761"]},
   // ── Di chuyển ──
-  {shop:"Be",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
-  {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007"]},
+  {shop:"Be",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007","shinhan-2647"]},
+  {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007","shinhan-2647"]},
   // ── Du lịch ──
-  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4434"]},
-  {shop:"Booking",category:"Du lịch",cardIds:["sacom-9870","vib-4434"]},
-  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4434"]},
-  {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4434"]},
+  {shop:"Agoda",category:"Du lịch",cardIds:["sacom-9870","vib-4434","vib-4549"]},
+  {shop:"Booking",category:"Du lịch",cardIds:["sacom-9870","vib-4434","vib-4549"]},
+  {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4434","vib-4549"]},
+  {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4434","vib-4549"]},
   // ── Y tế ──
-  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
-  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026"]},
+  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Giáo dục ──
-  {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-  {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059"]},
+  {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
+  {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
+  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   // ── Bảo hiểm ──
-  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026"]},
-  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026"]},
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
   // ── Giải trí ──
-  {shop:"CGV",category:"Giải trí",cardIds:["bvb-0202"]},
-  {shop:"Galaxy Cinema",category:"Giải trí",cardIds:["bvb-0202"]},
-  {shop:"Lotte Cinema",category:"Giải trí",cardIds:["bvb-0202"]}
+  {shop:"CGV",category:"Giải trí",cardIds:["shinhan-2647"]},
+  {shop:"Galaxy Cinema",category:"Giải trí",cardIds:["shinhan-2647"]},
+  {shop:"Lotte Cinema",category:"Giải trí",cardIds:["shinhan-2647"]}
 ]
 
 
@@ -723,7 +757,7 @@ function importBackup(){
 // ═══ STATE ═══
 let state={
   tab:"cards",
-  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","lpb-2059","hdb-4497","hdb-1541","bvb-0202","seabank-6891","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112"]),
+  selectedCardIds:load("ct7-sel",["vib-4434","vib-4549","shinhan-6864","shinhan-2647","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","lpb-2059","hdb-4497","hdb-1541","seabank-6891","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112","shb-7936","bidv-3761"]),
   transactions:load("ct7-txns",[]),
   events:load("ct7-events",[]),
   detailCardId:null,addMode:"txn",
@@ -888,7 +922,8 @@ function renderTabBar(){
 // Bank-key resolver shared by select-tab grouping
 function bankKeyOf(card){
   const id=card.id;
-  if(id.startsWith("bvb"))return"BVBank";
+  if(id.startsWith("bidv"))return"BIDV";
+  if(id.startsWith("shb"))return"SHB";
   if(id.startsWith("cimb"))return"CIMB";
   if(id.startsWith("hdb"))return"HDBank";
   if(id.startsWith("hsbc"))return"HSBC";
@@ -1030,7 +1065,7 @@ function renderCardsTab(){
   }
   function getBankKeyC(card){
     const id=card.id;
-    if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("bidv"))return"BIDV";if(id.startsWith("shb"))return"SHB";if(id.startsWith("cimb"))return"CIMB";
     if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
     if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
     if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
@@ -1405,7 +1440,7 @@ function renderAddTxn(){
   if(!rawCards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
   if(state.editTxnId)w.appendChild(h("div",{className:"edit-banner"},h("span",null,"✏️ Đang sửa giao dịch"),h("span",{style:{cursor:"pointer",textDecoration:"underline"},onClick:()=>setState({editTxnId:null,addShop:"",addAmount:""})},"Huỷ")));
   function getBK(id){
-    if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("bidv"))return"BIDV";if(id.startsWith("shb"))return"SHB";if(id.startsWith("cimb"))return"CIMB";
     if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
     if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
     if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
@@ -1480,7 +1515,7 @@ function renderAddTxn(){
 function renderAddEv(){
   const w=h("div",null);
   function getBKe(id){
-    if(id.startsWith("bvb"))return"BVBank";if(id.startsWith("cimb"))return"CIMB";
+    if(id.startsWith("bidv"))return"BIDV";if(id.startsWith("shb"))return"SHB";if(id.startsWith("cimb"))return"CIMB";
     if(id.startsWith("hdb"))return"HDBank";if(id.startsWith("hsbc"))return"HSBC";
     if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
     if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
