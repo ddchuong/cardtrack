@@ -722,7 +722,11 @@ function afNextDate(card){
   return d;
 }
 function afDaysUntil(card){const d=afNextDate(card);if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.ceil((d-t)/864e5);}
-function afSoon(card){const d=afNextDate(card);if(!d)return false;const t=new Date();return d<=new Date(t.getFullYear(),t.getMonth()+3,t.getDate());}
+function afSoon(card){
+  const d=afNextDate(card);if(!d)return false;const t=new Date();
+  if(card.memberTiers){const t0=new Date();t0.setHours(0,0,0,0);return Math.ceil((d-t0)/864e5)<=21;} // VIB MAX: chỉ nổi khi ≤21 ngày
+  return d<=new Date(t.getFullYear(),t.getMonth()+3,t.getDate());
+}
 function afSoonCount(){return ALL_CARDS.filter(afSoon).length}
 // Các kỳ sao kê cần theo dõi chi tiêu (afRecur kỳ, kết thúc ở kỳ ngay trước tháng charge)
 function afCycles(card){
