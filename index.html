@@ -264,6 +264,17 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .cal-banner-x{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0}
 .paid-btn:active{transform:scale(.95)}
 
+/* Member tier selector (VIB MAX) */
+.tier-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 11px;margin-bottom:10px}
+.tier-box-head{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:13px;margin-bottom:8px}
+.tier-cur{background:var(--accentBg);color:var(--accent);border:1px solid var(--accentBorder);border-radius:20px;padding:2px 12px;font-size:12px}
+.tier-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tier-chip{background:var(--bg2);border:1.5px solid var(--border);color:var(--text2);border-radius:8px;padding:7px 4px;cursor:pointer;text-align:center;transition:all .12s}
+.tier-chip.on{border-color:var(--accent);background:var(--accentBg);color:var(--accent)}
+.tier-chip:active{transform:scale(.95)}
+.tier-note{font-size:11px;color:var(--text3);margin-top:8px;font-family:var(--font-mono)}
+.tier-note.warn{color:var(--warn);font-weight:700}
+
 /* PTN (annual fee) tab */
 .ptn-summary{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px}
 .ptn-sum-n{font-size:20px;font-weight:800;color:var(--warn)}
@@ -299,8 +310,8 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 // DATA — synced with CardList.txt + Shops.txt
 // ═══════════════════════════════════════════
 const ALL_CARDS=[
-  // ── VIB MAX (hiện gói Gold: 8% max 1tr; phí HV mỗi 3 tháng) ──
-  {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:4,color:"#ADFF00",
+  // ── VIB MAX (hạng HV chọn được mỗi 3 tháng; rate/max theo hạng) ──
+  {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:14,color:"#ADFF00",
     cashbackCategories:[
       {category:"Online",rate:.08,maxCashback:1000000,maxSpend:12500000},
       {category:"Ẩm thực",rate:.08,maxCashback:1000000,maxSpend:12500000},
@@ -308,7 +319,13 @@ const ALL_CARDS=[
       {category:"Du lịch",rate:.08,maxCashback:1000000,maxSpend:12500000}
     ],
     minSpend:0,sharedMaxCashback:1000000,
-    note:"Tùy hạng HV: Elite 10%/1.5tr · Gold 8%/1tr · Plus 5%/500K · Starter 0.5%/500K. Hiện đang gói GOLD (21/7–20/10). Nhớ thiết lập gói Hội viên mỗi 3 tháng.",
+    memberTiers:[
+      {key:"elite",label:"Elite",rate:.10,max:1500000},
+      {key:"gold",label:"Gold",rate:.08,max:1000000},
+      {key:"plus",label:"Plus",rate:.05,max:500000},
+      {key:"starter",label:"Starter",rate:.005,max:500000}
+    ],memberTierDefault:"gold",memberEvery:3,
+    note:"Tùy hạng HV: Elite 10%/1.5tr · Gold 8%/1tr · Plus 5%/500K · Starter 0.5%/500K.",
     annualFee:500000,afNext:"2026-10",afDay:21,afRecur:3,afWaive:"Deal with bank (Alo); phí HV theo hạng (Gold 500K/3 tháng), charge ngày 21 mỗi 3 tháng"},
 
   // ── SHINHAN ──
@@ -515,7 +532,7 @@ const ALL_CARDS=[
     annualFee:1500000,afNext:"2027-01",afWaive:"là Khách hàng Priority"},
 
   // ── VIB Premier Boundless — NEW (không cashback) ──
-  {id:"vib-6970",name:"VIB Premier Boundless",network:"MC",last4:"6970",cardNum:"513094****6970",stmtDay:0,dueDay:0,color:"#1B2A4A",
+  {id:"vib-6970",name:"VIB Premier Boundless",network:"MC",last4:"6970",cardNum:"513094****6970",stmtDay:20,dueDay:14,color:"#1B2A4A",
     cashbackCategories:[],minSpend:0,note:"Không có cashback — chỉ theo dõi phí thường niên.",
     annualFee:1300000,afNext:"2027-07",afWaive:"300tr/năm"},
 
@@ -738,10 +755,16 @@ function isCatActive(card,ct,category){
 // Khi tổng chi tiêu kỳ >= tierThreshold → dùng bậc cao.
 function cycleSpendTotal(card,ct){return ct.reduce((s,t)=>s+t.amount,0)}
 function tierHi(card,ct){return !!(card.tierThreshold&&cycleSpendTotal(card,ct)>=card.tierThreshold)}
-function effRate(card,ct,cb){return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
-function effMaxCb(card,ct,cb){return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
-function effMaxSpend(card,ct,cb){return tierHi(card,ct)&&cb.hiMaxSpend!=null?cb.hiMaxSpend:cb.maxSpend}
-function effSharedMax(card,ct){return tierHi(card,ct)&&card.hiSharedMaxCashback!=null?card.hiSharedMaxCashback:card.sharedMaxCashback}
+// Hạng hội viên hiện tại (VIB MAX): rate/max theo hạng đã chọn, override cả spend-tier
+function memberTier(card){
+  if(!card.memberTiers)return null;
+  const key=(state.memberTier||{})[card.id]||card.memberTierDefault;
+  return card.memberTiers.find(t=>t.key===key)||card.memberTiers[0];
+}
+function effRate(card,ct,cb){const mt=memberTier(card);if(mt)return mt.rate;return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
+function effMaxCb(card,ct,cb){const mt=memberTier(card);if(mt)return mt.max;return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
+function effMaxSpend(card,ct,cb){const mt=memberTier(card);if(mt)return Math.round(mt.max/mt.rate);return tierHi(card,ct)&&cb.hiMaxSpend!=null?cb.hiMaxSpend:cb.maxSpend}
+function effSharedMax(card,ct){const mt=memberTier(card);if(mt)return mt.max;return tierHi(card,ct)&&card.hiSharedMaxCashback!=null?card.hiSharedMaxCashback:card.sharedMaxCashback}
 
 // ═══ CASHBACK CALC ═══
 // Txns below card.minTxnAmount (e.g. TCB <200K) are not CB-eligible
@@ -843,6 +866,22 @@ function renderMinSpendRow(card,ct){
   );
   return row;
 }
+// Member-tier selector (VIB MAX): chọn hạng HV → đổi rate/max; nhắc kỳ hạng mới
+function setMemberTier(cardId,key){state.memberTier={...(state.memberTier||{}),[cardId]:key};persist();buzz(10);render();}
+function renderMemberTierRow(card){
+  if(!card.memberTiers)return null;
+  const cur=memberTier(card),d=afNextDate(card);
+  const box=h("div",{className:"tier-box"});
+  box.appendChild(h("div",{className:"tier-box-head"},h("span",null,"⭐ Hạng hội viên"),h("span",{className:"tier-cur"},cur.label)));
+  const row=h("div",{className:"tier-chips"});
+  card.memberTiers.forEach(t=>row.appendChild(h("button",{className:"tier-chip"+(cur.key===t.key?" on":""),onClick:()=>setMemberTier(card.id,t.key)},
+    h("div",{style:{fontWeight:800,fontSize:"13px"}},t.label),
+    h("div",{style:{fontSize:"10px",opacity:.85,fontFamily:"var(--font-mono)"}},`${Math.round(t.rate*100)}%·${fmtK(t.max)}`))));
+  box.appendChild(row);
+  if(d){const days=Math.ceil((d-new Date().setHours(0,0,0,0))/864e5);
+    box.appendChild(h("div",{className:"tier-note"+(days<=21?" warn":"")},`Ngày đến hạn quý: ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} · còn ${days} ngày. Nhắc gộp PTN + đổi hạng bật 21 ngày trước.`));}
+  return box;
+}
 // Spend-tier progress row (cards with card.tierThreshold: rate/cap jumps at threshold)
 function renderTierRow(card,ct){
   if(!card.tierThreshold)return null;
@@ -864,7 +903,7 @@ document.documentElement.setAttribute("data-theme",getTheme());
 
 // ═══ BACKUP / RESTORE ═══
 function exportBackup(){
-  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,noEvt:state.noEvt,calAdded:state.calAdded,afSpend:state.afSpend,theme:getTheme()};
+  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,noEvt:state.noEvt,calAdded:state.calAdded,afSpend:state.afSpend,memberTier:state.memberTier,theme:getTheme()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download="cardtrack-backup-"+toLocalDateStr(new Date())+".json";
@@ -889,6 +928,7 @@ function importBackup(){
         if(Array.isArray(d.noEvt))state.noEvt=d.noEvt;
         if(Array.isArray(d.calAdded))state.calAdded=d.calAdded;
         if(d.afSpend&&typeof d.afSpend==="object")state.afSpend=d.afSpend;
+        if(d.memberTier&&typeof d.memberTier==="object")state.memberTier=d.memberTier;
         if(Array.isArray(d.selectedCardIds)&&d.selectedCardIds.length)state.selectedCardIds=d.selectedCardIds.filter(id=>ALL_CARDS.some(c=>c.id===id));
         persist();showToast("✓ Đã import backup");render();
       }catch{showToast("⚠ File backup không hợp lệ")}
@@ -918,7 +958,8 @@ let state={
   calDismiss:load("ct7-caldismiss",""),// dismissed pending-signature for the reminder banner
   calPicker:false,calPick:[],          // transient: calendar-add picker state
   afSpend:load("ct7-afspend",{}),      // {cardId:{"YYYY-MM":amount}} — chi tiêu từng kỳ để free PTN
-  ptnCardId:null                       // transient: PTN detail view
+  ptnCardId:null,                      // transient: PTN detail view
+  memberTier:load("ct7-membertier",{}) // {cardId:tierKey} — hạng hội viên hiện tại (VIB MAX)
 };
 
 let _shopTimer=null;
@@ -926,7 +967,7 @@ let _addInputTimer=null;
 let _lastView="";
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
-function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend)}
+function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend);save("ct7-membertier",state.memberTier)}
 // Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
 function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
 function toggleCardEvt(id){state.noEvt=cardEvtOn(id)?[...(state.noEvt||[]),id]:(state.noEvt||[]).filter(x=>x!==id);persist();render()}
@@ -973,6 +1014,15 @@ function getAutoEvents(){
   state.selectedCardIds.forEach(id=>{
     const c=ALL_CARDS.find(x=>x.id===id);if(!c)return;
     if(!cardEvtOn(id))return; // reminders turned off for this card
+    // VIB MAX: nhắc GỘP (PTN + đổi hạng HV) đặt 21 ngày TRƯỚC ngày đến hạn quý
+    if(c.memberTiers){const ts=afNextDate(c);if(ts){
+      const rem=new Date(ts.getFullYear(),ts.getMonth(),ts.getDate()-21); // 21 ngày trước
+      const td=Math.ceil((rem-now)/864e5),tkey=c.id+"|vibq|"+toLocalDateStr(ts);
+      if(td>=0&&td<=14&&!(state.paidDues||[]).includes(tkey))
+        evts.push({id:"vibq-"+c.id,isAuto:true,dueKey:tkey,date:toLocalDateStr(rem),
+          title:`PTN + đổi hạng HV: ${c.name} ${c.cardNum||"****"+c.last4}`,
+          sub:`Trước ngày charge ${ts.getDate()}/${ts.getMonth()+1} — đóng PTN${c.annualFee?" ~"+fmtK(c.annualFee):""} & chọn lại hạng ở tab Thẻ`,
+          cardId:c.id,cardColor:c.color,diff:td});}}
     const due=nextDueDate(c),diff=Math.ceil((due-now)/864e5),dueKey=c.id+"|"+toLocalDateStr(due);
     if((state.paidDues||[]).includes(dueKey))return;
     if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,dueKey,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ${c.cardNum||"****"+c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
@@ -1292,6 +1342,7 @@ function renderCardDetail(){
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"CB ước tính"),h("div",{className:"stat-val",style:{color:"var(--green)"}},fmtK(tc)+"₫")),
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Hạn TT"),h("div",{className:"stat-val",style:{color:dl<=3?"var(--warn)":"var(--text)"}},dl+"d"))));
 
+  {const mRow=renderMemberTierRow(card);if(mRow)w.appendChild(mRow);}
   {const msRow=renderMinSpendRow(card,ct);if(msRow)w.appendChild(msRow);}
   {const tRow=renderTierRow(card,ct);if(tRow)w.appendChild(tRow);}
   card.cashbackCategories.forEach(cb=>{
@@ -1640,7 +1691,7 @@ function renderEvCard(ev,urg){
       ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
       urg?h("span",{className:"ev-urg"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null));
   if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{buzz(10);state.events=state.events.filter(e=>e.id!==ev.id);state.calAdded=(state.calAdded||[]).filter(k=>k!==ev.id);persist();render()}},"✕"));
-  else if(ev.dueKey)el.appendChild(h("button",{className:"paid-btn",onClick:()=>{state.paidDues=[...(state.paidDues||[]),ev.dueKey];persist();buzz(10);showToast("✓ Đã đánh dấu thanh toán");render()}},"✓ Đã TT"));
+  else if(ev.dueKey){const isVibq=ev.dueKey.includes("|vibq|");el.appendChild(h("button",{className:"paid-btn",onClick:()=>{state.paidDues=[...(state.paidDues||[]),ev.dueKey];persist();buzz(10);showToast(isVibq?"✓ Đã xử lý PTN + hạng":"✓ Đã đánh dấu thanh toán");render()}},isVibq?"✓ Xong":"✓ Đã TT"));}
   return el;
 }
 
