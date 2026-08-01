@@ -264,6 +264,23 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .cal-banner-x{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0}
 .paid-btn:active{transform:scale(.95)}
 
+/* PTN (annual fee) tab */
+.ptn-summary{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px}
+.ptn-sum-n{font-size:20px;font-weight:800;color:var(--warn)}
+.ptn-sum-l{font-size:13px;color:var(--text2)}
+.ptn-sum-amt{font-size:15px;font-weight:800;color:var(--warn);font-family:var(--font-mono)}
+.ptn-card{border:1px solid var(--card-border);border-left:4px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:7px;background:var(--card-bg);transition:all .2s}
+.ptn-card.hot{background:var(--warnBg);border-color:var(--warnBorder)}
+.ptn-card.dim{opacity:.5;filter:grayscale(.4)}
+.ptn-card.dim:active{opacity:.85}
+.ptn-fee{font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--text);flex-shrink:0}
+.ptn-meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text2);font-family:var(--font-mono)}
+.ptn-days{font-weight:800;color:var(--text3)}
+.ptn-days.hot{color:var(--warn)}
+.ptn-waive{font-size:11px;color:var(--text3);margin-top:4px}
+.ptn-cal-btn{margin-top:8px;width:100%;background:var(--accentBg);border:1px solid var(--accentBorder);color:var(--accent);border-radius:7px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
+.ptn-cal-btn:active{transform:scale(.98)}
+
 /* Monthly history rows */
 .hist-month{font-size:13px;font-weight:800;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 6px}
 .hist-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
@@ -277,21 +294,23 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 // DATA — synced with CardList.txt + Shops.txt
 // ═══════════════════════════════════════════
 const ALL_CARDS=[
-  // ── VIB MAX ──
+  // ── VIB MAX (hiện gói Gold: 8% max 1tr; phí HV mỗi 3 tháng) ──
   {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:4,color:"#ADFF00",
     cashbackCategories:[
-      {category:"Online",rate:.10,maxCashback:1500000,maxSpend:15000000},
-      {category:"Ẩm thực",rate:.10,maxCashback:1500000,maxSpend:15000000},
-      {category:"Thời trang",rate:.10,maxCashback:1500000,maxSpend:15000000},
-      {category:"Du lịch",rate:.10,maxCashback:1500000,maxSpend:15000000}
+      {category:"Online",rate:.08,maxCashback:1000000,maxSpend:12500000},
+      {category:"Ẩm thực",rate:.08,maxCashback:1000000,maxSpend:12500000},
+      {category:"Thời trang",rate:.08,maxCashback:1000000,maxSpend:12500000},
+      {category:"Du lịch",rate:.08,maxCashback:1000000,maxSpend:12500000}
     ],
-    minSpend:0,sharedMaxCashback:1500000,
-    note:"Tùy hạng hội viên: Elite hoàn 10% max 1.5tr/kỳ; Gold hoàn 8% max 1tr/kỳ (app đang tính hạng Elite). Nhớ đăng ký gói Hội viên mỗi 3 tháng"},
+    minSpend:0,sharedMaxCashback:1000000,
+    note:"Tùy hạng HV: Elite 10%/1.5tr · Gold 8%/1tr · Plus 5%/500K · Starter 0.5%/500K. Hiện đang gói GOLD (21/7–20/10). Nhớ thiết lập gói Hội viên mỗi 3 tháng.",
+    annualFee:500000,afNext:"2026-10",afDay:21,afRecur:3,afWaive:"Deal with bank (Alo); phí HV theo hạng (Gold 500K/3 tháng), charge ngày 21 mỗi 3 tháng"},
 
   // ── SHINHAN ──
   {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#004996",
     cashbackCategories:[{category:"Siêu thị",rate:.12,maxCashback:400000,maxSpend:3333333}],
-    minSpend:3000000,note:"CB chỉ cho POS/Apple-Pay tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng"},
+    minSpend:3000000,note:"CB chỉ cho giao dịch quẹt POS tại Siêu thị; Chi tiêu tối thiểu 3tr/tháng",
+    annualFee:1100000,afNext:"2027-03",afWaive:"110tr/năm"},
 
   // ── SHINHAN MyLife (4 lĩnh vực 10%, tổng max 1.2tr, minSpend 3tr) ──
   {id:"shinhan-2647",name:"Shinhan MyLife",network:"Visa",last4:"2647",cardNum:"420673****2647",stmtDay:20,dueDay:4,color:"#1268B3",
@@ -302,33 +321,40 @@ const ALL_CARDS=[
       {category:"Giải trí",rate:.10,maxCashback:300000,maxSpend:3000000}
     ],
     minSpend:3000000,sharedMaxCashback:1200000,sharedCats:["Ẩm thực","Siêu thị","Di chuyển","Giải trí"],
-    note:"Mỗi lĩnh vực 10% max 300K; tổng max 1.2tr/tháng; GD lĩnh vực khác hoàn 0.4% (app không tính); chi tiêu tối thiểu 3tr/kỳ"},
+    note:"Mỗi lĩnh vực 10% max 300K; tổng max 1.2tr/tháng; GD lĩnh vực khác hoàn 0.4% (app không tính); chi tiêu tối thiểu 3tr/kỳ",
+    annualFee:1100000,afNext:"2027-06",afWaive:"110tr/năm"},
 
   // ── MSB mDigi ──
-  {id:"msb-0691",name:"MSB mDigi",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
+  {id:"msb-0691",name:"MSB mDigi (C)",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
-    note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
-  {id:"msb-4232",name:"MSB mDigi",network:"MC",last4:"4232",cardNum:"532451****4232",stmtDay:20,dueDay:4,color:"#EB5B21",
+    note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB",
+    annualFee:400000,afNext:"2027-09",afWaive:"60tr/năm"},
+  {id:"msb-4232",name:"MSB mDigi (T)",network:"MC",last4:"4232",cardNum:"532451****4232",stmtDay:20,dueDay:4,color:"#EB5B21",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
     minSpend:0,sharedMaxCashback:300000,firstCatOnly:true,
-    note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB"},
+    note:"CB kỳ = lĩnh vực GD đầu tiên nhập vào; GD lĩnh vực khác không được CB",
+    annualFee:400000,afNext:"2027-04",afWaive:"60tr/năm"},
 
   // ── MSB Visa Online (2 cards, stmtDay=25, dueDay=10) ──
-  {id:"msb-9372",name:"MSB Visa Online",network:"Visa",last4:"9372",cardNum:"402215****9372",stmtDay:25,dueDay:10,color:"#EB5B21",
+  {id:"msb-9372",name:"MSB Visa Online (C)",network:"Visa",last4:"9372",cardNum:"402215****9372",stmtDay:25,dueDay:10,color:"#EB5B21",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
-    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
-  {id:"msb-1712",name:"MSB Visa Online",network:"Visa",last4:"1712",cardNum:"402215****1712",stmtDay:25,dueDay:10,color:"#EB5B21",
+    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng",
+    annualFee:400000,afNext:"2027-04",afWaive:"60tr/năm"},
+  {id:"msb-1712",name:"MSB Visa Online (T)",network:"Visa",last4:"1712",cardNum:"402215****1712",stmtDay:25,dueDay:10,color:"#EB5B21",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
-    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng"},
+    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng",
+    annualFee:400000,afNext:"2027-04",afWaive:"60tr/năm"},
 
   // ── TCB Everyday (calendar month cycle, minTxn 200K) ──
-  {id:"tcb-7929",name:"TCB Everyday",network:"Visa",last4:"7929",cardNum:"403280****7929",stmtDay:20,dueDay:4,color:"#C8102E",
+  {id:"tcb-7929",name:"TCB Everyday (C)",network:"Visa",last4:"7929",cardNum:"403280****7929",stmtDay:20,dueDay:4,color:"#C8102E",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
-    minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)"},
-  {id:"tcb-5166",name:"TCB Everyday",network:"Visa",last4:"5166",cardNum:"403280****5166",stmtDay:20,dueDay:4,color:"#C8102E",
+    minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)",
+    annualFee:600000,afNext:"2027-11",afWaive:"là Khách hàng Inspire"},
+  {id:"tcb-5166",name:"TCB Everyday (T)",network:"Visa",last4:"5166",cardNum:"403280****5166",stmtDay:20,dueDay:4,color:"#C8102E",
     cashbackCategories:[{category:"Online",rate:.05,maxCashback:500000,maxSpend:10000000}],
-    minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)"},
+    minSpend:0,calendarMonth:true,minTxnAmount:200000,note:"Hoàn 5% mọi GD Online ≥200K; chu kỳ tháng lịch (1→cuối tháng)",
+    annualFee:600000,afNext:"2027-05",afWaive:"là Khách hàng Priority"},
 
   // ── TCB Spark (calendar month; tổng CB max 500K chung; đổi danh mục 1 lần/ngày) ──
   {id:"tcb-6661",name:"TCB Spark",network:"MC",last4:"6661",cardNum:"510164****6661",stmtDay:20,dueDay:4,color:"#E8112D",
@@ -340,7 +366,8 @@ const ALL_CARDS=[
       {category:"Ẩm thực",rate:.02,maxCashback:500000,maxSpend:25000000}
     ],
     minSpend:0,calendarMonth:true,sharedMaxCashback:500000,
-    note:"Du lịch/Thời trang/Giải trí 8%; Online/Ẩm thực 2%; tổng CB max 500K/kỳ chung; đổi danh mục ưu đãi 1 lần/ngày; chu kỳ tháng lịch"},
+    note:"Du lịch/Thời trang/Giải trí 8%; Online/Ẩm thực 2%; tổng CB max 500K/kỳ chung; đổi danh mục ưu đãi 1 lần/ngày; chu kỳ tháng lịch",
+    annualFee:900000,afNext:"2027-01",afWaive:"là Khách hàng Inspire"},
 
   // ── LPB JCB Ultimate (minSpend 8tr) ──
   {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",cardNum:"356772****2059",stmtDay:20,dueDay:4,color:"#C17F3A",
@@ -349,16 +376,18 @@ const ALL_CARDS=[
       {category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},
       {category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}
     ],
-    minSpend:8000000,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K; Chi tiêu tối thiểu 8tr/kỳ"},
+    minSpend:8000000,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K; Chi tiêu tối thiểu 8tr/kỳ",
+    annualFee:1500000,afNext:"2026-11",afWaive:"240tr/năm"},
 
   // ── HDB Visa EZ Gold (calendar month) ──
-  {id:"hdb-4497",name:"HDB Visa Gold",network:"Visa",last4:"4497",cardNum:"498767****4497",stmtDay:20,dueDay:4,color:"#ED1C24",
+  {id:"hdb-4497",name:"HDB Visa EZ",network:"Visa",last4:"4497",cardNum:"498767****4497",stmtDay:20,dueDay:4,color:"#ED1C24",
     cashbackCategories:[
       {category:"Online",rate:.06,maxCashback:200000,maxSpend:3333333,hiRate:.10,hiMaxCashback:400000,hiMaxSpend:4000000},
       {category:"Ẩm thực",rate:.04,maxCashback:100000,maxSpend:2500000,hiRate:.08,hiMaxCashback:200000,hiMaxSpend:2500000}
     ],
     minSpend:0,calendarMonth:true,tierThreshold:10000000,
-    note:"Nhảy bậc theo tổng chi kỳ: <10tr Online 6% max200K, Ẩm thực 4% max100K; ≥10tr Online 10% max400K, Ẩm thực 8% max200K. 2 lĩnh vực độc lập; chu kỳ tháng lịch"},
+    note:"Nhảy bậc theo tổng chi kỳ: <10tr Online 6% max200K, Ẩm thực 4% max100K; ≥10tr Online 10% max400K, Ẩm thực 8% max200K. 2 lĩnh vực độc lập; chu kỳ tháng lịch",
+    annualFee:440000,afNext:"2027-11",afWaive:"40tr/năm"},
 
   // ── HDB Vietjet Platinum (calendar month, corrected caps) ──
   {id:"hdb-1541",name:"HDB Vietjet Plat",network:"Visa",last4:"1541",cardNum:"416259****1541",stmtDay:20,dueDay:4,color:"#ED1C24",
@@ -368,33 +397,38 @@ const ALL_CARDS=[
       {category:"Vé Vietjet",rate:.10,maxCashback:500000,maxSpend:5000000}
     ],
     minSpend:0,calendarMonth:true,sharedMaxCashback:300000,sharedCats:["Ẩm thực","Du lịch"],
-    note:"Ẩm thực & Du lịch max CB 300K chung (không bao gồm Fastfood); Vé Vietjet riêng max 500K; chu kỳ tháng lịch"},
+    note:"Ẩm thực & Du lịch max CB 300K chung (không bao gồm Fastfood); Vé Vietjet riêng max 500K; chu kỳ tháng lịch",
+    annualFee:990000,afNext:"2027-02",afWaive:"60tr/năm"},
 
   // ── Seabank Sea-Easy (calendar month) ──
   {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",cardNum:"426545****6891",stmtDay:30,dueDay:8,color:"#E31B23",
     cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],
-    minSpend:0,calendarMonth:true,note:"Chỉ áp dụng GD tại Shopee; chu kỳ tháng lịch"},
+    minSpend:0,calendarMonth:true,note:"Chỉ áp dụng GD tại Shopee; chu kỳ tháng lịch",
+    annualFee:440000,afNext:"2027-02",afWaive:"70tr/năm"},
 
-  // ── Sacombank Platinum AMEX ──
+  // ── Sacombank Platinum AMEX (bỏ điều kiện tối thiểu) ──
   {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",cardNum:"370989****9870",stmtDay:30,dueDay:20,color:"#0054A4",
     cashbackCategories:[{category:"Du lịch",rate:.20,maxCashback:1000000,maxSpend:5000000}],
-    minSpend:5000000,note:"Max 1tr/tháng; Du lịch gồm Agoda, hotel, vé máy bay; Chi tiêu tối thiểu 5tr/kỳ"},
+    minSpend:0,note:"Max 1tr/tháng; Du lịch gồm Agoda, hotel, vé máy bay",
+    annualFee:600000,afNext:"2027-03",afWaive:"300tr/năm"},
 
   // ── MB JCB Ultimate (2 cards) ──
-  {id:"mb-4887",name:"MB JCB Ultimate",network:"JCB",last4:"4887",cardNum:"356772****4887",stmtDay:8,dueDay:20,color:"#003399",
+  {id:"mb-4887",name:"MB JCB Ultimate (C)",network:"JCB",last4:"4887",cardNum:"356772****4887",stmtDay:8,dueDay:20,color:"#003399",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
       {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
       {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
     ],
-    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
-  {id:"mb-8026",name:"MB JCB Ultimate",network:"JCB",last4:"8026",cardNum:"356772****8026",stmtDay:8,dueDay:20,color:"#1A4DB3",
+    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K",
+    annualFee:800000,afNext:"2027-03",afWaive:"100tr/năm"},
+  {id:"mb-8026",name:"MB JCB Ultimate (T)",network:"JCB",last4:"8026",cardNum:"356772****8026",stmtDay:8,dueDay:20,color:"#1A4DB3",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
       {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
       {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
     ],
-    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K"},
+    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K",
+    annualFee:800000,afNext:"2027-05",afWaive:"100tr/năm"},
 
   // ── HSBC Live+ (calendar month) ──
   {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",cardNum:"437841****3008",stmtDay:4,dueDay:27,color:"#C8102E",
@@ -402,33 +436,37 @@ const ALL_CARDS=[
       {category:"Ẩm thực",rate:.06,maxCashback:200000,maxSpend:3333333},
       {category:"Thời trang",rate:.06,maxCashback:200000,maxSpend:3333333}
     ],
-    minSpend:0,sharedMaxCashback:200000,calendarMonth:true,note:"Max 200K chung Ẩm thực & Thời trang; chu kỳ tháng lịch"},
+    minSpend:0,sharedMaxCashback:200000,calendarMonth:true,note:"Max 200K chung Ẩm thực & Thời trang; chu kỳ tháng lịch",
+    annualFee:800000,afNext:"2027-03",afWaive:"Deal with bank (Alo)"},
 
   // ── Sacombank Uniq 4499 ──
-  {id:"sacom-4499",name:"Sacom Uniq",network:"Visa",last4:"4499",cardNum:"436438****4499",stmtDay:5,dueDay:27,color:"#0054A4",
+  {id:"sacom-4499",name:"Sacom Uniq (C)",network:"Visa",last4:"4499",cardNum:"436438****4499",stmtDay:5,dueDay:27,color:"#0054A4",
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},
       {category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}
     ],
-    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
+    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển",
+    annualFee:600000,afNext:"2027-07",afWaive:"300tr/năm"},
 
   // ── Sacombank Uniq 3007 (stmtDay=27, dueDay=22) ──
-  {id:"sacom-3007",name:"Sacom Uniq",network:"Visa",last4:"3007",cardNum:"436438****3007",stmtDay:27,dueDay:22,color:"#0054A4",
+  {id:"sacom-3007",name:"Sacom Uniq (T)",network:"Visa",last4:"3007",cardNum:"436438****3007",stmtDay:27,dueDay:22,color:"#0054A4",
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:300000,maxSpend:1500000},
       {category:"Di chuyển",rate:.20,maxCashback:300000,maxSpend:1500000}
     ],
-    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển"},
+    minSpend:0,sharedMaxCashback:300000,note:"Max 300K chung Siêu thị & Di chuyển",
+    annualFee:null,afNext:"2027-03",afWaive:"300tr/năm (phí thẻ phụ — xác nhận với NH)"},
 
-  // ── CIMB (new card, calendar month, independent cats) ──
-  {id:"cimb-6112",name:"CIMB",network:"Visa",last4:"6112",cardNum:"472626****6112",stmtDay:25,dueDay:8,color:"#8B0020",
+  // ── CIMB (calendar month, independent cats) ──
+  {id:"cimb-6112",name:"CIMB Revi",network:"Visa",last4:"6112",cardNum:"472626****6112",stmtDay:25,dueDay:8,color:"#8B0020",
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:100000,maxSpend:500000},
       {category:"Du lịch",rate:.20,maxCashback:100000,maxSpend:500000},
       {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000},
       {category:"Di chuyển",rate:.20,maxCashback:100000,maxSpend:500000}
     ],
-    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập, mỗi lĩnh vực max 100K; Chi tiêu tối thiểu 3tr/tháng; chu kỳ tháng lịch"},
+    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập, mỗi lĩnh vực max 100K; Chi tiêu tối thiểu 3tr/tháng; chu kỳ tháng lịch",
+    annualFee:200000,afNext:"2026-10",afWaive:"12tr/năm"},
 
   // ── SHB MC Cashback (firstCatOnly; 2 nhóm cap; tổng max 500K/kỳ) ──
   {id:"shb-7936",name:"SHB MC Cashback",network:"MC",last4:"7936",cardNum:"533398****7936",stmtDay:5,dueDay:20,color:"#E4002B",
@@ -440,17 +478,46 @@ const ALL_CARDS=[
       {category:"Y tế",rate:.05,maxCashback:500000,maxSpend:10000000}
     ],
     minSpend:0,firstCatOnly:true,
-    note:"Chọn 1 lĩnh vực/kỳ (theo GD đầu tiên, đổi áp dụng kỳ sau). Nhóm Siêu thị/Bảo hiểm/Thời trang max 300K; nhóm Giáo dục/Y tế max 500K; tổng tối đa 500K/kỳ"},
+    note:"Chọn 1 lĩnh vực/kỳ (theo GD đầu tiên, đổi áp dụng kỳ sau). Nhóm Siêu thị/Bảo hiểm/Thời trang max 300K; nhóm Giáo dục/Y tế max 500K; tổng tối đa 500K/kỳ",
+    annualFee:800000,afNext:"2027-07",afWaive:"60tr/năm"},
 
-  // ── BIDV JCB Well-Being (calendar month; app tính mức <10tr) ──
-  {id:"bidv-3761",name:"BIDV JCB Well-Being",network:"JCB",last4:"3761",cardNum:"356592****3761",stmtDay:20,dueDay:5,color:"#00954C",
+  // ── BIDV JCB Well-Being (C) — NEW (số 9999) ──
+  {id:"bidv-9999",name:"BIDV Well-Being (C)",network:"JCB",last4:"9999",cardNum:"356592****9999",stmtDay:20,dueDay:5,color:"#00A15C",
     cashbackCategories:[
       {category:"Y tế",rate:.05,maxCashback:200000,maxSpend:4000000,hiRate:.10,hiMaxCashback:400000,hiMaxSpend:4000000},
       {category:"Bảo hiểm",rate:.03,maxCashback:200000,maxSpend:6666667,hiRate:.06,hiMaxCashback:400000,hiMaxSpend:6666667},
       {category:"Thời trang",rate:.03,maxCashback:200000,maxSpend:6666667,hiRate:.06,hiMaxCashback:400000,hiMaxSpend:6666667}
     ],
     minSpend:0,calendarMonth:true,sharedMaxCashback:200000,hiSharedMaxCashback:400000,tierThreshold:10000000,
-    note:"Nhảy bậc theo tổng chi kỳ: <10tr Y tế 5%/BH 3%/Thời trang 3% (tổng max 200K); ≥10tr Y tế 10%/BH 6%/Thời trang 6% (tổng max 400K). Chu kỳ tháng lịch"}
+    note:"Nhảy bậc theo tổng chi kỳ: <10tr Y tế 5%/BH 3%/Thời trang 3% (tổng max 200K); ≥10tr Y tế 10%/BH 6%/Thời trang 6% (tổng max 400K). Chu kỳ tháng lịch",
+    annualFee:400000,afNext:"2027-08",afWaive:"50tr/năm"},
+
+  // ── BIDV JCB Well-Being (T) — số 3761 ──
+  {id:"bidv-3761",name:"BIDV Well-Being (T)",network:"JCB",last4:"3761",cardNum:"356592****3761",stmtDay:20,dueDay:5,color:"#00954C",
+    cashbackCategories:[
+      {category:"Y tế",rate:.05,maxCashback:200000,maxSpend:4000000,hiRate:.10,hiMaxCashback:400000,hiMaxSpend:4000000},
+      {category:"Bảo hiểm",rate:.03,maxCashback:200000,maxSpend:6666667,hiRate:.06,hiMaxCashback:400000,hiMaxSpend:6666667},
+      {category:"Thời trang",rate:.03,maxCashback:200000,maxSpend:6666667,hiRate:.06,hiMaxCashback:400000,hiMaxSpend:6666667}
+    ],
+    minSpend:0,calendarMonth:true,sharedMaxCashback:200000,hiSharedMaxCashback:400000,tierThreshold:10000000,
+    note:"Nhảy bậc theo tổng chi kỳ: <10tr Y tế 5%/BH 3%/Thời trang 3% (tổng max 200K); ≥10tr Y tế 10%/BH 6%/Thời trang 6% (tổng max 400K). Chu kỳ tháng lịch",
+    annualFee:400000,afNext:"2027-07",afWaive:"50tr/năm"},
+
+  // ── TCB Priority Signature — NEW (premium; cashback chưa đủ dữ liệu để tính) ──
+  {id:"tcb-8678",name:"TCB Priority Signature",network:"Visa",last4:"8678",cardNum:"483931****8678",stmtDay:0,dueDay:0,color:"#26324D",
+    cashbackCategories:[],minSpend:0,
+    note:"Hoàn 5% nhà hàng, 3% du lịch & khách sạn (chưa có mốc/kỳ trong app — chỉ theo dõi phí thường niên).",
+    annualFee:1500000,afNext:"2027-01",afWaive:"là Khách hàng Priority"},
+
+  // ── VIB Premier Boundless — NEW (không cashback) ──
+  {id:"vib-6970",name:"VIB Premier Boundless",network:"MC",last4:"6970",cardNum:"513094****6970",stmtDay:0,dueDay:0,color:"#1B2A4A",
+    cashbackCategories:[],minSpend:0,note:"Không có cashback — chỉ theo dõi phí thường niên.",
+    annualFee:1300000,afNext:"2027-07",afWaive:"300tr/năm"},
+
+  // ── UOB PRVI Miles — NEW (không cashback) ──
+  {id:"uob-5021",name:"UOB PRVI Miles",network:"MC",last4:"5021",cardNum:"533948****5021",stmtDay:12,dueDay:29,color:"#003DA5",
+    cashbackCategories:[],minSpend:0,note:"Không có cashback (tích dặm) — chỉ theo dõi phí thường niên.",
+    annualFee:3000000,afNext:"2027-06",afWaive:"60tr/năm"}
 ];
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
@@ -516,13 +583,13 @@ const SHOP_CARD_MAP=[
   {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","seabank-6891"]},
   {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-6661"]},
   // ── Thời trang ──
-  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
-  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
-  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
-  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
-  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
-  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
-  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
   // ── Di chuyển ──
   {shop:"Be",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007","shinhan-2647"]},
   {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007","shinhan-2647"]},
@@ -532,15 +599,15 @@ const SHOP_CARD_MAP=[
   {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   // ── Y tế ──
-  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
   // ── Giáo dục ──
   {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
@@ -548,8 +615,8 @@ const SHOP_CARD_MAP=[
   {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   // ── Bảo hiểm ──
-  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
   // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
   // ── Giải trí ──
@@ -621,6 +688,20 @@ function cycleEnd(card){
   const cs=cycleStart(card,new Date());return new Date(cs.getFullYear(),cs.getMonth()+1,cs.getDate()-1);
 }
 function daysUntilCycleEnd(card){return Math.max(0,Math.ceil((cycleEnd(card)-new Date())/864e5));}
+
+// ═══ ANNUAL FEE (Phí thường niên) ═══
+// card.afNext="YYYY-MM" (mốc charge tới), card.afDay (mặc định 1), card.afRecur (mặc định 12; VIB=3)
+function afNextDate(card){
+  if(!card.afNext)return null;
+  const p=card.afNext.split("-"),y=+p[0],m=+p[1];if(!y||!m)return null;
+  const day=card.afDay||1,recur=card.afRecur||12;
+  let d=new Date(y,m-1,day);const today=new Date();today.setHours(0,0,0,0);
+  let g=0;while(d<today&&g<60){d=new Date(d.getFullYear(),d.getMonth()+recur,day);g++;}
+  return d;
+}
+function afDaysUntil(card){const d=afNextDate(card);if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.ceil((d-t)/864e5);}
+function afSoon(card){const d=afNextDate(card);if(!d)return false;const t=new Date();return d<=new Date(t.getFullYear(),t.getMonth()+3,t.getDate());}
+function afSoonCount(){return ALL_CARDS.filter(afSoon).length}
 
 // ═══ FIRST-CAT-ONLY (MSB, BVB) ═══
 function getActiveCat(card,ct){
@@ -803,7 +884,7 @@ function importBackup(){
 // ═══ STATE ═══
 let state={
   tab:"cards",
-  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","shinhan-2647","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","tcb-6661","lpb-2059","hdb-4497","hdb-1541","seabank-6891","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112","shb-7936","bidv-3761"]),
+  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","shinhan-2647","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","tcb-6661","lpb-2059","hdb-4497","hdb-1541","seabank-6891","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112","shb-7936","bidv-9999","bidv-3761"]),
   transactions:load("ct7-txns",[]),
   events:load("ct7-events",[]),
   detailCardId:null,addMode:"txn",
@@ -945,6 +1026,7 @@ function render(){
     case"txns":content.appendChild(renderTxnTab());break;
     case"add":content.appendChild(renderAddTab());break;
     case"events":content.appendChild(renderEventsTab());break;
+    case"ptn":content.appendChild(renderPTNTab());break;
   }
   app.appendChild(content);app.appendChild(renderTabBar());content.scrollTop=st;
   // Restore focus
@@ -963,10 +1045,10 @@ function renderHeader(){
 }
 
 function renderTabBar(){
-  const tabs=[{key:"select",label:"Chọn",icon:"🗂️"},{key:"cards",label:"Thẻ",icon:"💳"},{key:"shop",label:"Shop",icon:"🔎"},{key:"txns",label:"GD",icon:"🧾"},{key:"events",label:"Event",icon:"🔔"},{key:"add",label:"Thêm",icon:"➕"}];
+  const tabs=[{key:"select",label:"Chọn",icon:"🗂️"},{key:"cards",label:"Thẻ",icon:"💳"},{key:"shop",label:"Shop",icon:"🔎"},{key:"txns",label:"GD",icon:"🧾"},{key:"events",label:"Event",icon:"🔔"},{key:"ptn",label:"PTN",icon:"💰"},{key:"add",label:"Thêm",icon:"➕"}];
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
-    const uc=t.key==="events"?(urgentCount()+pendingCalEvents().length):0;
+    const uc=t.key==="events"?(urgentCount()+pendingCalEvents().length):t.key==="ptn"?afSoonCount():0;
     const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null,editTxnId:null})}},
       h("span",{className:"ico",style:{position:"relative"}},t.icon,uc>0?h("span",{className:"tab-dot"}):null),h("span",null,t.label));
     bar.appendChild(btn);
@@ -989,7 +1071,7 @@ function bankKeyOf(card){
   if(id.startsWith("seabank"))return"SeaBank";
   if(id.startsWith("shinhan"))return"Shinhan";
   if(id.startsWith("tcb"))return"Techcombank";
-  if(id.startsWith("vib"))return"VIB";
+  if(id.startsWith("vib"))return"VIB";if(id.startsWith("uob"))return"UOB";
   return"Khác";
 }
 // Build the bank-grouped card list (filtered by state.cardSearch) into `el`.
@@ -1127,7 +1209,7 @@ function renderCardsTab(){
     if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
     if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
     if(id.startsWith("seabank"))return"SeaBank";if(id.startsWith("shinhan"))return"Shinhan";
-    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";
+    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";if(id.startsWith("uob"))return"UOB";
     return"Khác";
   }
   const cards=[...rawCards].sort((a,b)=>{
@@ -1543,6 +1625,51 @@ function renderEvCard(ev,urg){
   return el;
 }
 
+// ═══ PTN TAB (Phí thường niên — mọi thẻ, kể cả chưa chọn) ═══
+function renderPTNTab(){
+  const w=h("div",null);
+  w.appendChild(h("p",{className:"hint"},"// Phí thường niên — thẻ sắp đến hạn (≤3 tháng) nổi lên trên"));
+  const list=ALL_CARDS.filter(c=>c.afNext).map(c=>({c,d:afNextDate(c)})).filter(x=>x.d).sort((a,b)=>a.d-b.d);
+  const soon=list.filter(x=>afSoon(x.c)),later=list.filter(x=>!afSoon(x.c));
+  // summary
+  const totSoon=soon.reduce((s,x)=>s+(x.c.annualFee||0),0);
+  w.appendChild(h("div",{className:"ptn-summary"},
+    h("div",null,h("span",{className:"ptn-sum-n"},soon.length),h("span",{className:"ptn-sum-l"}," thẻ sắp đến hạn PTN")),
+    totSoon>0?h("div",{className:"ptn-sum-amt"},"~"+fmtK(totSoon)+"₫"):null));
+  if(soon.length){
+    w.appendChild(h("div",{className:"ev-section"},"🔴 Sắp đến hạn (≤ 3 tháng)"));
+    soon.forEach(x=>w.appendChild(renderPTNCard(x.c,x.d,true)));
+  }
+  if(later.length){
+    w.appendChild(h("div",{className:"ev-section"},"📋 Các thẻ khác"));
+    later.forEach(x=>w.appendChild(renderPTNCard(x.c,x.d,false)));
+  }
+  if(!list.length)w.appendChild(h("p",{className:"empty"},"// chưa có dữ liệu phí thường niên"));
+  return w;
+}
+function renderPTNCard(c,d,hot){
+  const days=afDaysUntil(c),mon=Math.floor(days/30);
+  const dstr=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+  const feeStr=c.annualFee?fmtK(c.annualFee)+"₫":"—";
+  const leftStr=days<=0?"ĐẾN HẠN":days<=45?`còn ${days} ngày`:`còn ~${mon} tháng`;
+  const el=h("div",{className:"ptn-card"+(hot?" hot":" dim"),style:{borderLeftColor:c.color}},
+    h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"3px"}},
+      h("span",{className:"net-sm",style:{background:c.color}},NET_ICONS[c.network]),
+      h("span",{style:{fontWeight:800,fontSize:"13px",flex:1,minWidth:0}},`${c.name} ${c.cardNum||"****"+c.last4}`),
+      h("span",{className:"ptn-fee"},feeStr)),
+    h("div",{className:"ptn-meta"},
+      h("span",null,"📅 "+dstr),
+      h("span",{className:"ptn-days"+(hot?" hot":"")},leftStr)),
+    c.afWaive?h("div",{className:"ptn-waive"},"Miễn năm sau nếu: "+c.afWaive):null,
+    hot?h("button",{className:"ptn-cal-btn",onClick:()=>{buzz(10);addPTNToCal(c,d)}},"＋ Nhắc vào Lịch iPhone"):null);
+  return el;
+}
+function addPTNToCal(c,d){
+  addOneToCal({id:"af-"+c.id+"-"+toLocalDateStr(d),date:toLocalDateStr(d),
+    title:`Phí thường niên: ${c.name} ${c.cardNum||"****"+c.last4}`,
+    sub:(c.annualFee?fmtK(c.annualFee)+"₫":"")+(c.afWaive?" · miễn nếu "+c.afWaive:""),isAuto:false});
+}
+
 // ═══ ADD TAB ═══
 function renderAddTab(){
   const w=h("div",null),tr=h("div",{className:"form-tabs"});
@@ -1605,7 +1732,7 @@ function renderAddTxn(){
     if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
     if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
     if(id.startsWith("seabank"))return"SeaBank";if(id.startsWith("shinhan"))return"Shinhan";
-    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";
+    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";if(id.startsWith("uob"))return"UOB";
     return"Khác";
   }
   const cards=[...rawCards].sort((a,b)=>{
@@ -1680,7 +1807,7 @@ function renderAddEv(){
     if(id.startsWith("lpb"))return"LPBank";if(id.startsWith("mb"))return"MB Bank";
     if(id.startsWith("msb"))return"MSB";if(id.startsWith("sacom"))return"Sacombank";
     if(id.startsWith("seabank"))return"SeaBank";if(id.startsWith("shinhan"))return"Shinhan";
-    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";
+    if(id.startsWith("tcb"))return"Techcombank";if(id.startsWith("vib"))return"VIB";if(id.startsWith("uob"))return"UOB";
     return"Khác";
   }
   const cards=[...selectedCards()].sort((a,b)=>{
