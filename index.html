@@ -87,6 +87,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sel-sub{font-size:13px;color:var(--text3);margin-top:2px;font-family:var(--font-mono)}
 .chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:14px;color:#fff}
 .chk.on{border-color:var(--card-color);background:var(--card-color)}
+.evt-toggle{background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;opacity:.45;filter:grayscale(1);transition:all .15s}
+.evt-toggle.on{opacity:1;filter:none;border-color:var(--accentBorder)}
+.evt-toggle:active{transform:scale(.9)}
 
 /* Card Block */
 .card-block{background:var(--card-bg);border-radius:var(--radius);padding:14px;margin-bottom:8px;border:1px solid var(--card-border);border-left:3px solid var(--card-color);cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
@@ -245,6 +248,20 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .dup{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:6px 8px;margin:-4px -2px;border-radius:6px;min-width:32px;min-height:32px;display:inline-flex;align-items:center;justify-content:center}
 .dup:active{color:var(--accent);background:var(--accentBg)}
 .paid-btn{background:var(--greenBg);border:1px solid var(--greenBorder);color:var(--green);border-radius:7px;padding:5px 9px;font-size:12px;font-weight:800;font-family:var(--font-mono);cursor:pointer;flex-shrink:0}
+.ics-bar{margin-bottom:12px}
+.ics-btn{width:100%;background:var(--accentBg);border:1.5px solid var(--accentBorder);color:var(--accent);border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+.ics-btn:active{transform:scale(.98)}
+.ics-hint{font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-top:5px;text-align:center}
+.cal-picker{background:var(--card-bg);border:1.5px solid var(--accentBorder);border-radius:var(--radius);padding:11px;margin-bottom:12px;box-shadow:var(--shadow)}
+.cal-picker-head{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:9px}
+.cal-x{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 6px}
+.cal-pick-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;background:var(--bg3);transition:all .12s}
+.cal-pick-row.on{border-color:var(--accentBorder);background:var(--accentBg)}
+.cal-added{font-size:11px;color:var(--green);margin-left:6px;font-family:var(--font-mono)}
+.cal-banner{display:flex;align-items:center;gap:10px;background:var(--accentBg);border:1.5px solid var(--accentBorder);border-radius:var(--radius-sm);padding:10px 11px;margin-bottom:12px;animation:fadeSlide .22s ease}
+.cal-banner-btn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:7px 13px;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0}
+.cal-banner-btn:active{transform:scale(.95)}
+.cal-banner-x{background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0}
 .paid-btn:active{transform:scale(.95)}
 
 /* Monthly history rows */
@@ -750,7 +767,7 @@ document.documentElement.setAttribute("data-theme",getTheme());
 
 // ═══ BACKUP / RESTORE ═══
 function exportBackup(){
-  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,theme:getTheme()};
+  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,noEvt:state.noEvt,calAdded:state.calAdded,theme:getTheme()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download="cardtrack-backup-"+toLocalDateStr(new Date())+".json";
@@ -772,6 +789,8 @@ function importBackup(){
         state.events=Array.isArray(d.events)?d.events:[];
         if(Array.isArray(d.history))state.history=d.history;
         if(Array.isArray(d.paidDues))state.paidDues=d.paidDues;
+        if(Array.isArray(d.noEvt))state.noEvt=d.noEvt;
+        if(Array.isArray(d.calAdded))state.calAdded=d.calAdded;
         if(Array.isArray(d.selectedCardIds)&&d.selectedCardIds.length)state.selectedCardIds=d.selectedCardIds.filter(id=>ALL_CARDS.some(c=>c.id===id));
         persist();showToast("✓ Đã import backup");render();
       }catch{showToast("⚠ File backup không hợp lệ")}
@@ -795,7 +814,11 @@ let state={
   cardSort:"bank",cardSearch:"",filterCat:"all",
   shopMode:"shop",advCat:"",advAmt:"",
   txnView:"current",editTxnId:null,
-  history:load("ct7-history",[]),paidDues:load("ct7-paid",[])
+  history:load("ct7-history",[]),paidDues:load("ct7-paid",[]),
+  noEvt:load("ct7-noevt",[]),
+  calAdded:load("ct7-caladded",[]),   // keys of events already added to iPhone Calendar
+  calDismiss:load("ct7-caldismiss",""),// dismissed pending-signature for the reminder banner
+  calPicker:false,calPick:[]           // transient: calendar-add picker state
 };
 
 let _shopTimer=null;
@@ -803,7 +826,10 @@ let _addInputTimer=null;
 let _lastView="";
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
-function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues)}
+function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss)}
+// Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
+function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
+function toggleCardEvt(id){state.noEvt=cardEvtOn(id)?[...(state.noEvt||[]),id]:(state.noEvt||[]).filter(x=>x!==id);persist();render()}
 // Snapshot the cashback/spend of cycles whose txns are about to be purged, so the
 // monthly history survives the auto-cleanup. Keyed by card+cycleStart (first write wins).
 function archiveCycles(txns){
@@ -846,6 +872,7 @@ function getAutoEvents(){
   const now=new Date(),evts=[];
   state.selectedCardIds.forEach(id=>{
     const c=ALL_CARDS.find(x=>x.id===id);if(!c)return;
+    if(!cardEvtOn(id))return; // reminders turned off for this card
     const due=nextDueDate(c),diff=Math.ceil((due-now)/864e5),dueKey=c.id+"|"+toLocalDateStr(due);
     if((state.paidDues||[]).includes(dueKey))return;
     if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,dueKey,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ${c.cardNum||"****"+c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
@@ -910,6 +937,7 @@ function render(){
   const viewSig=state.tab+"|"+(state.detailCardId||"")+"|"+(state.addMode||"");
   const content=h("div",{className:"content"+(viewSig!==_lastView?" anim":"")});
   _lastView=viewSig;
+  if(showCalBanner())content.appendChild(renderCalBanner());
   switch(state.tab){
     case"select":content.appendChild(renderSelectTab());break;
     case"cards":content.appendChild(state.detailCardId?renderCardDetail():renderCardsTab());break;
@@ -938,7 +966,7 @@ function renderTabBar(){
   const tabs=[{key:"select",label:"Chọn",icon:"🗂️"},{key:"cards",label:"Thẻ",icon:"💳"},{key:"shop",label:"Shop",icon:"🔎"},{key:"txns",label:"GD",icon:"🧾"},{key:"events",label:"Event",icon:"🔔"},{key:"add",label:"Thêm",icon:"➕"}];
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
-    const uc=t.key==="events"?urgentCount():0;
+    const uc=t.key==="events"?(urgentCount()+pendingCalEvents().length):0;
     const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null,editTxnId:null})}},
       h("span",{className:"ico",style:{position:"relative"}},t.icon,uc>0?h("span",{className:"tab-dot"}):null),h("span",null,t.label));
     bar.appendChild(btn);
@@ -1020,6 +1048,8 @@ function renderCardGroups(el){
           h("div",{className:"sel-sub",style:{marginTop:"2px"}},
             `Sao kê: ${c.stmtDay>0?c.stmtDay+"th":"1st"} · Hạn TT: ${c.dueDay}th · CB: ${c.calendarMonth?"tháng lịch":"theo sao kê"}`)
         ),
+        on?h("button",{className:"evt-toggle"+(cardEvtOn(c.id)?" on":""),title:"Bật/tắt nhắc đến hạn",
+          onClick:e=>{e.stopPropagation();buzz(8);toggleCardEvt(c.id)}},cardEvtOn(c.id)?"🔔":"🔕"):null,
         h("div",{className:"chk"+(on?" on":""),style:{"--card-color":c.color}},on?"✓":"")
       ));
     });
@@ -1395,23 +1425,120 @@ function renderTxnHistory(w){
   return w;
 }
 
+// ═══ ICS / iPhone Calendar export (single events + per-event "đã thêm" flag) ═══
+// Mỗi event có 1 key ổn định (auto: dueKey = cardId|date; thủ công: e.id). Đã add vào Lịch
+// → key nằm trong state.calAdded (Y). Event add vào Lịch là ĐƠN LẺ, không lặp. Thẻ đổi/bị bỏ
+// thì tháng sau không sinh nhắc mới → không trùng, không cần gỡ tay.
+function _p2(n){return String(n).padStart(2,"0")}
+function icsEsc(s){return String(s==null?"":s).replace(/([,;\\])/g,"\\$1").replace(/\r?\n/g,"\\n")}
+function icsStamp(){const d=new Date();return d.getUTCFullYear()+_p2(d.getUTCMonth()+1)+_p2(d.getUTCDate())+"T"+_p2(d.getUTCHours())+_p2(d.getUTCMinutes())+_p2(d.getUTCSeconds())+"Z"}
+function icsLocal(d,hh,mm){return d.getFullYear()+_p2(d.getMonth()+1)+_p2(d.getDate())+"T"+_p2(hh)+_p2(mm)+"00"}
+function evKeyOf(e){return e.dueKey||e.id}
+function isCalAdded(e){return (state.calAdded||[]).includes(evKeyOf(e))}
+// All current events (auto within 14d + future manual), normalized, with .key/.isAuto
+function allEvents(){
+  const now=new Date(),nowStr=toLocalDateStr(now);
+  const auto=getAutoEvents();
+  const man=state.events.filter(e=>e.date>=nowStr).map(e=>({...e,isAuto:false,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}));
+  return [...auto,...man].map(e=>({...e,key:evKeyOf(e)})).sort((a,b)=>a.date.localeCompare(b.date));
+}
+function pendingCalEvents(){return allEvents().filter(e=>!isCalAdded(e))}
+// Build a single-occurrence VCALENDAR from a list of normalized event objects
+function buildICS(list){
+  const ds=icsStamp();
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CardTrack//VN//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:CardTrack"];
+  list.forEach(e=>{
+    const d=parseLocalDate(e.date),icon=e.isAuto?"💳 ":"🔔 ";
+    L.push("BEGIN:VEVENT","UID:cardtrack-"+e.key.replace(/[^\w|-]/g,"")+"@cardtrack","DTSTAMP:"+ds,
+      "DTSTART:"+icsLocal(d,9,0),"DTEND:"+icsLocal(d,9,30),
+      "SUMMARY:"+icsEsc(icon+(e.title||"CardTrack")),
+      "DESCRIPTION:"+icsEsc(e.sub||""),
+      "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(e.title||"Nhắc"),"TRIGGER:-P1D","END:VALARM",
+      "END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  return L.join("\r\n");
+}
+// Trigger .ics download for `list`, then mark those keys as added
+function downloadICS(list){
+  if(!list.length){showToast("Không có event nào để thêm");return}
+  try{
+    const blob=new Blob([buildICS(list)],{type:"text/calendar;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="cardtrack-events.ics";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    state.calAdded=[...new Set([...(state.calAdded||[]),...list.map(e=>e.key)])];
+    persist();showToast(`📅 Đã tạo .ics (${list.length}) — mở bằng Safari để thêm vào Lịch`);
+  }catch(err){showToast("⚠ Không tạo được file .ics")}
+}
+// Open the picker: pre-select all pending events
+function openCalPicker(){const p=pendingCalEvents();setState({calPicker:true,calPick:p.map(e=>e.key)})}
+function toggleCalPick(key){const s=new Set(state.calPick||[]);s.has(key)?s.delete(key):s.add(key);setState({calPick:[...s]})}
+function confirmCalPicker(){
+  const pick=new Set(state.calPick||[]);
+  const list=pendingCalEvents().filter(e=>pick.has(e.key));
+  downloadICS(list);
+  setState({calPicker:false,calPick:[]});
+}
+// Add ONE event immediately (used when creating a manual event and user says yes)
+function addOneToCal(e){downloadICS([{...e,key:evKeyOf(e)}])}
+// Reminder banner: nudge user to add pending events (e.g. new cycle at start of month).
+// Signature = pending keys; dismiss stores it, so a new due next month re-shows the banner.
+function pendingSig(){return pendingCalEvents().map(e=>e.key).sort().join(",")}
+function showCalBanner(){return state.tab!=="events"&&pendingCalEvents().length>0&&state.calDismiss!==pendingSig()}
+function renderCalBanner(){
+  const n=pendingCalEvents().length;
+  return h("div",{className:"cal-banner"},
+    h("span",{style:{fontSize:"18px"}},"🗓️"),
+    h("div",{style:{flex:1,minWidth:0}},
+      h("div",{style:{fontWeight:800,fontSize:"13px"}},`${n} nhắc chưa thêm vào Lịch iPhone`),
+      h("div",{style:{fontSize:"11px",color:"var(--text3)"}},"Có nhắc kỳ mới — thêm vào Lịch để khỏi quên")),
+    h("button",{className:"cal-banner-btn",onClick:()=>{buzz(10);setState({tab:"events",detailCardId:null,calPicker:true,calPick:pendingCalEvents().map(e=>e.key)})}},"Thêm"),
+    h("button",{className:"cal-banner-x",onClick:()=>{buzz(6);setState({calDismiss:pendingSig()})}},"✕"));
+}
+
 // ═══ EVENTS TAB ═══
 function renderEventsTab(){
-  const w=h("div",null),now=new Date(),nowStr=toLocalDateStr(now);
-  const all=[...getAutoEvents(),...state.events.filter(e=>e.date>=nowStr).map(e=>({...e,isAuto:false,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].sort((a,b)=>a.date.localeCompare(b.date));
+  const w=h("div",null);
+  const all=allEvents(),pend=pendingCalEvents();
+  // Calendar add bar
+  w.appendChild(h("div",{className:"ics-bar"},
+    h("button",{className:"ics-btn",onClick:()=>{buzz(10);openCalPicker()}},`📅 Thêm vào Lịch iPhone${pend.length?` (${pend.length} chờ)`:""}`),
+    h("div",{className:"ics-hint"},pend.length?`${pend.length} event chưa thêm · chọn → xuất .ics → mở bằng Safari để "Add"`:"✓ Mọi event hiện có đã được thêm vào Lịch")));
+  if(state.calPicker)w.appendChild(renderCalPicker());
   if(!all.length){w.appendChild(h("p",{className:"empty"},"// không có sự kiện nào trong 14 ngày tới"));return w}
   const urgent=all.filter(e=>e.diff>=0&&e.diff<=3),later=all.filter(e=>e.diff>3);
   if(urgent.length){w.appendChild(h("div",{className:"ev-section"},"⚡ Trong 3 ngày tới"));urgent.forEach(e=>w.appendChild(renderEvCard(e,true)))}
   if(later.length){w.appendChild(h("div",{className:"ev-section"},"📅 Sắp tới"));later.forEach(e=>w.appendChild(renderEvCard(e,false)))}
   return w;
 }
+// Picker: chọn các event (flag N) để thêm vào Lịch; đã thêm sẽ không hiện lại
+function renderCalPicker(){
+  const pend=pendingCalEvents(),sel=new Set(state.calPick||[]);
+  const box=h("div",{className:"cal-picker"});
+  box.appendChild(h("div",{className:"cal-picker-head"},h("span",null,"Chọn event thêm vào Lịch"),h("button",{className:"cal-x",onClick:()=>setState({calPicker:false,calPick:[]})},"✕")));
+  if(!pend.length){box.appendChild(h("p",{className:"empty",style:{margin:"10px 0"}},"// tất cả event đã được thêm"));return box}
+  pend.forEach(e=>{
+    const on=sel.has(e.key),d=parseLocalDate(e.date);
+    box.appendChild(h("div",{className:"cal-pick-row"+(on?" on":""),onClick:()=>toggleCalPick(e.key)},
+      h("div",{className:"chk"+(on?" on":""),style:{"--card-color":e.cardColor||"var(--accent)"}},on?"✓":""),
+      h("div",{style:{flex:1,minWidth:0}},
+        h("div",{style:{fontWeight:700,fontSize:"13px"}},(e.isAuto?"💳 ":"🔔 ")+e.title),
+        h("div",{className:"sel-sub",style:{marginTop:"1px"}},`${d.getDate()}/${d.getMonth()+1}`+(e.sub?" · "+e.sub:"")))));
+  });
+  box.appendChild(h("button",{className:"ics-btn",style:{marginTop:"9px"},onClick:()=>{buzz(12);confirmCalPicker()}},`＋ Thêm ${sel.size} event đã chọn`));
+  return box;
+}
 function renderEvCard(ev,urg){
-  const d=parseLocalDate(ev.date),dotCls=urg?"urgent":(ev.isAuto?"due":"custom");
+  const d=parseLocalDate(ev.date),dotCls=urg?"urgent":(ev.isAuto?"due":"custom"),added=isCalAdded(ev);
   const el=h("div",{className:`ev-card ${urg?"urgent":"normal"}`},
     h("div",{className:`ev-dot ${dotCls}`},h("span",{className:"ev-day"},d.getDate()),h("span",{className:"ev-mon"},MONTHS_VI[d.getMonth()])),
-    h("div",{className:"ev-body"},h("div",{className:"ev-title"},ev.title),ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
+    h("div",{className:"ev-body"},
+      h("div",{className:"ev-title"},ev.title,added?h("span",{className:"cal-added"},"📅✓"):null),
+      ev.sub?h("div",{className:"ev-sub"},ev.sub):null,
       urg?h("span",{className:"ev-urg"},ev.diff===0?"HÔM NAY":ev.diff===1?"NGÀY MAI":`${ev.diff} NGÀY NỮA`):null));
-  if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{buzz(10);state.events=state.events.filter(e=>e.id!==ev.id);persist();render()}},"✕"));
+  if(!ev.isAuto)el.appendChild(h("button",{className:"ev-del",onClick:()=>{buzz(10);state.events=state.events.filter(e=>e.id!==ev.id);state.calAdded=(state.calAdded||[]).filter(k=>k!==ev.id);persist();render()}},"✕"));
   else if(ev.dueKey)el.appendChild(h("button",{className:"paid-btn",onClick:()=>{state.paidDues=[...(state.paidDues||[]),ev.dueKey];persist();buzz(10);showToast("✓ Đã đánh dấu thanh toán");render()}},"✓ Đã TT"));
   return el;
 }
@@ -1573,8 +1700,11 @@ function renderAddEv(){
     clearTimeout(_addInputTimer);
     const liveCanS=state.addEventDate&&state.addEventNote.trim();
     if(!liveCanS)return;const card=state.addEventCard?ALL_CARDS.find(c=>c.id===state.addEventCard):null;
-    state.events.push({id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote.trim(),sub:card?`${card.name} ${card.cardNum||"****"+card.last4}`:null,cardId:state.addEventCard||null});
-    state.addEventDate="";state.addEventNote="";state.addEventCard="";persist();buzz(18);showToast("✓ Đã thêm event");render();
+    const newEv={id:"ev-"+Date.now(),date:state.addEventDate,title:state.addEventNote.trim(),sub:card?`${card.name} ${card.cardNum||"****"+card.last4}`:null,cardId:state.addEventCard||null,isAuto:false};
+    state.events.push(newEv);
+    state.addEventDate="";state.addEventNote="";state.addEventCard="";persist();buzz(18);
+    if(confirm("Thêm event này vào Lịch iPhone luôn?")){addOneToCal(newEv);}else{showToast("✓ Đã thêm event (chưa vào Lịch)");}
+    render();
   }},"+ Thêm Event"));
 
   const past=state.events.filter(e=>e.date<toLocalDateStr(new Date()));
