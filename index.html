@@ -280,6 +280,11 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .ptn-waive{font-size:11px;color:var(--text3);margin-top:4px}
 .ptn-cal-btn{margin-top:8px;width:100%;background:var(--accentBg);border:1px solid var(--accentBorder);color:var(--accent);border-radius:7px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
 .ptn-cal-btn:active{transform:scale(.98)}
+.ptn-cyc-head{font-size:12px;font-weight:800;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.4px;margin:14px 0 7px}
+.ptn-cyc-row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.ptn-cyc-lbl{width:64px;flex-shrink:0;font-size:13px;font-weight:700;font-family:var(--font-mono);color:var(--text2)}
+.ptn-cyc-inp{flex:1;text-align:right}
+.ptn-cyc-fmt{width:66px;flex-shrink:0;text-align:right;font-size:11px;color:var(--text3);font-family:var(--font-mono)}
 
 /* Monthly history rows */
 .hist-month{font-size:13px;font-weight:800;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 6px}
@@ -702,6 +707,17 @@ function afNextDate(card){
 function afDaysUntil(card){const d=afNextDate(card);if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.ceil((d-t)/864e5);}
 function afSoon(card){const d=afNextDate(card);if(!d)return false;const t=new Date();return d<=new Date(t.getFullYear(),t.getMonth()+3,t.getDate());}
 function afSoonCount(){return ALL_CARDS.filter(afSoon).length}
+// Các kỳ sao kê cần theo dõi chi tiêu (afRecur kỳ, kết thúc ở kỳ ngay trước tháng charge)
+function afCycles(card){
+  const d=afNextDate(card);if(!d)return [];
+  const n=card.afRecur||12,out=[];
+  for(let k=n;k>=1;k--){const c=new Date(d.getFullYear(),d.getMonth()-k,1);out.push({key:c.getFullYear()+"-"+_p2(c.getMonth()+1),label:_p2(c.getMonth()+1)+"/"+c.getFullYear()});}
+  return out;
+}
+function afSpentTotal(card){const m=(state.afSpend||{})[card.id]||{};return afCycles(card).reduce((s,c)=>s+(+m[c.key]||0),0);}
+// Ngưỡng chi tiêu để miễn PTN (parse "50tr/năm"→50tr); trả null nếu điều kiện không theo tiền
+function afWaiveThreshold(card){if(!card.afWaive)return null;const m=card.afWaive.match(/(\d+(?:[.,]\d+)?)\s*tr/i);return m?Math.round(parseFloat(m[1].replace(",","."))*1e6):null;}
+function setAfSpend(cardId,key,amt){const m={...(state.afSpend||{})};m[cardId]={...(m[cardId]||{})};if(amt>0)m[cardId][key]=amt;else delete m[cardId][key];state.afSpend=m;persist();}
 
 // ═══ FIRST-CAT-ONLY (MSB, BVB) ═══
 function getActiveCat(card,ct){
@@ -848,7 +864,7 @@ document.documentElement.setAttribute("data-theme",getTheme());
 
 // ═══ BACKUP / RESTORE ═══
 function exportBackup(){
-  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,noEvt:state.noEvt,calAdded:state.calAdded,theme:getTheme()};
+  const data={app:"cardtrack",version:7,exportedAt:new Date().toISOString(),selectedCardIds:state.selectedCardIds,transactions:state.transactions,events:state.events,history:state.history,paidDues:state.paidDues,noEvt:state.noEvt,calAdded:state.calAdded,afSpend:state.afSpend,theme:getTheme()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download="cardtrack-backup-"+toLocalDateStr(new Date())+".json";
@@ -872,6 +888,7 @@ function importBackup(){
         if(Array.isArray(d.paidDues))state.paidDues=d.paidDues;
         if(Array.isArray(d.noEvt))state.noEvt=d.noEvt;
         if(Array.isArray(d.calAdded))state.calAdded=d.calAdded;
+        if(d.afSpend&&typeof d.afSpend==="object")state.afSpend=d.afSpend;
         if(Array.isArray(d.selectedCardIds)&&d.selectedCardIds.length)state.selectedCardIds=d.selectedCardIds.filter(id=>ALL_CARDS.some(c=>c.id===id));
         persist();showToast("✓ Đã import backup");render();
       }catch{showToast("⚠ File backup không hợp lệ")}
@@ -899,7 +916,9 @@ let state={
   noEvt:load("ct7-noevt",[]),
   calAdded:load("ct7-caladded",[]),   // keys of events already added to iPhone Calendar
   calDismiss:load("ct7-caldismiss",""),// dismissed pending-signature for the reminder banner
-  calPicker:false,calPick:[]           // transient: calendar-add picker state
+  calPicker:false,calPick:[],          // transient: calendar-add picker state
+  afSpend:load("ct7-afspend",{}),      // {cardId:{"YYYY-MM":amount}} — chi tiêu từng kỳ để free PTN
+  ptnCardId:null                       // transient: PTN detail view
 };
 
 let _shopTimer=null;
@@ -907,7 +926,7 @@ let _addInputTimer=null;
 let _lastView="";
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
-function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss)}
+function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend)}
 // Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
 function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
 function toggleCardEvt(id){state.noEvt=cardEvtOn(id)?[...(state.noEvt||[]),id]:(state.noEvt||[]).filter(x=>x!==id);persist();render()}
@@ -1049,7 +1068,7 @@ function renderTabBar(){
   const bar=h("div",{className:"tab-bar"});
   tabs.forEach(t=>{
     const uc=t.key==="events"?(urgentCount()+pendingCalEvents().length):t.key==="ptn"?afSoonCount():0;
-    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null,editTxnId:null})}},
+    const btn=h("button",{className:"tab-btn"+(state.tab===t.key?" active":""),onClick:()=>{buzz(8);setState({tab:t.key,detailCardId:null,editTxnId:null,ptnCardId:null})}},
       h("span",{className:"ico",style:{position:"relative"}},t.icon,uc>0?h("span",{className:"tab-dot"}):null),h("span",null,t.label));
     bar.appendChild(btn);
   });return bar;
@@ -1627,8 +1646,9 @@ function renderEvCard(ev,urg){
 
 // ═══ PTN TAB (Phí thường niên — mọi thẻ, kể cả chưa chọn) ═══
 function renderPTNTab(){
+  if(state.ptnCardId){const c=ALL_CARDS.find(x=>x.id===state.ptnCardId);if(c)return renderPTNDetail(c);}
   const w=h("div",null);
-  w.appendChild(h("p",{className:"hint"},"// Phí thường niên — thẻ sắp đến hạn (≤3 tháng) nổi lên trên"));
+  w.appendChild(h("p",{className:"hint"},"// PTN — chạm thẻ để nhập chi tiêu từng kỳ. Thẻ sắp đến hạn (≤3 tháng) nổi lên trên"));
   const list=ALL_CARDS.filter(c=>c.afNext).map(c=>({c,d:afNextDate(c)})).filter(x=>x.d).sort((a,b)=>a.d-b.d);
   const soon=list.filter(x=>afSoon(x.c)),later=list.filter(x=>!afSoon(x.c));
   // summary
@@ -1652,7 +1672,9 @@ function renderPTNCard(c,d,hot){
   const dstr=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
   const feeStr=c.annualFee?fmtK(c.annualFee)+"₫":"—";
   const leftStr=days<=0?"ĐẾN HẠN":days<=45?`còn ${days} ngày`:`còn ~${mon} tháng`;
-  const el=h("div",{className:"ptn-card"+(hot?" hot":" dim"),style:{borderLeftColor:c.color}},
+  const thr=afWaiveThreshold(c),spent=afSpentTotal(c);
+  const el=h("div",{className:"ptn-card"+(hot?" hot":" dim"),style:{borderLeftColor:c.color,cursor:"pointer"},
+      onClick:()=>{buzz(6);setState({ptnCardId:c.id})}},
     h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"3px"}},
       h("span",{className:"net-sm",style:{background:c.color}},NET_ICONS[c.network]),
       h("span",{style:{fontWeight:800,fontSize:"13px",flex:1,minWidth:0}},`${c.name} ${c.cardNum||"****"+c.last4}`),
@@ -1661,8 +1683,52 @@ function renderPTNCard(c,d,hot){
       h("span",null,"📅 "+dstr),
       h("span",{className:"ptn-days"+(hot?" hot":"")},leftStr)),
     c.afWaive?h("div",{className:"ptn-waive"},"Miễn năm sau nếu: "+c.afWaive):null,
-    hot?h("button",{className:"ptn-cal-btn",onClick:()=>{buzz(10);addPTNToCal(c,d)}},"＋ Nhắc vào Lịch iPhone"):null);
+    thr?ptnProgress(spent,thr):null,
+    hot?h("button",{className:"ptn-cal-btn",onClick:e=>{e.stopPropagation();buzz(10);addPTNToCal(c,d)}},"＋ Nhắc vào Lịch iPhone"):null);
   return el;
+}
+// Progress bar: chi tiêu tích luỹ / ngưỡng miễn PTN
+function ptnProgress(spent,thr){
+  const pct=Math.min(spent/thr*100,100),met=spent>=thr;
+  return h("div",{style:{marginTop:"6px"}},
+    h("div",{style:{display:"flex",justifyContent:"space-between",fontSize:"11px",fontFamily:"var(--font-mono)",marginBottom:"3px"}},
+      h("span",{style:{color:met?"var(--green)":"var(--text2)"}},`Đã chi ${fmtK(spent)} / ${fmtK(thr)}`),
+      h("span",{style:{fontWeight:800,color:met?"var(--green)":"var(--warn)"}},met?"✓ Đủ free PTN":`còn ${fmtK(thr-spent)}`)),
+    h("div",{className:"bar-track"},h("div",{className:"bar-fill",style:{width:pct+"%",background:met?"var(--green)":"var(--accent)"}})));
+}
+function addPTNToCal(c,d){
+  addOneToCal({id:"af-"+c.id+"-"+toLocalDateStr(d),date:toLocalDateStr(d),
+    title:`Phí thường niên: ${c.name} ${c.cardNum||"****"+c.last4}`,
+    sub:(c.annualFee?fmtK(c.annualFee)+"₫":"")+(c.afWaive?" · miễn nếu "+c.afWaive:""),isAuto:false});
+}
+// PTN detail: nhập chi tiêu từng kỳ trong năm PTN
+function renderPTNDetail(c){
+  const w=h("div",null),d=afNextDate(c),thr=afWaiveThreshold(c);
+  w.appendChild(h("div",{className:"back-btn",onClick:()=>setState({ptnCardId:null})},"‹ ",`${c.name} ${c.cardNum||"****"+c.last4}`));
+  w.appendChild(h("div",{className:"stat-row"},
+    h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Phí thường niên"),h("div",{className:"stat-val"},(c.annualFee?fmtK(c.annualFee)+"₫":"—"))),
+    h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Ngày charge"),h("div",{className:"stat-val",style:{fontSize:"15px"}},d?`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`:"—")),
+    h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Còn"),h("div",{className:"stat-val",style:{color:afSoon(c)?"var(--warn)":"var(--text)"}},afDaysUntil(c)+"d"))));
+  if(c.afWaive)w.appendChild(h("div",{className:"card-note"},"Miễn PTN năm sau nếu: "+c.afWaive));
+  const cycles=afCycles(c),m=(state.afSpend||{})[c.id]||{},spent=afSpentTotal(c);
+  if(thr){
+    w.appendChild(h("div",{style:{margin:"10px 0 4px",fontWeight:800,fontSize:"13px"}},"Tiến độ chi tiêu để miễn PTN"));
+    w.appendChild(ptnProgress(spent,thr));
+  }else{
+    w.appendChild(h("div",{className:"hint",style:{marginTop:"8px"}},"// Điều kiện miễn không theo số tiền — nhập để tự theo dõi tổng chi"));
+    w.appendChild(h("div",{className:"summary-bar",style:{marginTop:"4px"}},h("span",null,"Tổng đã nhập"),h("span",{style:{fontWeight:800}},fmtK(spent)+"₫")));
+  }
+  w.appendChild(h("div",{className:"ptn-cyc-head"},`Chi tiêu ${cycles.length} kỳ (đến kỳ trước ngày charge)`));
+  cycles.forEach(cy=>{
+    const val=m[cy.key]||"";
+    w.appendChild(h("div",{className:"ptn-cyc-row"},
+      h("span",{className:"ptn-cyc-lbl"},cy.label),
+      h("input",{className:"input ptn-cyc-inp",type:"text",inputmode:"numeric",placeholder:"0",value:val?String(val):"",
+        "data-fid":"af-"+c.id+"-"+cy.key,
+        onChange:e=>{const a=parseAmount(e.target.value);setAfSpend(c.id,cy.key,isNaN(a)?0:a);render();}}),
+      h("span",{className:"ptn-cyc-fmt"},(m[cy.key]?fmtK(m[cy.key]):"—"))));
+  });
+  return w;
 }
 function addPTNToCal(c,d){
   addOneToCal({id:"af-"+c.id+"-"+toLocalDateStr(d),date:toLocalDateStr(d),
