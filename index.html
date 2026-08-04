@@ -503,16 +503,6 @@ const ALL_CARDS=[
     note:"Chọn 1 lĩnh vực/kỳ (theo GD đầu tiên, đổi áp dụng kỳ sau). Nhóm Siêu thị/Bảo hiểm/Thời trang max 300K; nhóm Giáo dục/Y tế max 500K; tổng tối đa 500K/kỳ",
     annualFee:800000,afNext:"2027-07",afWaive:"60tr/năm"},
 
-  // ── BIDV JCB Well-Being (C) — NEW (số 9999) ──
-  {id:"bidv-9999",name:"BIDV Well-Being (C)",network:"JCB",last4:"9999",cardNum:"356592****9999",stmtDay:20,dueDay:5,color:"#00A15C",
-    cashbackCategories:[
-      {category:"Y tế",rate:.05,maxCashback:200000,maxSpend:4000000,hiRate:.10,hiMaxCashback:400000,hiMaxSpend:4000000},
-      {category:"Bảo hiểm",rate:.03,maxCashback:200000,maxSpend:6666667,hiRate:.06,hiMaxCashback:400000,hiMaxSpend:6666667},
-      {category:"Thời trang",rate:.03,maxCashback:200000,maxSpend:6666667,hiRate:.06,hiMaxCashback:400000,hiMaxSpend:6666667}
-    ],
-    minSpend:0,calendarMonth:true,sharedMaxCashback:200000,hiSharedMaxCashback:400000,tierThreshold:10000000,
-    note:"Nhảy bậc theo tổng chi kỳ: <10tr Y tế 5%/BH 3%/Thời trang 3% (tổng max 200K); ≥10tr Y tế 10%/BH 6%/Thời trang 6% (tổng max 400K). Chu kỳ tháng lịch",
-    annualFee:400000,afNext:"2027-08",afWaive:"50tr/năm"},
 
   // ── BIDV JCB Well-Being (T) — số 3761 ──
   {id:"bidv-3761",name:"BIDV Well-Being (T)",network:"JCB",last4:"3761",cardNum:"356592****3761",stmtDay:20,dueDay:5,color:"#00954C",
@@ -523,7 +513,17 @@ const ALL_CARDS=[
     ],
     minSpend:0,calendarMonth:true,sharedMaxCashback:200000,hiSharedMaxCashback:400000,tierThreshold:10000000,
     note:"Nhảy bậc theo tổng chi kỳ: <10tr Y tế 5%/BH 3%/Thời trang 3% (tổng max 200K); ≥10tr Y tế 10%/BH 6%/Thời trang 6% (tổng max 400K). Chu kỳ tháng lịch",
-    annualFee:400000,afNext:"2027-07",afWaive:"50tr/năm"},
+    annualFee:800000,afNext:"2027-07",afWaive:"50tr/năm"},
+
+  // ── BIDV Cashback Online — NEW (số 1768; chỉ GD online; nhảy bậc mốc 10tr/tháng) ──
+  {id:"bidv-1768",name:"BIDV Cashback Online",network:"Visa",last4:"1768",cardNum:"427126****1768",stmtDay:20,dueDay:5,color:"#0E8A7D",
+    cashbackCategories:[
+      {category:"Online Shopee/Tiktok",rate:.04,maxCashback:150000,maxSpend:3750000,hiRate:.06,hiMaxCashback:300000,hiMaxSpend:5000000},
+      {category:"Online",rate:.02,maxCashback:300000,maxSpend:15000000,hiRate:.03,hiMaxCashback:600000,hiMaxSpend:20000000}
+    ],
+    minSpend:0,calendarMonth:true,sharedMaxCashback:300000,hiSharedMaxCashback:600000,tierThreshold:10000000,
+    note:"Chỉ hoàn giao dịch online. Nhảy bậc theo tổng chi tiêu/tháng: <10tr → Shopee/TiktokShop 4% (max 150K), online khác 2%, tổng max 300K/tháng; ≥10tr → Shopee/TiktokShop 6% (max 300K), online khác 3%, tổng max 600K/tháng. Chu kỳ tháng lịch",
+    annualFee:1000000,afNext:"2027-08",afWaive:"30tr/năm"},
 
   // ── TCB Priority Signature — NEW (premium; cashback chưa đủ dữ liệu để tính) ──
   {id:"tcb-8678",name:"TCB Priority Signature",network:"Visa",last4:"8678",cardNum:"483931****8678",stmtDay:0,dueDay:0,color:"#26324D",
@@ -542,7 +542,7 @@ const ALL_CARDS=[
     annualFee:3000000,afNext:"2027-06",afWaive:"60tr/năm"}
 ];
 
-const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
+const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 const SHOP_SUGGESTIONS={
   "Siêu thị":["AnNam","BHX","BigC","Coop","Emart","Glam Beautique","KingFood","MegaM","Muji","Winmart"],
   "Ẩm thực":["BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","ShopeeFood","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
@@ -599,19 +599,19 @@ const SHOP_CARD_MAP=[
   {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","tcb-6661","shinhan-2647","hsbc-3008"]},
   {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","tcb-6661","shinhan-2647","hsbc-3008"]},
   // ── Online ──
-  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661"]},
-  {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712"]},
-  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661"]},
-  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","seabank-6891"]},
-  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-6661"]},
+  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
+  {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
+  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
+  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","seabank-6891","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
+  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
   // ── Thời trang ──
-  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Decathlon",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"H&M",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"SuperSports",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Uniqlo",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
+  {shop:"Zara",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
   // ── Di chuyển ──
   {shop:"Be",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007","shinhan-2647"]},
   {shop:"Grab",category:"Di chuyển",cardIds:["sacom-4499","sacom-3007","shinhan-2647"]},
@@ -621,15 +621,15 @@ const SHOP_CARD_MAP=[
   {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   // ── Y tế ──
-  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Giáo dục ──
   {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
@@ -637,8 +637,8 @@ const SHOP_CARD_MAP=[
   {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
   // ── Bảo hiểm ──
-  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
-  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-9999","bidv-3761"]},
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
   // ── Giải trí ──
@@ -648,7 +648,7 @@ const SHOP_CARD_MAP=[
 ]
 
 
-const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
+const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
@@ -945,7 +945,7 @@ function importBackup(){
 // ═══ STATE ═══
 let state={
   tab:"cards",
-  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","shinhan-2647","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","tcb-6661","lpb-2059","hdb-4497","hdb-1541","seabank-6891","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112","shb-7936","bidv-9999","bidv-3761"]),
+  selectedCardIds:load("ct7-sel",["vib-4434","shinhan-6864","shinhan-2647","msb-0691","msb-4232","msb-9372","msb-1712","tcb-7929","tcb-5166","tcb-6661","lpb-2059","hdb-4497","hdb-1541","seabank-6891","sacom-9870","mb-4887","mb-8026","hsbc-3008","sacom-4499","sacom-3007","cimb-6112","shb-7936","bidv-3761","bidv-1768"]),
   transactions:load("ct7-txns",[]),
   events:load("ct7-events",[]),
   detailCardId:null,addMode:"txn",
@@ -965,6 +965,19 @@ let state={
   ptnCardId:null,                      // transient: PTN detail view
   memberTier:load("ct7-membertier",{}) // {cardId:tierKey} — hạng hội viên hiện tại (VIB MAX)
 };
+
+// ═══ MIGRATION 2026-08 ═══
+// Bỏ thẻ BIDV JCB 9999, thêm BIDV Cashback Online 1768 vào danh sách theo dõi (1 lần).
+(function migrate202608(){
+  if(load("ct7-mig-1768",false))return;
+  state.selectedCardIds=state.selectedCardIds.filter(id=>id!=="bidv-9999");
+  if(!state.selectedCardIds.includes("bidv-1768"))state.selectedCardIds.push("bidv-1768");
+  state.transactions=(state.transactions||[]).filter(tx=>tx.cardId!=="bidv-9999");
+  state.events=(state.events||[]).filter(ev=>ev.cardId!=="bidv-9999");
+  if(state.afSpend)delete state.afSpend["bidv-9999"];
+  save("ct7-mig-1768",true);
+  save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-events",state.events);save("ct7-afspend",state.afSpend||{});
+})();
 
 let _shopTimer=null;
 let _addInputTimer=null;
@@ -1407,7 +1420,7 @@ function shopRemCb(cid,category){
   if(!active)return -1;
   let rem=Math.max(effMaxCb(card,ct,cb)-calcCatCb(card,ct,category),0);
   const shared=calcSharedCb(card,ct);
-  if(shared&&shared.cats&&shared.cats.includes(category))rem=Math.max(shared.max-shared.total,0);
+  if(shared&&shared.cats&&shared.cats.includes(category))rem=Math.min(rem,Math.max(shared.max-shared.total,0));
   const minMet=!(card.minSpend>0&&ct.reduce((s,t)=>s+t.amount,0)<card.minSpend);
   return minMet?rem:rem*0.001;
 }
@@ -1420,7 +1433,7 @@ function shopUsable(cid,category){
   const minMet=!(card.minSpend>0&&ct.reduce((a,t)=>a+t.amount,0)<card.minSpend);
   let rem=Math.max(effMaxCb(card,ct,cb)-calcCatCb(card,ct,category),0);
   const sh=calcSharedCb(card,ct);
-  if(sh&&sh.cats&&sh.cats.includes(category))rem=Math.max(sh.max-sh.total,0);
+  if(sh&&sh.cats&&sh.cats.includes(category))rem=Math.min(rem,Math.max(sh.max-sh.total,0));
   return minMet&&rem>0;
 }
 function renderShopList(el){
@@ -1433,13 +1446,15 @@ function renderShopList(el){
   if(!filtered.length){el.appendChild(h("p",{className:"empty"},"// không tìm thấy shop"));return}
   filtered.forEach(s=>{
     const se=h("div",{className:"shop-card"},h("div",{className:"shop-head"},h("span",{className:"shop-icon"},CAT_ICONS[s.category]||"📦"),h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))));
-    const sel=s.cardIds.filter(id=>selIds.includes(id)).sort((a,b)=>shopRemCb(b,s.category)-shopRemCb(a,s.category));
-    const oth=s.cardIds.filter(id=>!selIds.includes(id)).sort((a,b)=>shopRemCb(b,s.category)-shopRemCb(a,s.category));
-    const bestId=sel.find(cid=>shopUsable(cid,s.category))||null; // top usable selected card → 👑
+    // Một shop có thể map sang lĩnh vực khác nhau tuỳ thẻ (vd Shopee → "Online Shopee/Tiktok" của BIDV-1768)
+    const catOf=cid=>(s.cardCats&&s.cardCats[cid])||s.category;
+    const sel=s.cardIds.filter(id=>selIds.includes(id)).sort((a,b)=>shopRemCb(b,catOf(b))-shopRemCb(a,catOf(a)));
+    const oth=s.cardIds.filter(id=>!selIds.includes(id)).sort((a,b)=>shopRemCb(b,catOf(b))-shopRemCb(a,catOf(a)));
+    const bestId=sel.find(cid=>shopUsable(cid,catOf(cid)))||null; // top usable selected card → 👑
     if(!sel.length)se.appendChild(h("div",{className:"shop-sub-divider"},"Gợi ý · chưa chọn thẻ nào"));
-    sel.forEach(cid=>{const r=renderShopRec(cid,s.category,true,cid===bestId,s.shop);if(r)se.appendChild(r)});
+    sel.forEach(cid=>{const r=renderShopRec(cid,catOf(cid),true,cid===bestId,s.shop);if(r)se.appendChild(r)});
     if(oth.length&&sel.length)se.appendChild(h("div",{className:"shop-sub-divider"},"Thẻ khác · chạm để chọn"));
-    oth.forEach(cid=>{const r=renderShopRec(cid,s.category,false,false,s.shop);if(r)se.appendChild(r)});
+    oth.forEach(cid=>{const r=renderShopRec(cid,catOf(cid),false,false,s.shop);if(r)se.appendChild(r)});
     el.appendChild(se);
   });
 }
@@ -1454,7 +1469,7 @@ function renderShopRec(cid,category,isSel,isBest,shopName){
   let remCb=active?Math.max(emc-calcCatCb(card,ct,category),0):0;
   let isFull=!active||(active&&pct>=100);
   const shared=calcSharedCb(card,ct);
-  if(active&&shared&&shared.cats&&shared.cats.includes(category)){remCb=Math.max(shared.max-shared.total,0);if(shared.isFull)isFull=true}
+  if(active&&shared&&shared.cats&&shared.cats.includes(category)){remCb=Math.min(remCb,Math.max(shared.max-shared.total,0));if(shared.isFull)isFull=true}
   const inNote=(!active&&card.firstCatOnly)?getActiveCat(card,ct):null;
   const minNotMet=card.minSpend>0&&ct.reduce((a,t)=>a+t.amount,0)<card.minSpend;
   const sty=isSel
