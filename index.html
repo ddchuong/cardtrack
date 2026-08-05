@@ -402,6 +402,18 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .hm-cb{font-family:var(--font-mono);font-size:15px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums;white-space:nowrap}
 .hm-due{font-size:12px;color:var(--text3);font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .hm-due.warn{color:var(--warn);font-weight:800}
+.hm-sk{font-size:12px;color:var(--text3);font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hm-sk.warn{color:var(--warn);font-weight:800}
+.hm-sk b{color:var(--text2);font-weight:800}
+.cyc-line{display:flex;gap:9px;align-items:flex-start;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;margin-bottom:12px}
+.cyc-ic{font-size:15px;line-height:1.2;flex-shrink:0}
+.cyc-body{flex:1;min-width:0}
+.cyc-main{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.cyc-lbl{font-size:13px;font-weight:700;color:var(--text2)}
+.cyc-win{font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--text);font-variant-numeric:tabular-nums}
+.cyc-days{font-size:12px;font-family:var(--font-mono);color:var(--text3);margin-left:auto;white-space:nowrap}
+.cyc-days.warn{color:var(--warn);font-weight:800}
+.cyc-sub{font-size:12px;color:var(--text3);margin-top:3px;line-height:1.4}
 .hm-grp{font-size:11px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin:4px 0 4px 2px}
 .hm-more{display:block;width:100%;text-align:center;background:transparent;border:none;color:var(--accent);font-weight:700;font-size:13px;min-height:36px;cursor:pointer;font-family:var(--font-body)}
 .hm-hotrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:5px 0;cursor:pointer;background:transparent;border:none;width:100%;text-align:left;font-family:var(--font-body);min-height:44px}
@@ -2160,6 +2172,26 @@ function bankKeyOf(card){
 // Kept as its own function so the search box can patch just this list in place.
 // ═══ CARDS TAB ═══
 // ═══ CARD DETAIL ═══
+// Dòng thông tin kỳ sao kê: cửa sổ kỳ hiện tại + số ngày tới ngày chốt (stmtDay).
+// Đây là kỳ mà CB / cap / mốc chi tiêu tối thiểu reset theo — KHÁC ngày thanh toán (dueDay).
+function cardCycleLine(card){
+  const cs=cycleStart(card),ce=cycleEnd(card),dEnd=daysUntilCycleEnd(card);
+  const dm=d=>d.getDate()+"/"+(d.getMonth()+1);
+  const soon=dEnd<=3;
+  const isCal=card.calendarMonth||!card.stmtDay||card.stmtDay<1;
+  const label=isCal?"Kỳ tính cashback":"Kỳ sao kê";
+  const sub=isCal
+    ?`Theo tháng dương lịch${card.stmtDay>0?` · sao kê ngày ${card.stmtDay}`:""} — CB, hạn mức hoàn & mốc chi tiêu tối thiểu reset đầu mỗi tháng.`
+    :`Theo kỳ sao kê (chốt ngày ${card.stmtDay}) — CB, hạn mức hoàn & mốc chi tiêu tối thiểu reset mỗi kỳ, KHÔNG theo tháng dương lịch.`;
+  return h("div",{className:"cyc-line"},
+    h("span",{className:"cyc-ic"},"🧾"),
+    h("div",{className:"cyc-body"},
+      h("div",{className:"cyc-main"},
+        h("span",{className:"cyc-lbl"},label),
+        h("span",{className:"cyc-win"},`${dm(cs)} – ${dm(ce)}`),
+        h("span",{className:"cyc-days"+(soon?" warn":"")},dEnd<=0?"chốt hôm nay":`còn ${dEnd}d`)),
+      h("div",{className:"cyc-sub"},sub)));
+}
 function renderCardDetail(){
   const card=ALL_CARDS.find(c=>c.id===state.detailCardId);if(!card)return h("div",null,"?");
   const ct=getCycleTxns(card),ts=ct.reduce((s,t)=>s+t.amount,0),tc=calcTotalCb(card,ct),dl=daysUntilDue(card),shared=calcSharedCb(card,ct,true);
@@ -2169,6 +2201,8 @@ function renderCardDetail(){
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Tổng chi kỳ"),h("div",{className:"stat-val"},money(ts))),
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"CB ước tính"),h("div",{className:"stat-val",style:{color:"var(--green)"}},money(tc))),
     h("div",{className:"stat-box"},h("div",{className:"stat-label"},"Hạn TT"),h("div",{className:"stat-val",style:{color:(dl!=null&&dl<=3)?"var(--warn)":"var(--text)"}},dl!=null?dl+"d":"—"))));
+
+  w.appendChild(cardCycleLine(card));
 
   {const mRow=renderMemberTierRow(card);if(mRow)w.appendChild(mRow);}
   {const msRow=renderMinSpendRow(card,ct);if(msRow)w.appendChild(msRow);}
@@ -2728,6 +2762,7 @@ function hmCardRow(card){
   const tc=calcTotalCb(card,ct),maxCb=maxCardCb(card);
   const pct=maxCb>0?Math.min(tc/maxCb*100,100):0;
   const dl=daysUntilDue(card);
+  const dEnd=daysUntilCycleEnd(card);
   const badge=hmRowBadge(card,ct,ts);
   return h("button",{className:"row-btn hm-row",onClick:()=>setState({detailCardId:card.id})},
     h("div",{className:"stripe",style:{background:card.color}}),
@@ -2740,7 +2775,8 @@ function hmCardRow(card){
         h("div",{className:"bar-fill",style:{width:pct+"%",background:"var(--green)"}}))),
     h("div",{className:"hm-right"},
       h("div",{className:"hm-cb"},fmtTight(tc)),
-      h("div",{className:"hm-due"+(dl!=null&&dl<=3?" warn":"")},dl!=null?`Hạn ${dl}d`:"—")));
+      h("div",{className:"hm-sk"+(dEnd<=3?" warn":""),title:"Còn bao nhiêu ngày trong kỳ tính cashback (cap/mốc chi tiêu reset khi hết kỳ)"},h("b",null,"Kỳ"),` ${dEnd<=0?"0":dEnd}d`),
+      dl!=null?h("div",{className:"hm-due"+(dl<=3?" warn":""),title:"Hạn thanh toán sao kê"},`Hạn ${dl}d`):null));
 }
 function renderHomeTab(){
   const w=h("div",null);
