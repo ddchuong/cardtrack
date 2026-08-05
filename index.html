@@ -1910,6 +1910,7 @@ let state={
 let _shopTimer=null;
 let _addInputTimer=null;
 let _lastView="";
+let _scrollMem={};   // viewSig -> scrollTop, để nhớ vị trí cuộn từng view
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
 function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-txn-archive",state.txnArchive);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend);save("ct7-membertier",state.memberTier);save("ct7-cbactual",state.cbActual);save("ct7-stmts",state.stmts);save("ct7-limits",state.limits);save("ct7-onboarded",state.onboarded);
@@ -2073,16 +2074,21 @@ function render(){
   const focusId=ae?.dataset?.fid||"";
   const cursorPos=ae?.selectionStart??-1;
   const old=document.querySelector(".content"),st=old?old.scrollTop:0;
+  if(_lastView)_scrollMem[_lastView]=st;   // nhớ vị trí cuộn của view đang rời đi
   const app=document.getElementById("app");app.innerHTML="";
   app.appendChild(renderHeader());
   // Only play the entrance animation when the actual view changes (tab / detail /
   // add-mode) — not on every in-view state update, which previously caused flicker.
   const viewSig=state.tab+"|"+(state.detailCardId||"")+"|"+(state.addMode||"")+"|"+(state.ptnCardId||"");
-  const content=h("div",{className:"content"+(viewSig!==_lastView?" anim":"")});
+  const viewChanged=viewSig!==_lastView;
+  const content=h("div",{className:"content"+(viewChanged?" anim":"")});
   _lastView=viewSig;
+  // Đổi view (mở chi tiết thẻ, chuyển tab, mở PTN detail…) → cuộn lên đầu view mới;
+  // quay lại view cũ → khôi phục vị trí đã nhớ; cùng view (gõ/lọc/sort) → giữ nguyên cuộn.
+  const targetScroll=viewChanged?(_scrollMem[viewSig]||0):st;
   if(!state.onboarded){
     content.appendChild(renderOnboarding());
-    app.appendChild(content);content.scrollTop=st;return;
+    app.appendChild(content);content.scrollTop=targetScroll;return;
   }
   if(showCalBanner())content.appendChild(renderCalBanner());
   switch(state.tab){
@@ -2095,7 +2101,7 @@ function render(){
   }
   app.appendChild(content);
   if(state.tab!=="add")app.appendChild(renderFab());
-  app.appendChild(renderTabBar());content.scrollTop=st;
+  app.appendChild(renderTabBar());content.scrollTop=targetScroll;
   if(state.sheet)renderSheet(app);
   // Restore focus
   if(focusId){const el=document.querySelector(`[data-fid="${focusId}"]`);if(el){el.focus();if(cursorPos>=0&&el.setSelectionRange)try{el.setSelectionRange(cursorPos,cursorPos)}catch{}}}
