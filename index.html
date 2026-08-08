@@ -900,13 +900,25 @@ const ALL_CARDS=[
   // ── CIMB (calendar month, independent cats) ──
   {id:"cimb-6112",name:"CIMB Revi",network:"Visa",last4:"6112",cardNum:"472626****6112",stmtDay:25,dueDay:8,color:"#8B0020",
     cashbackCategories:[
-      {category:"Siêu thị",rate:.20,maxCashback:100000,maxSpend:500000},
-      {category:"Du lịch",rate:.20,maxCashback:100000,maxSpend:500000},
-      {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000},
-      {category:"Di chuyển",rate:.20,maxCashback:100000,maxSpend:500000}
+      {category:"Siêu thị",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000},
+      {category:"Du lịch",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000},
+      {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000},
+      {category:"Di chuyển",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000}
     ],
-    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập, mỗi lĩnh vực max 100K; Chi tiêu tối thiểu 3tr/tháng; chu kỳ tháng lịch",
+    minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập 20%, mỗi lĩnh vực max 100K & phải chi ≥400K/lĩnh vực mới được hoàn; tổng chi tối thiểu 3tr/tháng; chu kỳ tháng lịch",
     annualFee:200000,afNext:"2026-10",afWaive:"12tr/năm"},
+
+  // ── CIMB Revi Preferred (KH Ưu tiên) — 5 lĩnh vực 20%, ngưỡng 800K/lĩnh vực, max 200K/lĩnh vực ──
+  {id:"cimb-6379",name:"CIMB Revi Preferred",network:"Visa",last4:"6379",cardNum:"472626****6379",stmtDay:25,dueDay:8,color:"#A3123C",
+    cashbackCategories:[
+      {category:"Ẩm thực",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
+      {category:"Siêu thị",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
+      {category:"Du lịch",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
+      {category:"Online",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
+      {category:"Di chuyển",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000}
+    ],
+    minSpend:10000000,calendarMonth:true,note:"5 lĩnh vực CB độc lập 20%, mỗi lĩnh vực max 200K & phải chi ≥800K/lĩnh vực mới được hoàn; tổng chi tối thiểu 10tr/tháng; chu kỳ tháng lịch; KH Ưu tiên",
+    annualFee:0,afNext:"2027-08",afWaive:"Miễn phí — KH Ưu tiên"},
 
   // ── SHB MC Cashback (firstCatOnly; 2 nhóm cap; tổng max 500K/kỳ) ──
   {id:"shb-7936",name:"SHB MC Cashback",network:"MC",last4:"7936",cardNum:"533398****7936",stmtDay:5,dueDay:20,color:"#E4002B",
@@ -1238,6 +1250,8 @@ function calcCatSpend(card,ct,cat){return Math.max(calcCatSpendNet(card,ct,cat),
 function calcCatCbRaw(card,ct,cat){
   const cb=card.cashbackCategories.find(c=>c.category===cat);
   if(!cb||!isCatActive(card,ct,cat))return 0;
+  // Ngưỡng chi theo lĩnh vực (vd CIMB "chi Siêu thị từ 400K"): dưới ngưỡng → lĩnh vực này chưa sinh CB.
+  if(cb.catMin>0&&calcCatSpend(card,ct,cat)<cb.catMin)return 0;
   return Math.min(calcCatSpend(card,ct,cat)*effRate(card,ct,cb),effMaxCb(card,ct,cb));
 }
 // CB thực nhận của 1 lĩnh vực: = 0 nếu kỳ chưa đạt tổng chi tiêu tối thiểu.
@@ -1292,6 +1306,7 @@ function catCbAt(card,list,full,cat){
   if(!def||!isCatActive(card,full,cat))return 0;
   // Kẹp về 0: hoàn tiền (amount âm) làm giảm chi tiêu lĩnh vực nhưng không sinh CB âm ở cấp lĩnh vực
   const sp=Math.max(eligibleTxns(card,list).filter(t=>t.category===cat).reduce((a,t)=>a+t.amount,0),0);
+  if(def.catMin>0&&sp<def.catMin)return 0;   // ngưỡng chi theo lĩnh vực
   return Math.min(sp*effRate(card,full,def),effMaxCb(card,full,def));
 }
 // Tổng CB tính trên tập con `list`, nhưng rate/cap/tier lấy theo cả kỳ `full`
@@ -1348,8 +1363,15 @@ function estTxnCb(card,cat,amt){
       }
     }
     if(!belowMinTxn)cb=Math.min(amt*effRate(card,ct,def),remCap);
+    if(def.catMin>0){
+      // Ngưỡng chi theo lĩnh vực: CB thực của GD = CB lĩnh vực (đã tính ngưỡng) sau − trước.
+      cb=Math.max(catCbAt(card,ct,ct,cat)-catCbAt(card,ct0,ct,cat),0);
+    }
   }
-  return{has:true,cb:Math.max(cb,0),active,lockCat,belowMinTxn,minNotMet,minRemain,remCap,rate:effRate(card,ct,def),maxCb:effMaxCb(card,ct,def),def};
+  const catSpendNow=calcCatSpend(card,ct0,cat);
+  const catMinNotMet=!!(def.catMin>0&&catSpendNow+Math.max(amt,0)<def.catMin);
+  const catMinRemain=def.catMin>0?Math.max(def.catMin-catSpendNow,0):0;
+  return{has:true,cb:Math.max(cb,0),active,lockCat,belowMinTxn,minNotMet,minRemain,remCap,rate:effRate(card,ct,def),maxCb:effMaxCb(card,ct,def),def,catMin:def.catMin||0,catMinNotMet,catMinRemain};
 }
 // Sort key for the advisor (higher = better card to use now)
 function rankAdv(e){if(!e.active||e.belowMinTxn)return -1;return e.minNotMet?e.cb*0.5:e.cb}
@@ -1442,6 +1464,7 @@ function renderCbRow(card,ct,cb,shared,ts,detail){
   const isFull=active&&(sharedFull||(capEff>0&&earned/capEff>=0.995));
   const pct=isFull?100:(capShown>0?Math.min(earned/capShown*100,100):0);
   const minNotMet=card.minSpend>0&&ts<card.minSpend;
+  const catMinNotMet=cb.catMin>0&&cs<cb.catMin;
   const remCb=Math.max(capEff-earned,0);
   const remSpend=Math.max(Math.min(ems,er>0?capEff/er:0)-cs,0);
   const badges=[];
@@ -1453,6 +1476,7 @@ function renderCbRow(card,ct,cb,shared,ts,detail){
   const foot=[];
   if(!active)foot.push(h("span",null,"Kỳ này không áp dụng"));
   else if(capOtherUsed)foot.push(h("span",null,"Max chung của thẻ đã dùng hết ở lĩnh vực khác"));
+  else if(catMinNotMet)foot.push(h("span",null,`Chi thêm `,h("strong",{style:{color:"var(--accent)"}},fmtTight(cb.catMin-cs)),` vào ${cat} (đạt ${fmtTight(cb.catMin)}) để mở CB ${fmtRate(er)}`));
   else if(isFull)foot.push(h("span",null,`Đã chi ${fmtK(cs)} — kín hạn mức`));
   else if(minNotMet)foot.push(h("span",null,`Chi thêm ${fmtTight(card.minSpend-ts)} để mở cashback`));
   else foot.push(h("span",null,`Chi thêm `,h("strong",{style:{color:"var(--green)"}},fmtTight(remSpend)),` → +`,h("strong",{style:{color:"var(--green)"}},fmtTight(remCb))));
