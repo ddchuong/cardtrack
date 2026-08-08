@@ -169,6 +169,8 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .input-amt{font-family:var(--font-mono);font-size:26px;font-weight:800;letter-spacing:-.5px;padding:12px 14px;font-variant-numeric:tabular-nums}
 .amt-echo{min-height:18px;font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--green);margin-top:5px;font-variant-numeric:tabular-nums}
+.chip.amt-unit{background:var(--accentBg);border-color:var(--accentBorder);color:var(--accent);font-family:var(--font-mono);font-weight:800}
+.chip.amt-unit:active{transform:scale(.96)}
 .field-hint{font-size:12px;color:var(--text3);margin-top:4px;font-family:var(--font-body)}
 .chip{min-height:44px;display:inline-flex;align-items:center;background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;font-family:var(--font-body);white-space:nowrap;font-weight:600;transition:all .1s}
 .chip:active,.chip.sel{border-color:var(--accent);color:var(--accent);background:var(--accentBg)}
@@ -1112,6 +1114,21 @@ function parseAmount(s){
   const v=parseFloat(s);
   return isNaN(v)?NaN:v*mult;
 }
+// Hiển thị số tiền dạng nhóm nghìn "153.000" từ chuỗi digit/đã format. parseAmount đọc lại được dấu chấm.
+function fmtAmtDisplay(v){
+  const d=String(v==null?"":v).replace(/[^\d]/g,"");
+  return d?d.replace(/\B(?=(\d{3})+(?!\d))/g,"."):"";
+}
+// Gắn mask nhóm nghìn khi gõ vào 1 ô input số tiền, giữ đúng caret. store(f) nhận chuỗi đã format.
+function amtMaskInput(e,store,after){
+  const el=e.target,old=el.value,caret=el.selectionStart;
+  const digitsBefore=old.slice(0,caret).replace(/[^\d]/g,"").length;
+  const f=fmtAmtDisplay(old);
+  el.value=f;store(f);
+  let pos=0,seen=0;while(pos<f.length&&seen<digitsBefore){if(/\d/.test(f[pos]))seen++;pos++;}
+  el.setSelectionRange(pos,pos);
+  if(after)after();
+}
 
 // Convert a Date to "YYYY-MM-DD" in LOCAL timezone (avoids UTC shift bugs)
 function toLocalDateStr(d){
@@ -1945,7 +1962,6 @@ let state={
 let _shopTimer=null;
 let _addInputTimer=null;
 let _lastView="";
-let _scrollMem={};   // viewSig -> scrollTop, để nhớ vị trí cuộn từng view
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
 function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-txn-archive",state.txnArchive);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend);save("ct7-membertier",state.memberTier);save("ct7-cbactual",state.cbActual);save("ct7-stmts",state.stmts);save("ct7-limits",state.limits);save("ct7-onboarded",state.onboarded);
@@ -2109,7 +2125,6 @@ function render(){
   const focusId=ae?.dataset?.fid||"";
   const cursorPos=ae?.selectionStart??-1;
   const old=document.querySelector(".content"),st=old?old.scrollTop:0;
-  if(_lastView)_scrollMem[_lastView]=st;   // nhớ vị trí cuộn của view đang rời đi
   const app=document.getElementById("app");app.innerHTML="";
   app.appendChild(renderHeader());
   // Only play the entrance animation when the actual view changes (tab / detail /
@@ -2118,9 +2133,9 @@ function render(){
   const viewChanged=viewSig!==_lastView;
   const content=h("div",{className:"content"+(viewChanged?" anim":"")});
   _lastView=viewSig;
-  // Đổi view (mở chi tiết thẻ, chuyển tab, mở PTN detail…) → cuộn lên đầu view mới;
-  // quay lại view cũ → khôi phục vị trí đã nhớ; cùng view (gõ/lọc/sort) → giữ nguyên cuộn.
-  const targetScroll=viewChanged?(_scrollMem[viewSig]||0):st;
+  // Đổi view (mở chi tiết thẻ, chuyển tab, PTN detail…) → LUÔN cuộn lên đầu trang.
+  // Cùng view (gõ/lọc/sort/re-render) → giữ nguyên vị trí cuộn hiện tại.
+  const targetScroll=viewChanged?0:st;
   if(!state.onboarded){
     content.appendChild(renderOnboarding());
     app.appendChild(content);content.scrollTop=targetScroll;return;
@@ -2136,7 +2151,10 @@ function render(){
   }
   app.appendChild(content);
   if(state.tab!=="add")app.appendChild(renderFab());
-  app.appendChild(renderTabBar());content.scrollTop=targetScroll;
+  app.appendChild(renderTabBar());
+  content.scrollTop=targetScroll;
+  // iOS Safari đôi khi tự khôi phục scroll sau khi JS chạy → set lại sau khi paint.
+  if(viewChanged)requestAnimationFrame(()=>{const c=document.querySelector(".content");if(c)c.scrollTop=targetScroll;});
   if(state.sheet)renderSheet(app);
   // Restore focus
   if(focusId){const el=document.querySelector(`[data-fid="${focusId}"]`);if(el){el.focus();if(cursorPos>=0&&el.setSelectionRange)try{el.setSelectionRange(cursorPos,cursorPos)}catch{}}}
@@ -3010,11 +3028,18 @@ function renderAdviceTab(){
 
   // ── 1. SỐ TIỀN TRƯỚC TIÊN ──
   const pAmt=parseAmount(state.advAmt),validAmt=!isNaN(pAmt)&&pAmt>0;
-  const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input input-amt",
-    "data-fid":"adv-amt",id:"adv-amt-input",placeholder:"vd 500k, 2tr",autocomplete:"off",
-    value:state.advAmt,onInput:e=>{setQ({advAmt:e.target.value});advRecalc()}});
+  const amtIn=h("input",{type:"text",inputmode:"numeric",className:"input input-amt",
+    "data-fid":"adv-amt",id:"adv-amt-input",placeholder:"0",autocomplete:"off",
+    value:fmtAmtDisplay(state.advAmt),onInput:e=>amtMaskInput(e,f=>setQ({advAmt:f}),advRecalc)});
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl",htmlFor:"adv-amt-input"},"Định chi bao nhiêu?"),
     amtIn,h("div",{id:"adv-amt-echo",className:"amt-echo"},validAmt?`= ${fmt(pAmt)}${NBSP}₫`:"")));
+  const setAdvAmt=v=>{const f=fmtAmtDisplay(v);state.advAmt=f;const inp=document.querySelector('[data-fid="adv-amt"]');if(inp)inp.value=f;buzz(6);advRecalc();};
+  const aqa=h("div",{className:"chip-row",style:{marginTop:"-4px",marginBottom:"10px"}});
+  [["000","000"],["000.000","000000"]].forEach(([lbl,z])=>aqa.appendChild(h("button",{className:"chip amt-unit",
+    title:z==="000"?"Thêm 3 số 0 (nghìn)":"Thêm 6 số 0 (triệu)",
+    onClick:()=>{const cur=(state.advAmt||"").replace(/[^\d]/g,"");if(!cur){buzz(6);return}setAdvAmt(cur+z)}},lbl)));
+  [["100k",100000],["500k",500000],["1tr",1000000],["2tr",2000000]].forEach(([lbl,val])=>aqa.appendChild(h("button",{className:"chip",onClick:()=>setAdvAmt(String(val))},lbl)));
+  w.appendChild(aqa);
   advMaybeAutoFocus();
 
   // ── 2. CHIP LĨNH VỰC — scroll ngang một hàng, chỉ lĩnh vực thẻ theo dõi thực có ──
@@ -4026,15 +4051,20 @@ function renderAddTxn(){
   // Trước đây số tiền nằm sau 27 chip gợi ý shop nên nó ở y≈1230 trên màn 844px,
   // và nút submit rơi dưới màn. Trường duy nhất có nội dung thông tin thật phải ở trên cùng.
   const pAmt=parseAmount(state.addAmount);
-  const amtIn=h("input",{type:"text",inputmode:"decimal",className:"input input-amt","data-fid":"add-amt",
-    placeholder:"0",autocomplete:"off",id:"add-amt-input",value:state.addAmount,
-    onInput:e=>{setQ({addAmount:e.target.value});txaRecalc()}});
+  const amtIn=h("input",{type:"text",inputmode:"numeric",className:"input input-amt","data-fid":"add-amt",
+    placeholder:"0",autocomplete:"off",id:"add-amt-input",value:fmtAmtDisplay(state.addAmount),
+    onInput:e=>amtMaskInput(e,f=>setQ({addAmount:f}),txaRecalc)});
   const amtGroup=h("div",{className:"fg"},h("label",{className:"lbl",htmlFor:"add-amt-input"},_txaRefund?"Số tiền hoàn":"Số tiền"),amtIn,
     h("div",{id:"amt-echo",className:"amt-echo",style:{color:_txaRefund?"var(--warn)":""}},
       (state.addAmount&&pAmt>0)?(_txaRefund?"− ":"= ")+fmt(pAmt)+NBSP+"₫":""));
   w.appendChild(amtGroup);
+  const setAmt=v=>{const f=fmtAmtDisplay(v);state.addAmount=f;const inp=document.querySelector('[data-fid="add-amt"]');if(inp)inp.value=f;buzz(6);txaRecalc();};
   const qa=h("div",{className:"chip-row",style:{marginTop:"-4px",marginBottom:"12px"}});
-  ["100k","200k","500k","1tr","2tr"].forEach(lbl=>qa.appendChild(h("button",{className:"chip",onClick:()=>{state.addAmount=lbl;const inp=document.querySelector('[data-fid="add-amt"]');if(inp)inp.value=lbl;buzz(6);txaRecalc()}},lbl)));
+  // Nút thêm số 0 — bàn phím số iPhone không gõ được "k"/"tr": gõ 153 rồi bấm 000 → 153.000
+  [["000","000"],["000.000","000000"]].forEach(([lbl,z])=>qa.appendChild(h("button",{className:"chip amt-unit",
+    title:z==="000"?"Thêm 3 số 0 (nghìn)":"Thêm 6 số 0 (triệu)",
+    onClick:()=>{const cur=(state.addAmount||"").replace(/[^\d]/g,"");if(!cur){buzz(6);return}setAmt(cur+z)}},lbl)));
+  [["100k",100000],["200k",200000],["500k",500000],["1tr",1000000],["2tr",2000000]].forEach(([lbl,val])=>qa.appendChild(h("button",{className:"chip",onClick:()=>setAmt(String(val))},lbl)));
   w.appendChild(qa);
 
   // ── 2. THẺ ──
@@ -4045,7 +4075,7 @@ function renderAddTxn(){
   // ── 3. LĨNH VỰC ──
   const catS=h("select",{id:"add-cat-sel",onChange:e=>setState({addCategory:e.target.value,addShop:""})});
   if(selCard){
-    selCard.cashbackCategories.forEach(c=>catS.appendChild(h("option",{value:c.category},`${CAT_ICONS[c.category]||""} ${c.category} (${fmtRate(c.rate)})`)));
+    selCard.cashbackCategories.forEach(c=>catS.appendChild(h("option",{value:c.category},`${CAT_ICONS[c.category]||""} ${c.label||c.category} (${fmtRate(c.rate)})`)));
     catS.appendChild(h("option",{value:"",disabled:"true"},"───── Khác ─────"));
     CATEGORIES.filter(c=>!selCard.cashbackCategories.find(cb=>cb.category===c)).forEach(c=>catS.appendChild(h("option",{value:c},`${CAT_ICONS[c]||""} ${c}`)));
   }else CATEGORIES.forEach(c=>catS.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
