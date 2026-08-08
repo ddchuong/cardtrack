@@ -902,7 +902,7 @@ const ALL_CARDS=[
     cashbackCategories:[
       {category:"Siêu thị",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000},
       {category:"Du lịch",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000},
-      {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000},
+      {category:"Online",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000,label:"Mua sắm (bao gồm Shopee)"},
       {category:"Di chuyển",rate:.20,maxCashback:100000,maxSpend:500000,catMin:400000}
     ],
     minSpend:3000000,calendarMonth:true,note:"4 lĩnh vực CB độc lập 20%, mỗi lĩnh vực max 100K & phải chi ≥400K/lĩnh vực mới được hoàn; tổng chi tối thiểu 3tr/tháng; chu kỳ tháng lịch",
@@ -914,7 +914,7 @@ const ALL_CARDS=[
       {category:"Ẩm thực",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
       {category:"Siêu thị",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
       {category:"Du lịch",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
-      {category:"Online",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000},
+      {category:"Online",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000,label:"Mua sắm (bao gồm Shopee)"},
       {category:"Di chuyển",rate:.20,maxCashback:200000,maxSpend:1000000,catMin:800000}
     ],
     minSpend:10000000,calendarMonth:true,note:"5 lĩnh vực CB độc lập 20%, mỗi lĩnh vực max 200K & phải chi ≥800K/lĩnh vực mới được hoàn; tổng chi tối thiểu 10tr/tháng; chu kỳ tháng lịch; KH Ưu tiên",
@@ -1476,13 +1476,12 @@ function renderCbRow(card,ct,cb,shared,ts,detail){
   const foot=[];
   if(!active)foot.push(h("span",null,"Kỳ này không áp dụng"));
   else if(capOtherUsed)foot.push(h("span",null,"Max chung của thẻ đã dùng hết ở lĩnh vực khác"));
-  else if(catMinNotMet)foot.push(h("span",null,`Chi thêm `,h("strong",{style:{color:"var(--accent)"}},fmtTight(cb.catMin-cs)),` vào ${cat} (đạt ${fmtTight(cb.catMin)}) để mở CB ${fmtRate(er)}`));
+  else if(catMinNotMet)foot.push(h("span",null,`Kích hoạt CB: `,h("strong",{style:{color:"var(--accent)"}},`${fmtTight(cs)}/${fmtTight(cb.catMin)}`)));
   else if(isFull)foot.push(h("span",null,`Đã chi ${fmtK(cs)} — kín hạn mức`));
-  else if(minNotMet)foot.push(h("span",null,`Chi thêm ${fmtTight(card.minSpend-ts)} để mở cashback`));
   else foot.push(h("span",null,`Chi thêm `,h("strong",{style:{color:"var(--green)"}},fmtTight(remSpend)),` → +`,h("strong",{style:{color:"var(--green)"}},fmtTight(remCb))));
   return h("div",{className:"cb-row"+(active?"":" off")},
     h("div",{className:"cb-head"},
-      h("span",null,h("span",{className:"cb-cat"},`${cat} ${fmtRate(er)}`),...badges),
+      h("span",null,h("span",{className:"cb-cat"},`${cb.label||cat} ${fmtRate(er)}`),...badges),
       h("span",{className:"cb-amt"},`${fmtTight(earned)}${detail?" / ":"/"}${fmtK(capShown)}`)),
     h("div",{className:"bar-track",role:"progressbar","aria-label":`Cashback ${cat}`,"aria-valuenow":Math.round(earned),"aria-valuemin":0,"aria-valuemax":Math.round(capShown)},
       h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--green)":"var(--accent)"}})),
