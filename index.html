@@ -234,8 +234,8 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .minspend-val.unmet{color:var(--warn)}
 .minspend-sub{font-size:12px;color:var(--text2);margin-top:4px;font-family:var(--font-body)}
 
-.toast{position:fixed;bottom:calc(74px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%) translateY(150px);background:var(--green);color:#fff;font-weight:700;font-size:15px;padding:12px 18px;border-radius:12px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1);font-family:var(--font-mono);max-width:min(360px,calc(100vw - 28px));display:flex;align-items:center;gap:12px;box-shadow:0 8px 28px rgba(0,0,0,.35)}
-.toast.show{transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;bottom:calc(74px + max(env(safe-area-inset-bottom),8px));left:50%;transform:translateX(-50%) translateY(150px);opacity:0;visibility:hidden;pointer-events:none;background:var(--green);color:#fff;font-weight:700;font-size:15px;padding:12px 18px;border-radius:12px;z-index:999;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s ease,visibility .3s;font-family:var(--font-mono);max-width:min(360px,calc(100vw - 28px));display:flex;align-items:center;gap:12px;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible;pointer-events:auto}
 .toast.undo{display:flex;align-items:center;gap:14px;background:var(--bg4);color:var(--text);border:1px solid var(--border2);box-shadow:var(--shadow)}
 .toast-undo{background:var(--accent);color:#001018;border:none;border-radius:8px;padding:5px 12px;font-weight:800;font-size:14px;font-family:var(--font-body);cursor:pointer}
 .toast-undo:active{transform:scale(.95)}
@@ -5334,38 +5334,22 @@ function pwaEnsureLink(rel, attrs) {
 // LÝ DO không thể đăng ký qua Blob/data: URI — xem phần trả về mục 3 (đã kiểm chứng thực nghiệm,
 // Chromium từ chối "URL protocol ... blob:/data: is not supported" khi registerServiceWorker).
 function pwaServiceWorkerSource() {
-  return "const CACHE_NAME='cardtrack-v1';\n" +
-    "const APP_SHELL=['./','./index.html'];\n" +
-    "self.addEventListener('install',(event)=>{\n" +
-    "  event.waitUntil((async()=>{\n" +
-    "    const cache=await caches.open(CACHE_NAME);\n" +
-    "    await Promise.all(APP_SHELL.map((u)=>cache.add(u).catch(()=>{})));\n" +
-    "  })());\n" +
-    "  self.skipWaiting();\n" +
-    "});\n" +
-    "self.addEventListener('activate',(event)=>{\n" +
-    "  event.waitUntil(caches.keys().then((keys)=>Promise.all(\n" +
-    "    keys.filter((k)=>k!==CACHE_NAME).map((k)=>caches.delete(k))\n" +
-    "  )));\n" +
-    "  self.clients.claim();\n" +
-    "});\n" +
-    "self.addEventListener('fetch',(event)=>{\n" +
-    "  if(event.request.method!=='GET')return;\n" +
-    "  const url=new URL(event.request.url);\n" +
-    "  if(url.origin!==self.location.origin)return;\n" + // đừng cache cross-origin
-    "  event.respondWith(\n" +
-    "    caches.match(event.request).then((cached)=>{\n" +
-    "      const network=fetch(event.request).then((res)=>{\n" +
-    "        if(res && res.status===200){\n" +
-    "          const copy=res.clone();\n" +
-    "          caches.open(CACHE_NAME).then((c)=>c.put(event.request,copy));\n" +
-    "        }\n" +
-    "        return res;\n" +
-    "      }).catch(()=>cached);\n" +
-    "      return cached || network;\n" + // cache-first, cập nhật ngầm
-    "    })\n" +
-    "  );\n" +
-    "});\n";
+  // Network-first: khi online LUÔN lấy bản mới nhất (tránh kẹt bản cache cũ); offline mới dùng cache.
+  return [
+    "const CACHE_NAME='cardtrack-v2';",
+    "const APP_SHELL=['./','./index.html'];",
+    "self.addEventListener('install',function(e){e.waitUntil((async function(){var c=await caches.open(CACHE_NAME);await Promise.all(APP_SHELL.map(function(u){return c.add(u).catch(function(){});}));})());self.skipWaiting();});",
+    "self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==CACHE_NAME;}).map(function(k){return caches.delete(k);}));}));self.clients.claim();});",
+    "self.addEventListener('fetch',function(e){",
+    "  if(e.request.method!=='GET')return;",
+    "  var url=new URL(e.request.url);",
+    "  if(url.origin!==self.location.origin)return;",
+    "  e.respondWith(fetch(e.request).then(function(res){",
+    "    if(res&&res.status===200){var copy=res.clone();caches.open(CACHE_NAME).then(function(c){c.put(e.request,copy);});}",
+    "    return res;",
+    "  }).catch(function(){return caches.match(e.request).then(function(c){return c||caches.match('./index.html');});}));",
+    "});"
+  ].join("\n") + "\n";
 }
 
 // Chạy MỘT LẦN lúc init (gọi ngay trong khối INIT, trước hoặc sau render() đều được —
