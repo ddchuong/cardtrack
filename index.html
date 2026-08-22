@@ -872,6 +872,15 @@ const ALL_CARDS=[
     minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K",
     annualFee:800000,afNext:"2027-05",afWaive:"100tr/năm"},
 
+  // ── MB JCB Hi Collection (T) — Di chuyển & CHTL (cửa hàng tiện lợi) 10% max 50K/danh mục ──
+  {id:"mb-2624",name:"MB JCB Hi Collection (T)",network:"JCB",last4:"2624",cardNum:"356418****2624",stmtDay:8,dueDay:20,color:"#0B4DA2",
+    cashbackCategories:[
+      {category:"Di chuyển",rate:.10,maxCashback:50000,maxSpend:500000},
+      {category:"Siêu thị",rate:.10,maxCashback:50000,maxSpend:500000,label:"Cửa hàng tiện lợi (CHTL)"}
+    ],
+    minSpend:0,note:"Di chuyển & CHTL (cửa hàng tiện lợi/chuỗi bán lẻ): mỗi danh mục 10% max 50K; chu kỳ sao kê (chốt ngày 8)",
+    annualFee:199000,afNext:"2027-08",afWaive:"20tr/năm"},
+
   // ── HSBC Live+ (calendar month) ──
   {id:"hsbc-3008",name:"HSBC Live+",network:"Visa",last4:"3008",cardNum:"437841****3008",stmtDay:4,dueDay:27,color:"#C8102E",
     cashbackCategories:[
@@ -4325,7 +4334,7 @@ function alInsForm(cards){
     onClick:()=>{alInsDraft.monthsStr=String(n);render()}},n+" kỳ")));
   const isPreset=presets.includes(+d.monthsStr);
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl"},"Số kỳ"),monthsW,
-    h("input",{className:"input",style:{marginTop:"var(--s2)"},type:"text",inputmode:"numeric",
+    h("input",{className:"input",style:{marginTop:"var(--s2)"},type:"text",inputmode:"numeric","data-fid":"al-ins-months",
       placeholder:"Số kỳ khác (VD: 15)",value:isPreset?"":d.monthsStr,
       onInput:e=>{alInsDraft.monthsStr=e.target.value;render()}})));
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl",htmlFor:"al-ins-date"},"Ngày bắt đầu"),
@@ -4893,9 +4902,9 @@ function st2DeletePromo(id) {
     state.promos = [...(state.promos || []), removed]; persist(); render();
   });
 }
-function st2UpdatePromo(id, patch) {
+function st2UpdatePromo(id, patch, quiet) {
   state.promos = (state.promos || []).map(p => p.id === id ? { ...p, ...patch } : p);
-  persist(); render();
+  persist(); if (!quiet) render();   // quiet=true khi đang gõ để KHÔNG rebuild DOM (mất focus)
 }
 
 function stPromoForm() {
@@ -4911,7 +4920,7 @@ function stPromoForm() {
     h("input", {
       type: "text", className: "input", "data-fid": "st2-promo-title",
       placeholder: "Tên ưu đãi (vd: Hoàn 10% siêu thị Tết)", value: d.title,
-      onInput: e => { d.title = e.target.value; render(); }
+      onInput: e => { d.title = e.target.value; }
     }),
     h("div", { className: "st-promo-dates" },
       h("div", { className: "fg" }, h("label", { className: "lbl" }, "Bắt đầu"),
@@ -4921,7 +4930,7 @@ function stPromoForm() {
     h("input", {
       type: "text", className: "input", "data-fid": "st2-promo-note",
       placeholder: "Ghi chú (theo email/SMS ngân hàng, không suy đoán)", value: d.note,
-      onInput: e => { d.note = e.target.value; render(); }
+      onInput: e => { d.note = e.target.value; }
     }),
     h("button", {
       className: "st-btn",
@@ -4943,7 +4952,7 @@ function stPromoEditRow(p, cards) {
     }, ...cards.map(c => h("option", { value: c.id }, c.name))),
     h("input", {
       type: "text", className: "input", "data-fid": "st2-edit-title-" + p.id, value: p.title,
-      placeholder: "Tên ưu đãi", onInput: e => st2UpdatePromo(p.id, { title: e.target.value })
+      placeholder: "Tên ưu đãi", onInput: e => st2UpdatePromo(p.id, { title: e.target.value }, true)
     }),
     h("div", { className: "st-promo-dates" },
       h("div", { className: "fg" }, h("label", { className: "lbl" }, "Bắt đầu"),
@@ -4952,7 +4961,7 @@ function stPromoEditRow(p, cards) {
         h("input", { type: "date", className: "input", value: p.end || "", onChange: e => st2UpdatePromo(p.id, { end: e.target.value || null }) }))),
     h("input", {
       type: "text", className: "input", "data-fid": "st2-edit-note-" + p.id, value: p.note || "",
-      placeholder: "Ghi chú", onInput: e => st2UpdatePromo(p.id, { note: e.target.value })
+      placeholder: "Ghi chú", onInput: e => st2UpdatePromo(p.id, { note: e.target.value }, true)
     }),
     h("button", { className: "st-btn", onClick: () => { _st2EditPromoId = null; render(); } }, "✓ Xong"));
 }
@@ -5024,7 +5033,7 @@ function stLifecycleBody() {
         h("input", {
           type: "text", className: "input", "data-fid": "st2-lc-note-" + c.id,
           placeholder: "vd: mở để lấy quà chào mừng, đóng vì phí thường niên", value: meta.note || "",
-          onInput: e => { setCardMeta(c.id, { note: e.target.value }); render(); }
+          onInput: e => { setCardMeta(c.id, { note: e.target.value }); }
         }))));
   });
 
