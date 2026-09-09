@@ -5332,9 +5332,13 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       // Apply tombstones for this key (soft-delete rows on cloud)
       const tks=tombs[key];
       if(def.kind==="array"&&tks&&tks.length){
+        log("tomb try",def.table,"count:",tks.length,"ids:",tks.map(t=>t.id).join(","));
         for(const t of tks){
-          const {error:e2}=await client.from(def.table).update({deleted_at:t.deleted_at}).eq("id",t.id);
-          if(e2){log("tomb err",def.table,e2);setStatus("error:"+def.table+" tomb: "+(e2.message||e2));throw e2}
+          const {data:back2,error:e2}=await client.from(def.table).update({deleted_at:t.deleted_at}).eq("id",t.id).select("id");
+          if(e2){log("tomb err",def.table,t.id,e2);setStatus("error:"+def.table+" tomb: "+(e2.message||e2));throw e2}
+          const n=(back2||[]).length;
+          log("tomb applied",def.table,t.id,"rows:",n);
+          if(n===0){log("tomb warn",def.table,t.id,"no matching row on cloud — id not there yet or wrong user_id")}
         }
         delete tombs[key];
         writeTombs(tombs);
