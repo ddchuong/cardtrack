@@ -2149,6 +2149,8 @@ function render(){
   const focusId=ae?.dataset?.fid||"";
   const cursorPos=ae?.selectionStart??-1;
   const old=document.querySelector(".content"),st=old?old.scrollTop:0;
+  // Preserve Settings sheet scroll across full re-renders (checkbox toggles, etc.)
+  const oldSheet=document.querySelector(".sheet"),sheetSt=oldSheet?oldSheet.scrollTop:0;
   const app=document.getElementById("app");app.innerHTML="";
   app.appendChild(renderHeader());
   // Only play the entrance animation when the actual view changes (tab / detail /
@@ -2179,7 +2181,12 @@ function render(){
   content.scrollTop=targetScroll;
   // iOS Safari đôi khi tự khôi phục scroll sau khi JS chạy → set lại sau khi paint.
   if(viewChanged)requestAnimationFrame(()=>{const c=document.querySelector(".content");if(c)c.scrollTop=targetScroll;});
-  if(state.sheet)renderSheet(app);
+  if(state.sheet){
+    renderSheet(app);
+    // Restore Settings sheet scroll (previously reset to 0 on every checkbox tick).
+    const newSheet=document.querySelector(".sheet");
+    if(newSheet&&sheetSt){newSheet.scrollTop=sheetSt;requestAnimationFrame(()=>{const s=document.querySelector(".sheet");if(s)s.scrollTop=sheetSt;});}
+  }
   // Restore focus
   if(focusId){const el=document.querySelector(`[data-fid="${focusId}"]`);if(el){el.focus();if(cursorPos>=0&&el.setSelectionRange)try{el.setSelectionRange(cursorPos,cursorPos)}catch{}}}
 }
