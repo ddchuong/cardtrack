@@ -5291,10 +5291,18 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       }else if(def.kind==="map"&&raw&&typeof raw==="object"){
         rows=Object.entries(raw).map(([k,v])=>def.toRow(k,v));
       }
+      log("push try",def.table,"local rows:",rows.length,rows[0]?("sample "+JSON.stringify(rows[0]).slice(0,200)):"(empty)");
       if(rows.length){
-        const {error}=await client.from(def.table).upsert(rows,{onConflict:"id"});
+        const {data:back,error}=await client.from(def.table).upsert(rows,{onConflict:"id"}).select("id");
         if(error){log("push err",def.table,error);setStatus("error:"+def.table+": "+(error.message||error));throw error}
-        log("pushed",def.table,rows.length);
+        const got=(back||[]).length;
+        log("pushed",def.table,"sent",rows.length,"acknowledged",got);
+        if(got!==rows.length){
+          const msg="ack mismatch "+got+"/"+rows.length;
+          log("push warn",def.table,msg);
+          setStatus("error:"+def.table+": "+msg);
+          throw new Error(def.table+" "+msg);
+        }
       }
       // Apply tombstones for this key (soft-delete rows on cloud)
       const tks=tombs[key];
