@@ -2906,7 +2906,7 @@ function renderHomeTab(){
   segwrap.appendChild(h("button",{className:"hm-search-btn"+(hmSearchOpen?" on":""),"aria-label":"Tìm thẻ",onClick:()=>{hmSearchOpen=!hmSearchOpen;render()}},"🔍"));
   w.appendChild(segwrap);
   if(hmSearchOpen)w.appendChild(h("div",{className:"hm-search"},h("input",{className:"input","data-fid":"home-card-search",placeholder:"🔍  Tìm thẻ...",value:state.cardSearch,autofocus:true,
-    onInput:e=>setState({cardSearch:e.target.value})})));
+    onInput:e=>{setQ({cardSearch:e.target.value});if(window._hmCardSearchTimer)clearTimeout(window._hmCardSearchTimer);window._hmCardSearchTimer=setTimeout(()=>{try{render()}catch{}},160)}})));
 
   // ── Danh sách thẻ thu gọn ──
   const q=(state.cardSearch||"").trim().toLowerCase();
@@ -4723,9 +4723,23 @@ function stCardsBody() {
   w.appendChild(h("input", {
     className: "input", "data-fid": "st-search", placeholder: "🔍  Tìm thẻ (tên / ngân hàng / số)…",
     value: state.cardSearch || "",
-    onInput: e => { setQ({ cardSearch: e.target.value }); render(); }
+    onInput: e => {
+      setQ({ cardSearch: e.target.value });
+      if (window._stCardSearchTimer) clearTimeout(window._stCardSearchTimer);
+      window._stCardSearchTimer = setTimeout(() => {
+        const box = document.getElementById("st-cardresults");
+        if (box) { const nb = h("div", { id: "st-cardresults" }); stCardsBuildResults(nb); box.replaceWith(nb); }
+      }, 140);
+    }
   }));
 
+  const results = h("div", { id: "st-cardresults" });
+  stCardsBuildResults(results);
+  w.appendChild(results);
+  return w;
+}
+
+function stCardsBuildResults(w) {
   const q = (state.cardSearch || "").trim().toLowerCase();
   const match = c => !q || `${c.name} ${bankKeyOf(c)} ${c.cardNum || ""} ${c.last4}`.toLowerCase().includes(q);
   const groups = {};
@@ -5764,7 +5778,12 @@ function pwaInstall() {
 try{ pwaInstall(); }catch(e){ console.error('pwaInstall',e); }
 render();
 try{ ctSync.init(); }catch(e){ console.error('ctSync',e); }
-window.addEventListener("ct7-sync-change",()=>{try{render()}catch{}});
+window.addEventListener("ct7-sync-change",()=>{
+  // Đừng rebuild toàn DOM khi user đang gõ (mất focus / lag iPhone).
+  const ae=document.activeElement;
+  if(ae&&(ae.tagName==="INPUT"||ae.tagName==="TEXTAREA"||ae.isContentEditable))return;
+  try{render()}catch{}
+});
 </script>
 </body>
 </html>
