@@ -727,6 +727,9 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 #ct-auth-overlay button.primary{padding:12px;border-radius:10px;border:0;background:#3b82f6;color:#fff;font-weight:600;font-size:15px;cursor:pointer}
 #ct-auth-overlay .skip{background:none;border:0;color:#888;text-decoration:underline;cursor:pointer;font-size:13px;padding:6px}
 #ct-auth-overlay .msg{font-size:13px;color:#aaa;text-align:center;min-height:16px}
+#ct-auth-overlay input.otp{font-size:24px;letter-spacing:8px;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600}
+#ct-auth-overlay .link{background:none;border:0;color:#60a5fa;cursor:pointer;font-size:13px;padding:4px;text-decoration:underline}
+#ct-auth-overlay .row{display:flex;justify-content:space-between;gap:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5169,7 +5172,12 @@ function stCloudBody(){
 }
 function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if(s<60)return "vừa xong";if(s<3600)return Math.floor(s/60)+" phút trước";if(s<86400)return Math.floor(s/3600)+" giờ trước";return Math.floor(s/86400)+" ngày trước"}catch{return iso}}
 
-/* ═══ ctSync — Supabase cloud sync ═══ */
+/* ═══ ctSync — Supabase cloud sync ═══
+   NOTE: This module uses EMAIL OTP (6-digit code), not magic link — needed so iOS PWA
+   users can sign in without leaving the installed app context. For a nicer email,
+   edit Supabase Dashboard → Authentication → Email Templates → "Magic Link" and make
+   sure {{ .Token }} (the 6-digit code) is shown prominently. Default template already
+   includes it. */
 (function(){
   const SUPA_URL="https://ogoauykxmccacnxzcbdz.supabase.co";
   const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nb2F1eWt4bWNjYWNueHpjYmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5Mjk2MDEsImV4cCI6MjEwNDUwNTYwMX0.GSlt6iaO7nQ_6TZUOvF-4o8oxReHLnNumAJqvvhKIvM";
@@ -5350,25 +5358,89 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     if(session||skipped){if(existing)existing.remove();return}
     if(existing)return;
     const ov=document.createElement("div");ov.id="ct-auth-overlay";
-    ov.innerHTML='<div class="box"><h1>CardTrack ☁️</h1>'+
-      '<p class="msg" id="ct-auth-msg">Đăng nhập để đồng bộ dữ liệu qua các thiết bị.</p>'+
-      '<input id="ct-auth-email" type="email" placeholder="email@example.com" autocomplete="email" inputmode="email">'+
-      '<button class="primary" id="ct-auth-send">Gửi magic link</button>'+
-      '<button class="skip" id="ct-auth-skip">Bỏ qua — chỉ dùng offline</button></div>';
     document.body.appendChild(ov);
-    ov.querySelector("#ct-auth-send").onclick=async()=>{
-      const email=ov.querySelector("#ct-auth-email").value.trim();
-      const msg=ov.querySelector("#ct-auth-msg");
-      if(!email){msg.textContent="Nhập email đã.";return}
-      const c=ensureClient();if(!c){msg.textContent="Không tải được thư viện — kiểm tra mạng.";return}
+    let currentEmail="", cooldownTimer=null;
+
+    function showStep1(prefill){
+      ov.innerHTML='<div class="box"><h1>CardTrack ☁️</h1>'+
+        '<p class="msg" id="ct-auth-msg">Đăng nhập để đồng bộ dữ liệu qua các thiết bị.</p>'+
+        '<input id="ct-auth-email" type="email" placeholder="email@example.com" autocomplete="email" inputmode="email">'+
+        '<button class="primary" id="ct-auth-send">Gửi mã xác nhận</button>'+
+        '<button class="skip" id="ct-auth-skip">Bỏ qua — chỉ dùng offline</button></div>';
+      const emIn=ov.querySelector("#ct-auth-email");
+      if(prefill)emIn.value=prefill;
+      ov.querySelector("#ct-auth-send").onclick=()=>sendCode(emIn.value.trim(),ov.querySelector("#ct-auth-msg"));
+      ov.querySelector("#ct-auth-skip").onclick=()=>{localStorage.setItem("ct7-cloud-skip","1");ov.remove()};
+    }
+
+    async function sendCode(email,msg){
+      if(!email){msg.textContent="Nhập email đã.";return false}
+      const c=ensureClient();if(!c){msg.textContent="Không tải được thư viện — kiểm tra mạng.";return false}
       msg.textContent="Đang gửi…";
       try{
-        const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+        const {error}=await c.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
         if(error)throw error;
-        msg.textContent="✓ Đã gửi link. Mở email trên máy này để đăng nhập.";
-      }catch(e){msg.textContent="Lỗi: "+(e.message||e)}
-    };
-    ov.querySelector("#ct-auth-skip").onclick=()=>{localStorage.setItem("ct7-cloud-skip","1");ov.remove()};
+        currentEmail=email;
+        showStep2();
+        return true;
+      }catch(e){msg.textContent="Lỗi: "+(e.message||e);return false}
+    }
+
+    function showStep2(){
+      ov.innerHTML='<div class="box"><h1>Nhập mã</h1>'+
+        '<p class="msg" id="ct-auth-msg">Đã gửi mã 6 số tới <b>'+currentEmail.replace(/</g,"&lt;")+'</b>. Mở email và nhập mã bên dưới:</p>'+
+        '<input id="ct-auth-otp" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="000000">'+
+        '<button class="primary" id="ct-auth-verify">Xác nhận</button>'+
+        '<div class="row"><button class="link" id="ct-auth-back">← Đổi email</button>'+
+        '<button class="link" id="ct-auth-resend">Gửi lại mã</button></div></div>';
+      const otpIn=ov.querySelector("#ct-auth-otp");
+      const msg=ov.querySelector("#ct-auth-msg");
+      const verifyBtn=ov.querySelector("#ct-auth-verify");
+      otpIn.focus();
+      otpIn.oninput=()=>{
+        otpIn.value=otpIn.value.replace(/\D/g,"").slice(0,6);
+        if(otpIn.value.length===6)verify();
+      };
+      verifyBtn.onclick=verify;
+      ov.querySelector("#ct-auth-back").onclick=()=>{if(cooldownTimer)clearInterval(cooldownTimer);showStep1(currentEmail)};
+      const resendBtn=ov.querySelector("#ct-auth-resend");
+      resendBtn.onclick=async()=>{
+        const ok=await sendCode(currentEmail,msg);
+        if(ok){msg.textContent="✓ Đã gửi lại mã.";startCooldown(resendBtn)}
+      };
+      startCooldown(resendBtn);
+
+      async function verify(){
+        const token=otpIn.value.trim();
+        if(token.length!==6){msg.textContent="Nhập đủ 6 số.";return}
+        const c=ensureClient();if(!c)return;
+        msg.textContent="Đang xác nhận…";verifyBtn.disabled=true;
+        try{
+          const {data,error}=await c.auth.verifyOtp({email:currentEmail,token,type:"email"});
+          if(error)throw error;
+          session=data.session||null;
+          if(cooldownTimer)clearInterval(cooldownTimer);
+          ov.remove();
+          try{toast&&toast("Đã đăng nhập ✓")}catch{}
+          setTimeout(()=>syncOnce(),300);
+        }catch(e){
+          msg.textContent="Mã không đúng hoặc đã hết hạn. Thử lại.";
+          verifyBtn.disabled=false;otpIn.select();
+        }
+      }
+    }
+
+    function startCooldown(btn){
+      if(cooldownTimer)clearInterval(cooldownTimer);
+      let n=30;btn.disabled=true;const orig="Gửi lại mã";
+      btn.textContent=orig+" ("+n+"s)";
+      cooldownTimer=setInterval(()=>{
+        n--;if(n<=0){clearInterval(cooldownTimer);cooldownTimer=null;btn.disabled=false;btn.textContent=orig}
+        else btn.textContent=orig+" ("+n+"s)";
+      },1000);
+    }
+
+    showStep1();
   }
 
   async function init(){
