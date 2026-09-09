@@ -1985,6 +1985,31 @@ let _addInputTimer=null;
 let _lastView="";
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
+function rehydrateState(){
+  state.selectedCardIds=load("ct7-sel",[]);
+  state.transactions=load("ct7-txns",[]);
+  state.txnArchive=load("ct7-txn-archive",[]);
+  state.events=load("ct7-events",[]);
+  state.history=load("ct7-history",[]);
+  state.paidDues=load("ct7-paid",[]);
+  state.noEvt=load("ct7-noevt",[]);
+  state.calAdded=load("ct7-caladded",[]);
+  state.calDismiss=load("ct7-caldismiss","");
+  state.afSpend=load("ct7-afspend",{});
+  state.memberTier=load("ct7-membertier",{});
+  state.cbActual=load("ct7-cbactual",{});
+  state.stmts=load("ct7-stmts",{});
+  state.limits=load("ct7-limits",{});
+  state.cbPost=load("ct7-cbpost",{});
+  state.installments=load("ct7-ins",[]);
+  state.recurring=load("ct7-rec",[]);
+  state.fxFees=load("ct7-fxfees",{});
+  state.budgets=load("ct7-budgets",{});
+  state.pointRates=load("ct7-points",{});
+  state.cardMeta=load("ct7-cardmeta",{});
+  state.promos=load("ct7-promos",[]);
+}
+window.rehydrateState=rehydrateState;
 function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-txn-archive",state.txnArchive);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend);save("ct7-membertier",state.memberTier);save("ct7-cbactual",state.cbActual);save("ct7-stmts",state.stmts);save("ct7-limits",state.limits);save("ct7-onboarded",state.onboarded);
   save("ct7-cbpost",state.cbPost);save("ct7-ins",state.installments);save("ct7-rec",state.recurring);
   save("ct7-fxfees",state.fxFees);save("ct7-budgets",state.budgets);save("ct7-points",state.pointRates);
@@ -5323,20 +5348,26 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
   async function pullRemote(){
     if(!session)return;
     for(const [key,def] of Object.entries(KEY_MAP)){
+      log("pull try",def.table);
       const {data:rows,error}=await client.from(def.table).select("*");
       if(error){log("pull err",def.table,error);setStatus("error:pull "+def.table+": "+(error.message||error));throw error}
       const remote=rows||[];
+      log("pull got",def.table,remote.length,"rows");
       if(def.kind==="array"){
         const live=remote.filter(r=>!r.deleted_at).map(def.fromRow);
         // Merge with local by id — never wipe local when remote is empty
         let local=[];try{local=JSON.parse(localStorage.getItem(key)||"[]")||[]}catch{local=[]}
         if(!Array.isArray(local))local=[];
+        const localIds=new Set(local.filter(x=>x&&x.id).map(x=>x.id));
         const byId={};
         local.forEach(x=>{if(x&&x.id)byId[x.id]=x});
-        live.forEach(x=>{if(x&&x.id)byId[x.id]=x});     // remote wins on conflict
+        let nNew=0,nUpd=0;
+        live.forEach(x=>{if(x&&x.id){if(localIds.has(x.id))nUpd++;else nNew++;byId[x.id]=x}});
         // Tombstones from remote — drop soft-deleted
-        remote.filter(r=>r.deleted_at).forEach(r=>{delete byId[r.id]});
+        let nDel=0;
+        remote.filter(r=>r.deleted_at).forEach(r=>{if(byId[r.id]){nDel++;delete byId[r.id]}});
         const merged=Object.values(byId);
+        log("pull merged",def.table,"+"+nNew,"~"+nUpd,"-"+nDel);
         // Only overwrite when we actually have data, else leave local intact
         if(merged.length||local.length===0){
           localStorage.setItem(key,JSON.stringify(merged));
@@ -5376,6 +5407,8 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       localStorage.setItem("ct7-sync-last",new Date().toISOString());
       setStatus("ok");
       log("sync ok");
+      // Rehydrate in-memory state from localStorage AFTER pull — otherwise render() shows stale in-memory data
+      try{window.rehydrateState&&window.rehydrateState()}catch(e){log("rehydrate err",e)}
       try{window.render&&render()}catch{}
     }catch(e){
       log("sync err",e);
