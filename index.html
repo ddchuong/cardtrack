@@ -5293,14 +5293,15 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       }
       if(rows.length){
         const {error}=await client.from(def.table).upsert(rows,{onConflict:"id"});
-        if(error)throw error;
+        if(error){log("push err",def.table,error);setStatus("error:"+def.table+": "+(error.message||error));throw error}
+        log("pushed",def.table,rows.length);
       }
       // Apply tombstones for this key (soft-delete rows on cloud)
       const tks=tombs[key];
       if(def.kind==="array"&&tks&&tks.length){
         for(const t of tks){
           const {error:e2}=await client.from(def.table).update({deleted_at:t.deleted_at}).eq("id",t.id);
-          if(e2)throw e2;
+          if(e2){log("tomb err",def.table,e2);setStatus("error:"+def.table+" tomb: "+(e2.message||e2));throw e2}
         }
         delete tombs[key];
         writeTombs(tombs);
@@ -5308,22 +5309,42 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     }
     // settings
     const {error:se}=await client.from("settings").upsert({user_id:session.user.id,data:collectSettings()},{onConflict:"user_id"});
-    if(se)throw se;
+    if(se){log("push err settings",se);setStatus("error:settings: "+(se.message||se));throw se}
   }
 
   async function pullRemote(){
     if(!session)return;
     for(const [key,def] of Object.entries(KEY_MAP)){
       const {data:rows,error}=await client.from(def.table).select("*");
-      if(error)throw error;
+      if(error){log("pull err",def.table,error);setStatus("error:pull "+def.table+": "+(error.message||error));throw error}
+      const remote=rows||[];
       if(def.kind==="array"){
-        const live=(rows||[]).filter(r=>!r.deleted_at).map(def.fromRow);
-        localStorage.setItem(key,JSON.stringify(live));
+        const live=remote.filter(r=>!r.deleted_at).map(def.fromRow);
+        // Merge with local by id — never wipe local when remote is empty
+        let local=[];try{local=JSON.parse(localStorage.getItem(key)||"[]")||[]}catch{local=[]}
+        if(!Array.isArray(local))local=[];
+        const byId={};
+        local.forEach(x=>{if(x&&x.id)byId[x.id]=x});
+        live.forEach(x=>{if(x&&x.id)byId[x.id]=x});     // remote wins on conflict
+        // Tombstones from remote — drop soft-deleted
+        remote.filter(r=>r.deleted_at).forEach(r=>{delete byId[r.id]});
+        const merged=Object.values(byId);
+        // Only overwrite when we actually have data, else leave local intact
+        if(merged.length||local.length===0){
+          localStorage.setItem(key,JSON.stringify(merged));
+        }
       }else if(def.kind==="map"){
-        localStorage.setItem(key,JSON.stringify(def.applyRows(rows||[])));
+        const remoteMap=def.applyRows(remote);
+        let local={};try{local=JSON.parse(localStorage.getItem(key)||"{}")||{}}catch{local={}}
+        if(!local||typeof local!=="object")local={};
+        const merged=Object.assign({},local,remoteMap);   // remote wins per-key
+        if(Object.keys(merged).length||Object.keys(local).length===0){
+          localStorage.setItem(key,JSON.stringify(merged));
+        }
       }
     }
-    const {data:sr}=await client.from("settings").select("data").eq("user_id",session.user.id).maybeSingle();
+    const {data:sr,error:serr}=await client.from("settings").select("data").eq("user_id",session.user.id).maybeSingle();
+    if(serr){log("pull err settings",serr);setStatus("error:pull settings: "+(serr.message||serr));throw serr}
     if(sr&&sr.data){
       for(const [k,v] of Object.entries(sr.data)){
         if(isEphemeral(k))continue;
@@ -5338,15 +5359,21 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     if(!navigator.onLine){setStatus("error:offline");return}
     inflight=true;setStatus("syncing");
     try{
-      await pullRemote();
+      // PUSH FIRST so local data is safe on cloud before we merge remote in.
+      // (Old order pull→push wiped local when remote was empty.)
+      markAllDirty();
       await pushLocal();
+      await pullRemote();
       clearDirty();
       localStorage.setItem("ct7-sync-last",new Date().toISOString());
       setStatus("ok");
       log("sync ok");
+      try{window.render&&render()}catch{}
     }catch(e){
       log("sync err",e);
-      setStatus("error:"+((e&&e.message)||e));
+      // setStatus already called with per-table detail inside push/pull; only set generic if not
+      const cur=localStorage.getItem("ct7-sync-status")||"";
+      if(!cur.startsWith("error:"))setStatus("error:"+((e&&e.message)||e));
     }finally{inflight=false}
   }
 
