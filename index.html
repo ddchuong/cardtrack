@@ -2096,10 +2096,13 @@ function showToastUndo(msg,onUndo){
 function deleteTxn(id){
   const idx=state.transactions.findIndex(t=>t.id===id);if(idx<0)return;
   _lastDeleted={tx:state.transactions[idx],idx};
-  state.transactions.splice(idx,1);persist();buzz(12);render();
+  state.transactions.splice(idx,1);
+  try{window.ctSync&&ctSync.tombstone("ct7-txns",id)}catch{}
+  persist();buzz(12);render();
   showToastUndo("✓ Đã xoá giao dịch",()=>{
     if(!_lastDeleted)return;
     state.transactions.splice(Math.min(_lastDeleted.idx,state.transactions.length),0,_lastDeleted.tx);
+    try{window.ctSync&&ctSync.untombstone("ct7-txns",_lastDeleted.tx.id)}catch{}
     _lastDeleted=null;persist();buzz(8);render();showToast("↶ Đã hoàn tác");
   });
 }
@@ -4307,11 +4310,13 @@ function alDeleteIns(id){
       state.transactions=(state.transactions||[]).filter(t=>t.insId!==id);
       state.txnArchive=(state.txnArchive||[]).filter(t=>t.insId!==id);
       state.installments=(state.installments||[]).filter(i=>i.id!==id);
+      try{if(window.ctSync){ctSync.tombstone("ct7-ins",id);remTx.forEach(t=>t.id&&ctSync.tombstone("ct7-txns",t.id))}}catch{}
       persist();buzz(12);render();
       showToastUndo("✓ Đã xoá mục trả góp",()=>{
         state.installments=[...(state.installments||[]),ins];
         state.transactions=[...(state.transactions||[]),...remTx];
         state.txnArchive=[...(state.txnArchive||[]),...remArch];
+        try{if(window.ctSync){ctSync.untombstone("ct7-ins",id);remTx.forEach(t=>t.id&&ctSync.untombstone("ct7-txns",t.id))}}catch{}
         persist();buzz(8);render();showToast("↶ Đã hoàn tác");
       });
     }
@@ -4419,11 +4424,13 @@ function alDeleteRec(id){
       state.transactions=(state.transactions||[]).filter(t=>t.recId!==id);
       state.txnArchive=(state.txnArchive||[]).filter(t=>t.recId!==id);
       state.recurring=(state.recurring||[]).filter(r=>r.id!==id);
+      try{if(window.ctSync){ctSync.tombstone("ct7-rec",id);remTx.forEach(t=>t.id&&ctSync.tombstone("ct7-txns",t.id))}}catch{}
       persist();buzz(12);render();
       showToastUndo("✓ Đã xoá định kỳ",()=>{
         state.recurring=[...(state.recurring||[]),rec];
         state.transactions=[...(state.transactions||[]),...remTx];
         state.txnArchive=[...(state.txnArchive||[]),...remArch];
+        try{if(window.ctSync){ctSync.untombstone("ct7-rec",id);remTx.forEach(t=>t.id&&ctSync.untombstone("ct7-txns",t.id))}}catch{}
         persist();buzz(8);render();showToast("↶ Đã hoàn tác");
       });
     }
@@ -4905,9 +4912,13 @@ function budgetHomeCard() {
 function st2DeletePromo(id) {
   const idx = (state.promos || []).findIndex(p => p.id === id); if (idx < 0) return;
   const removed = state.promos[idx];
-  state.promos = state.promos.filter(p => p.id !== id); persist(); buzz(10); render();
+  state.promos = state.promos.filter(p => p.id !== id);
+  try{window.ctSync&&ctSync.tombstone("ct7-promos",id)}catch{}
+  persist(); buzz(10); render();
   showToastUndo("Đã xoá ưu đãi", () => {
-    state.promos = [...(state.promos || []), removed]; persist(); render();
+    state.promos = [...(state.promos || []), removed];
+    try{window.ctSync&&ctSync.untombstone("ct7-promos",id)}catch{}
+    persist(); render();
   });
 }
 function st2UpdatePromo(id, patch, quiet) {
@@ -5170,21 +5181,22 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       category:tx.category||tx.cat||null,note:tx.note||null,
       fx_orig:tx.fxOrig||null,fx_ccy:tx.fxCcy||null,fx_rate:tx.fxRate||null,
       cashback_actual:tx.cbActual||null,source:tx.source||"manual",
+      deleted_at:null,
       extra:tx  // full original for lossless round-trip
     }),fromRow:r=>({...(r.extra||{}),id:r.id,date:r.txn_date,amount:Number(r.amount),cardId:r.card_id,category:r.category,note:r.note})},
     "ct7-ins":{table:"installments",kind:"array",toRow:x=>({
       id:x.id||crypto.randomUUID(),card_id:x.cardId||null,total_amount:x.total||x.amount||0,
       months:x.months||1,start_date:x.start||x.startDate||new Date().toISOString().slice(0,10),
-      note:x.note||null,extra:x
+      note:x.note||null,deleted_at:null,extra:x
     }),fromRow:r=>({...(r.extra||{}),id:r.id,cardId:r.card_id,total:Number(r.total_amount),months:r.months,start:r.start_date,note:r.note})},
     "ct7-rec":{table:"recurring",kind:"array",toRow:x=>({
       id:x.id||crypto.randomUUID(),card_id:x.cardId||null,amount:x.amount||0,
-      category:x.category||x.cat||null,day_of_month:x.day||x.dom||null,note:x.note||null,extra:x
+      category:x.category||x.cat||null,day_of_month:x.day||x.dom||null,note:x.note||null,deleted_at:null,extra:x
     }),fromRow:r=>({...(r.extra||{}),id:r.id,cardId:r.card_id,amount:Number(r.amount),category:r.category,day:r.day_of_month,note:r.note})},
     "ct7-promos":{table:"promos",kind:"array",toRow:x=>({
       id:x.id||crypto.randomUUID(),card_id:x.cardId||null,title:x.title||"(promo)",
       starts_on:x.start||null,ends_on:x.end||null,categories:Array.isArray(x.categories)?x.categories:[],
-      description:x.note||x.desc||null,extra:x
+      description:x.note||x.desc||null,deleted_at:null,extra:x
     }),fromRow:r=>({...(r.extra||{}),id:r.id,cardId:r.card_id,title:r.title,start:r.starts_on,end:r.ends_on,note:r.description})},
     "ct7-budgets":{table:"budgets",kind:"map",toRow:(cat,amt)=>({
       id:"cat:"+cat,category:cat,amount:Number(amt)||0,period:"monthly",extra:{}
@@ -5197,7 +5209,7 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     }),applyRows:rows=>{const m={};rows.forEach(r=>{if(!r.deleted_at)m[r.card_id]=r.data||{}});return m}}
   };
   // Ephemeral/UI keys never synced
-  const SKIP_KEYS=new Set(["ct7-sync-last","ct7-sync-status","ct7-sync-dirty","ct7-sync-migrated","ct7-cloud-skip","ct7-lasttab"]);
+  const SKIP_KEYS=new Set(["ct7-sync-last","ct7-sync-status","ct7-sync-dirty","ct7-sync-migrated","ct7-cloud-skip","ct7-lasttab","ct7-tombstones"]);
   const isEphemeral=k=>SKIP_KEYS.has(k)||k.startsWith("ct7-cache-")||k.startsWith("ct7-pwa-")||k.startsWith("ct7-mig-");
 
   let client=null,session=null,inflight=false;
@@ -5233,11 +5245,16 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     return data;
   }
 
+  function readTombs(){try{return JSON.parse(localStorage.getItem("ct7-tombstones")||"{}")}catch{return{}}}
+  function writeTombs(t){localStorage.setItem("ct7-tombstones",JSON.stringify(t||{}))}
+  function addTomb(key,id){if(!key||!id)return;const t=readTombs();t[key]=t[key]||[];if(!t[key].some(x=>x.id===id))t[key].push({id,deleted_at:new Date().toISOString()});writeTombs(t)}
+  function delTomb(key,id){const t=readTombs();if(!t[key])return;t[key]=t[key].filter(x=>x.id!==id);if(!t[key].length)delete t[key];writeTombs(t)}
+
   async function pushLocal(){
     if(!session)return;
+    const tombs=readTombs();
     for(const [key,def] of Object.entries(KEY_MAP)){
       let raw;try{raw=JSON.parse(localStorage.getItem(key)||"null")}catch{raw=null}
-      if(raw==null)continue;
       let rows=[];
       if(def.kind==="array"&&Array.isArray(raw)){
         rows=raw.map(item=>{const r=def.toRow(item);if(!item.id)item.id=r.id;return r});
@@ -5246,9 +5263,20 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       }else if(def.kind==="map"&&raw&&typeof raw==="object"){
         rows=Object.entries(raw).map(([k,v])=>def.toRow(k,v));
       }
-      if(!rows.length)continue;
-      const {error}=await client.from(def.table).upsert(rows,{onConflict:"id"});
-      if(error)throw error;
+      if(rows.length){
+        const {error}=await client.from(def.table).upsert(rows,{onConflict:"id"});
+        if(error)throw error;
+      }
+      // Apply tombstones for this key (soft-delete rows on cloud)
+      const tks=tombs[key];
+      if(def.kind==="array"&&tks&&tks.length){
+        for(const t of tks){
+          const {error:e2}=await client.from(def.table).update({deleted_at:t.deleted_at}).eq("id",t.id);
+          if(e2)throw e2;
+        }
+        delete tombs[key];
+        writeTombs(tombs);
+      }
     }
     // settings
     const {error:se}=await client.from("settings").upsert({user_id:session.user.id,data:collectSettings()},{onConflict:"user_id"});
@@ -5358,6 +5386,7 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
 
   window.ctSync={
     init,syncOnce,markAllDirty,
+    tombstone:addTomb,untombstone:delTomb,
     userEmail:()=>session&&session.user&&session.user.email||null,
     openAuth:()=>{localStorage.removeItem("ct7-cloud-skip");renderOverlay()},
     signOut:async()=>{const c=ensureClient();if(!c)return;await c.auth.signOut();session=null;localStorage.removeItem("ct7-sync-migrated");localStorage.removeItem("ct7-cloud-skip");location.reload()}
