@@ -1,5 +1,5 @@
 // Bump this on every deploy so old caches get purged and clients pick up new code.
-const CACHE_NAME='cardtrack-v202609101133';
+const CACHE_NAME='cardtrack-v202609101306';
 const APP_SHELL=['./','./index.html'];
 
 self.addEventListener('install',function(e){
@@ -7,7 +7,8 @@ self.addEventListener('install',function(e){
     var c=await caches.open(CACHE_NAME);
     await Promise.all(APP_SHELL.map(function(u){return c.add(u).catch(function(){})}));
   })());
-  self.skipWaiting();
+  // Do NOT call self.skipWaiting() here — keep the new SW "waiting" so the user
+  // can dismiss/tap the update toast before the page auto-reloads.
 });
 
 self.addEventListener('activate',function(e){
