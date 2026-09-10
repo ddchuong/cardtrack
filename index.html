@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609101306';</script>
+<script>window.CT_BUILD='v202609101726';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -5432,6 +5432,7 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       }catch(e){setStatus("error:"+((e&&e.message)||e));log("mig err",e);return}
     }
     autoSync();
+    try{window.ctRef&&window.ctRef.autoSync()}catch(e){log("ref autoSync err",e)}
     try{window.render&&render()}catch{}
   }
 
@@ -5541,6 +5542,58 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     userEmail:()=>session&&session.user&&session.user.email||null,
     openAuth:()=>{localStorage.removeItem("ct7-cloud-skip");renderOverlay()},
     signOut:async()=>{const c=ensureClient();if(!c)return;await c.auth.signOut();session=null;localStorage.removeItem("ct7-sync-migrated");localStorage.removeItem("ct7-cloud-skip");location.reload()}
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  // ctRef — Reference-data module (Phase 7)
+  // Pulls shared ref_cards / ref_shops / ref_card_mcc_rates from Supabase.
+  // Read-only for regular users. Weekly refresh (7 days). Cached in localStorage.
+  // Getters fall back to hardcoded seeds when cache is empty (offline / first load).
+  // ══════════════════════════════════════════════════════════════
+  const REF_KEYS={cards:"ct7-ref-cards",shops:"ct7-ref-shops",rates:"ct7-ref-rates",last:"ct7-ref-last"};
+  function refLog(){try{console.log.apply(console,["[ctRef]"].concat([].slice.call(arguments)))}catch{}}
+  function refRead(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch{return null}}
+  function refWrite(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+
+  async function refPull(){
+    const c=ensureClient();if(!c||!session){refLog("skip: no session");return false}
+    if(!navigator.onLine){refLog("skip: offline");return false}
+    try{
+      const [rc,rs,rr]=await Promise.all([
+        c.from("ref_cards").select("*"),
+        c.from("ref_shops").select("*"),
+        c.from("ref_card_mcc_rates").select("*")
+      ]);
+      if(rc.error){refLog("err cards",rc.error);return false}
+      if(rs.error){refLog("err shops",rs.error);return false}
+      if(rr.error){refLog("err rates",rr.error);return false}
+      refWrite(REF_KEYS.cards,rc.data||[]);
+      refWrite(REF_KEYS.shops,rs.data||[]);
+      refWrite(REF_KEYS.rates,rr.data||[]);
+      localStorage.setItem(REF_KEYS.last,new Date().toISOString());
+      refLog("pulled",(rc.data||[]).length,"cards,",(rs.data||[]).length,"shops,",(rr.data||[]).length,"rates");
+      try{window.dispatchEvent(new CustomEvent("ct7-ref-change"))}catch{}
+      return true;
+    }catch(e){refLog("err",e);return false}
+  }
+
+  function refAutoSync(){
+    const last=localStorage.getItem(REF_KEYS.last);
+    const days=last?(Date.now()-new Date(last).getTime())/86400000:999;
+    if(days>=7||!last){refLog("auto refresh (>=7d or first run)");setTimeout(()=>refPull(),3000)}
+    else refLog("skip auto refresh; last was",Math.floor(days),"days ago");
+  }
+
+  window.ctRef={
+    getCards:()=>refRead(REF_KEYS.cards)||[],
+    getShops:()=>refRead(REF_KEYS.shops)||[],
+    getRates:()=>refRead(REF_KEYS.rates)||[],
+    ratesFor:(cardId)=>{const r=refRead(REF_KEYS.rates)||[];return r.filter(x=>x.card_id===cardId)},
+    cardsForMcc:(mcc)=>{const r=refRead(REF_KEYS.rates)||[];return r.filter(x=>x.mcc===mcc).sort((a,b)=>(b.rate_pct||0)-(a.rate_pct||0))},
+    shopByName:(name)=>{const s=refRead(REF_KEYS.shops)||[];const n=String(name||"").toLowerCase();return s.find(x=>x.name.toLowerCase()===n||(x.aliases||[]).some(a=>a.toLowerCase()===n))},
+    lastSync:()=>localStorage.getItem(REF_KEYS.last),
+    syncNow:refPull,
+    autoSync:refAutoSync
   };
 })();
 
