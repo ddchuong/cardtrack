@@ -5841,8 +5841,15 @@ function pwaInstall() {
         // Prompt reload when a new SW is installed and waiting.
         function promptUpdate(w){
           try{
-            if(window.showToastUndo){
-              window.showToastUndo("🔄 Có bản mới — tải lại?", ()=>{ try{w.postMessage({type:'SKIP_WAITING'})}catch{} });
+            // Build a dedicated update toast (label "Tải lại" instead of default "Hoàn tác")
+            let t=document.querySelector("#ct-update-toast");
+            if(!t){
+              t=document.createElement("div");
+              t.id="ct-update-toast";
+              t.style.cssText="position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:99999;font-size:14px;max-width:calc(100vw - 32px)";
+              t.innerHTML='<span>🔄 Có bản mới</span><button style="background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Tải lại</button>';
+              document.body.appendChild(t);
+              t.querySelector("button").onclick=()=>{ try{w.postMessage({type:'SKIP_WAITING'})}catch{} };
             }
           }catch{}
         }
