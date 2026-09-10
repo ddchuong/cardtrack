@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609101129';</script>
+<script>window.CT_BUILD='v202609101133';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -5840,20 +5840,8 @@ function pwaInstall() {
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('./sw.js').then((reg) => {
         // Prompt reload when a new SW is installed and waiting.
-        function promptUpdate(w){
-          try{
-            // Build a dedicated update toast (label "Tải lại" instead of default "Hoàn tác")
-            let t=document.querySelector("#ct-update-toast");
-            if(!t){
-              t=document.createElement("div");
-              t.id="ct-update-toast";
-              t.style.cssText="position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:99999;font-size:14px;max-width:calc(100vw - 32px)";
-              t.innerHTML='<span>🔄 Có bản mới</span><button style="background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Tải lại</button>';
-              document.body.appendChild(t);
-              t.querySelector("button").onclick=()=>{ try{w.postMessage({type:'SKIP_WAITING'})}catch{} };
-            }
-          }catch{}
-        }
+        // SW-detected updates: just delegate to the network-check path (single unified toast).
+        function promptUpdate(){ try{checkVersionFromNetwork()}catch{} }
         if(reg.waiting) promptUpdate(reg.waiting);
         reg.addEventListener('updatefound', () => {
           const nw = reg.installing;
@@ -5878,13 +5866,23 @@ function pwaInstall() {
             const m = txt.match(/CACHE_NAME\s*=\s*['"]cardtrack-(v[^'"]+)['"]/);
             if(m && m[1] !== cur){
               // A newer build is live on the server. Show toast; tap = hard reload past cache.
+              // Always ensure the toast exists (survives DOM wipes / re-renders / iOS PWA lifecycle).
               let t=document.querySelector("#ct-update-toast");
               if(!t){
                 t=document.createElement("div");
                 t.id="ct-update-toast";
-                t.style.cssText="position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:99999;font-size:14px;max-width:calc(100vw - 32px)";
-                t.innerHTML='<span>🔄 Có bản mới</span><button style="background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Tải lại</button>';
+                t.setAttribute("data-persistent","1");
+                t.style.cssText="position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:2147483647;font-size:14px;max-width:calc(100vw - 32px);pointer-events:auto";
+                t.innerHTML='<span>🔄 Có bản mới</span><button data-act="reload" style="background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Tải lại</button><button data-act="close" style="background:transparent;color:#94a3b8;border:0;padding:4px 8px;font-size:18px;cursor:pointer;line-height:1">×</button>';
                 document.body.appendChild(t);
+                // Watchdog: if something removes our toast div, re-add it once per second while a new version is live.
+                if(!window.__ctUpdateWatch){
+                  window.__ctUpdateWatch=setInterval(()=>{
+                    if(window.__ctUpdateDismissed) return;
+                    if(!document.querySelector("#ct-update-toast")) document.body.appendChild(t);
+                  },1000);
+                }
+                t.querySelector('[data-act="close"]').onclick=()=>{ window.__ctUpdateDismissed=true; t.remove(); };
                 t.querySelector("button").onclick=async()=>{
                   try{
                     // Unregister current SW + purge caches to force a fresh HTML on reload.
