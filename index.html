@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
+<script>window.CT_BUILD='v202609101129';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -5863,8 +5864,43 @@ function pwaInstall() {
         });
         // Force check on tab visible (in case iOS backgrounded and cached).
         document.addEventListener('visibilitychange', () => {
-          if(document.visibilityState==='visible') { try{reg.update()}catch{} }
+          if(document.visibilityState==='visible') { try{reg.update()}catch{}; checkVersionFromNetwork(); }
         });
+        // Version-check fallback: iOS PWA sometimes never fires updatefound.
+        // Fetch sw.js directly, parse CACHE_NAME, compare to build stamp baked into this HTML.
+        async function checkVersionFromNetwork(){
+          try{
+            const cur = window.CT_BUILD || '';
+            if(!cur || cur==='__CT_BUILD__') return; // build stamp not injected — skip
+            const res = await fetch('./sw.js?t='+Date.now(), {cache:'no-store'});
+            if(!res.ok) return;
+            const txt = await res.text();
+            const m = txt.match(/CACHE_NAME\s*=\s*['"]cardtrack-(v[^'"]+)['"]/);
+            if(m && m[1] !== cur){
+              // A newer build is live on the server. Show toast; tap = hard reload past cache.
+              let t=document.querySelector("#ct-update-toast");
+              if(!t){
+                t=document.createElement("div");
+                t.id="ct-update-toast";
+                t.style.cssText="position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:99999;font-size:14px;max-width:calc(100vw - 32px)";
+                t.innerHTML='<span>🔄 Có bản mới</span><button style="background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Tải lại</button>';
+                document.body.appendChild(t);
+                t.querySelector("button").onclick=async()=>{
+                  try{
+                    // Unregister current SW + purge caches to force a fresh HTML on reload.
+                    const regs=await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(r=>r.unregister()));
+                    const keys=await caches.keys();
+                    await Promise.all(keys.map(k=>caches.delete(k)));
+                  }catch{}
+                  location.reload();
+                };
+              }
+            }
+          }catch{}
+        }
+        // Kick a version check shortly after boot too.
+        setTimeout(checkVersionFromNetwork, 3000);
         // New SW took over — reload once to get latest UI.
         let _reloaded=false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
