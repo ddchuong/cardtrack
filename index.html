@@ -5251,15 +5251,11 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       starts_on:x.start||null,ends_on:x.end||null,categories:Array.isArray(x.categories)?x.categories:[],
       description:x.note||x.desc||null,deleted_at:null,extra:x
     }),fromRow:r=>({...(r.extra||{}),id:r.id,cardId:r.card_id,title:r.title,start:r.starts_on,end:r.ends_on,note:r.description})},
-    "ct7-budgets":{table:"budgets",kind:"map",toRow:(cat,amt)=>({
-      id:"cat:"+cat,category:cat,amount:Number(amt)||0,period:"monthly",extra:{}
-    }),applyRows:rows=>{const m={};rows.forEach(r=>{if(!r.deleted_at)m[r.category]=Number(r.amount)});return m}},
-    "ct7-points":{table:"points_config",kind:"map",toRow:(cardId,cfg)=>({
-      id:"card:"+cardId,card_id:cardId,category:null,rate:null,cap:null,extra:cfg||{}
-    }),applyRows:rows=>{const m={};rows.forEach(r=>{if(!r.deleted_at)m[r.card_id]=r.extra||{}});return m}},
-    "ct7-cardmeta":{table:"card_meta",kind:"map",toRow:(cardId,meta)=>({
-      id:cardId,card_id:cardId,data:meta||{}
-    }),applyRows:rows=>{const m={};rows.forEach(r=>{if(!r.deleted_at)m[r.card_id]=r.data||{}});return m}}
+    // Note: ct7-budgets, ct7-points, ct7-cardmeta intentionally NOT here.
+    // They flow into settings.data blob — delete-of-a-key Just Works because settings
+    // is upserted wholesale each sync. Dedicated tables (budgets/points_config/card_meta)
+    // stay in schema for a future migration if we ever want per-row queries, but for now
+    // they'll be empty. This closes the "map-type resurrect on delete" gap from Phase 6.
   };
   // Ephemeral/UI keys never synced
   const SKIP_KEYS=new Set(["ct7-sync-last","ct7-sync-status","ct7-sync-dirty","ct7-sync-migrated","ct7-cloud-skip","ct7-lasttab","ct7-tombstones"]);
@@ -5841,7 +5837,34 @@ function pwaInstall() {
     // bị Chromium từ chối cho SW script — xem cảnh báo mục 3). Cần Opus deploy file tĩnh thật
     // "sw.js" ở gốc repo (nội dung: pwaServiceWorkerSource()).
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-      navigator.serviceWorker.register('./sw.js').catch((e) => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        // Prompt reload when a new SW is installed and waiting.
+        function promptUpdate(w){
+          try{
+            if(window.showToastUndo){
+              window.showToastUndo("🔄 Có bản mới — tải lại?", ()=>{ try{w.postMessage({type:'SKIP_WAITING'})}catch{} });
+            }
+          }catch{}
+        }
+        if(reg.waiting) promptUpdate(reg.waiting);
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if(!nw) return;
+          nw.addEventListener('statechange', () => {
+            if(nw.state==='installed' && navigator.serviceWorker.controller) promptUpdate(nw);
+          });
+        });
+        // Force check on tab visible (in case iOS backgrounded and cached).
+        document.addEventListener('visibilitychange', () => {
+          if(document.visibilityState==='visible') { try{reg.update()}catch{} }
+        });
+        // New SW took over — reload once to get latest UI.
+        let _reloaded=false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if(_reloaded)return; _reloaded=true;
+          setTimeout(()=>location.reload(), 100);
+        });
+      }).catch((e) => {
         console.warn('pwaInstall: SW register lỗi (bình thường nếu sw.js chưa deploy ở gốc repo):', e);
       });
     }
