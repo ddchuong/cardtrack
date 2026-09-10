@@ -3247,6 +3247,30 @@ function advRenderShopList(el){
     sel.forEach(cid=>{const r=renderShopRec(cid,catOf(cid),true,cid===bestId,s.shop);if(r)se.appendChild(r)});
     if(oth.length&&sel.length)se.appendChild(h("div",{className:"shop-sub-divider"},"Thẻ khác · chạm để chọn"));
     oth.forEach(cid=>{const r=renderShopRec(cid,catOf(cid),false,false,s.shop);if(r)se.appendChild(r)});
+    // MCC-based suggestion from cloud ref data (additive, backward-compat)
+    try{
+      const cr=window.ctRef;
+      if(cr && cr.getRates().length>0){
+        const rs=cr.shopByName(s.shop);
+        if(rs && rs.mcc){
+          const top=cr.cardsForMcc(rs.mcc).slice(0,3);
+          if(top.length){
+            const allCards=cr.getCards();
+            const mc=h("div",{className:"shop-sub-divider",style:{marginTop:"8px"}},"🌐 Gợi ý theo MCC (cloud)");
+            se.appendChild(mc);
+            se.appendChild(h("div",{className:"hint",style:{padding:"2px 8px",fontSize:"11px"}},
+              "MCC "+rs.mcc+(rs.mcc_name?" · "+rs.mcc_name:"")));
+            top.forEach(rt=>{
+              const cinfo=allCards.find(c=>c.id===rt.card_id);
+              const nm=cinfo?cinfo.name:rt.card_id;
+              const cap=rt.cap_amount?(" · trần "+fmtK(rt.cap_amount)):"";
+              se.appendChild(h("div",{className:"hint",style:{padding:"2px 8px"}},
+                "· "+nm+" — "+fmtRate(rt.rate_pct/100)+cap));
+            });
+          }
+        }
+      }
+    }catch(e){}
     el.appendChild(se);
   });
   if(filtered.length>shown.length)el.appendChild(h("p",{className:"adv-cut"},`Đang hiện ${shown.length}/${filtered.length} shop — gõ cụ thể hơn để thu hẹp.`));
@@ -5191,7 +5215,31 @@ function renderSheet(app) {
   sh.appendChild(stSection("data", "Dữ liệu & sao lưu", "export / import / CSV", stDataBody));
   sh.appendChild(stSection("cloud", "☁️ Đồng bộ đám mây",
     (window.ctSync && ctSync.userEmail()) ? ctSync.userEmail() : "chưa đăng nhập", stCloudBody));
+  {
+    const r=window.ctRef;
+    const nCards=r?r.getCards().length:0, nShops=r?r.getShops().length:0, nRates=r?r.getRates().length:0;
+    sh.appendChild(stSection("refdata", "☁️ Dữ liệu tham chiếu",
+      nCards+" thẻ · "+nShops+" shops · "+nRates+" rates", stRefBody));
+  }
   app.appendChild(sh);
+}
+
+function stRefBody(){
+  const w=h("div",{className:"st-body"});
+  const r=window.ctRef;
+  if(!r){w.appendChild(h("p",{className:"hint"},"Đang tải module dữ liệu tham chiếu…"));return w;}
+  const nCards=r.getCards().length, nShops=r.getShops().length, nRates=r.getRates().length;
+  w.appendChild(h("p",{className:"hint"},nCards+" thẻ · "+nShops+" shops · "+nRates+" rates (cache localStorage)"));
+  const last=r.lastSync();
+  w.appendChild(h("p",{className:"hint"},"Lần đồng bộ cuối: "+(last?ctRelTime(last):"chưa bao giờ")));
+  w.appendChild(h("div",{className:"st-btn-row"},
+    h("button",{className:"st-btn",onClick:async()=>{
+      try{const ok=await r.syncNow();showToast(ok?"✓ Đã đồng bộ dữ liệu tham chiếu":"⚠ Không đồng bộ được (cần đăng nhập / mạng)");render();}
+      catch(e){showToast("⚠ Lỗi đồng bộ")}
+    }},"🔄 Đồng bộ ngay")));
+  w.appendChild(h("p",{className:"hint",style:{marginTop:"var(--s3)"}},
+    "Data thẻ/shop/cashback rate từ Supabase — sync tự động mỗi 7 ngày. Admin cập nhật qua dashboard."));
+  return w;
 }
 
 function stCloudBody(){
