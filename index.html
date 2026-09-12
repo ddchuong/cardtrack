@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609121522';</script>
+<script>window.CT_BUILD='v202609121530';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2250,8 +2250,20 @@ function renderFab(){
 
 // ═══ SELECT TAB ═══
 // Bank-key resolver shared by select-tab grouping
+// Map short bank code (from cloud ref_cards.bank) → display name shown in card groups.
+// New bank added on Supabase? Just insert here (or leave — will fall through to raw code).
+const BANK_DISPLAY = {
+  BIDV:"BIDV", SHB:"SHB", CIMB:"CIMB", HDB:"HDBank", HSBC:"HSBC",
+  LPB:"LPBank", MB:"MB Bank", MSB:"MSB", Sacom:"Sacombank",
+  Seabank:"SeaBank", Shinhan:"Shinhan", TCB:"Techcombank",
+  VIB:"VIB", UOB:"UOB", VPB:"VPBank", Vikki:"Vikki"
+};
 function bankKeyOf(card){
-  const id=card.id;
+  if(!card)return"Khác";
+  // Preferred: cloud bank field (source of truth for cards seeded from Supabase)
+  if(card.bank){return BANK_DISPLAY[card.bank] || card.bank;}
+  // Fallback: id-prefix (for legacy cards without bank field, or txns referencing orphan ids)
+  const id=card.id||"";
   if(id.startsWith("bidv"))return"BIDV";
   if(id.startsWith("shb"))return"SHB";
   if(id.startsWith("cimb"))return"CIMB";
@@ -2265,6 +2277,8 @@ function bankKeyOf(card){
   if(id.startsWith("shinhan"))return"Shinhan";
   if(id.startsWith("tcb"))return"Techcombank";
   if(id.startsWith("vib"))return"VIB";if(id.startsWith("uob"))return"UOB";
+  if(id.startsWith("vpb"))return"VPBank";
+  if(id.startsWith("vikki"))return"Vikki";
   return"Khác";
 }
 // Build the bank-grouped card list (filtered by state.cardSearch) into `el`.
