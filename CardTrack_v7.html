@@ -995,6 +995,7 @@ let ALL_CARDS=[
     cashbackCategories:[],minSpend:0,note:"Không có cashback (tích dặm) — chỉ theo dõi phí thường niên.",
     annualFee:3000000,afNext:"2027-06",afWaive:"60tr/năm"}
 ];
+window.ALL_CARDS = ALL_CARDS; // expose so ctRef.mergeCloudCards can mutate the array
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 const SHOP_SUGGESTIONS={
