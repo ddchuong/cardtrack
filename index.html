@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609121725';</script>
+<script>window.CT_BUILD='v202609122218';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -1969,6 +1969,9 @@ let state={
   cbPost:load("ct7-cbpost",{}),
   // ── 4.5 · trả góp: [{id,cardId,shop,category,total,months,startDate,note}] ──
   installments:load("ct7-ins",[]),
+  // ── 4.14 · tài sản (savings/gold/fund) ──
+  assets:load("ct7-assets",[]),
+  assetSubTab:"savings",assetDetailId:null,assetAddType:null,
   // ── 4.8 · chi tiêu định kỳ: [{id,cardId,shop,category,amount,day,active}] ──
   recurring:load("ct7-rec",[]),
   // ── 4.9 · phí ngoại tệ do user nhập: {cardId:pct} (0.03 = 3%) ──
@@ -2028,6 +2031,7 @@ function rehydrateState(){
   state.cardMeta=load("ct7-cardmeta",{});
   state.promos=load("ct7-promos",[]);
   state.catOverride=load("ct7-catoverride",{});
+  state.assets=load("ct7-assets",[]);
 }
 window.rehydrateState=rehydrateState;
 function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-txn-archive",state.txnArchive);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend);save("ct7-membertier",state.memberTier);save("ct7-cbactual",state.cbActual);save("ct7-stmts",state.stmts);save("ct7-limits",state.limits);save("ct7-onboarded",state.onboarded);
@@ -2035,6 +2039,7 @@ function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.t
   save("ct7-fxfees",state.fxFees);save("ct7-budgets",state.budgets);save("ct7-points",state.pointRates);
   save("ct7-cardmeta",state.cardMeta);save("ct7-promos",state.promos);
   save("ct7-catoverride",state.catOverride||{});
+  save("ct7-assets",state.assets||[]);
   try{if(window.ctSync)ctSync.markAllDirty()}catch(e){}}
 // Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
 function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
@@ -2129,7 +2134,20 @@ function getAutoEvents(){
     const diff=daysUntilDue(c),dueKey=c.id+"|"+toLocalDateStr(due);
     if((state.paidDues||[]).includes(dueKey))return;
     if(diff>=0&&diff<=14)evts.push({id:"auto-"+c.id,isAuto:true,dueKey,date:toLocalDateStr(due),title:`Đến hạn: ${c.name} ${c.cardNum||"****"+c.last4}`,sub:`Thanh toán trước ${due.getDate()}/${due.getMonth()+1}`,cardId:c.id,cardColor:c.color,diff});
-  });return evts;
+  });
+  // ── 4.14: nhắc đáo hạn Sổ TK (savings) ──
+  (state.assets||[]).forEach(a=>{
+    if(a.type!=="savings"||!a.maturity_date)return;
+    const md=parseLocalDate(a.maturity_date);if(!md||isNaN(md))return;
+    const d=Math.ceil((md-now)/864e5);
+    if(d<0||d>14)return;
+    const exp=assetExpectedAmount(a);
+    evts.push({id:"assetmat-"+a.id,isAuto:true,date:a.maturity_date,
+      title:"Đáo hạn: "+(a.name||"Sổ TK"),
+      sub:(a.provider?a.provider+" — ":"")+money(exp||a.amount||0),
+      diff:d,isAssetMat:true,assetId:a.id});
+  });
+  return evts;
 }
 function urgentCount(){const now=new Date();return[...getAutoEvents(),...state.events.map(e=>({...e,diff:Math.ceil((parseLocalDate(e.date)-now)/864e5)}))].filter(e=>e.diff>=0&&e.diff<=3).length}
 // Light haptic feedback on iPhone (no-op where unsupported)
@@ -2173,6 +2191,196 @@ function editTxn(id){const tx=state.transactions.find(t=>t.id===id);if(!tx)retur
 function dupTxn(id){const tx=state.transactions.find(t=>t.id===id);if(!tx)return;
   state.transactions.unshift({id:newTxnId(),cardId:tx.cardId,shop:tx.shop,amount:tx.amount,category:tx.category,date:toLocalDateStr(new Date())});
   persist();buzz(12);showToast(`✓ Nhân bản ${fmtK(tx.amount)}₫ (hôm nay)`);render();}
+
+// ═══ ASSETS (4.14) ═══
+const USD_VND=25000;
+function assetFxToVND(v,ccy){if(v==null)return 0;return (ccy==="USD"?v*USD_VND:v)||0}
+function assetExpectedAmount(a){
+  if(a.type!=="savings")return 0;
+  const amt=+a.amount||0,rate=(+a.rate_pct||0)/100;
+  if(!a.open_date||!a.maturity_date)return amt;
+  const od=parseLocalDate(a.open_date),md=parseLocalDate(a.maturity_date);
+  if(!od||!md||isNaN(od)||isNaN(md))return amt;
+  const days=Math.max(0,(md-od)/864e5);
+  return amt+amt*rate*days/365;
+}
+function assetCurrentValueVND(a){
+  if(a.type==="savings"){
+    const now=new Date(),od=a.open_date?parseLocalDate(a.open_date):null,md=a.maturity_date?parseLocalDate(a.maturity_date):null;
+    const amt=+a.amount||0,rate=(+a.rate_pct||0)/100;
+    let earned=0;
+    if(od&&!isNaN(od)){const upto=(md&&now>md)?md:now;const days=Math.max(0,(upto-od)/864e5);earned=amt*rate*days/365;}
+    return assetFxToVND(amt+earned,a.currency);
+  }
+  const qty=+a.qty||0,cur=+a.current_price||0;
+  return assetFxToVND(qty*cur,a.currency);
+}
+function assetPurchaseCostVND(a){
+  if(a.type==="savings")return assetFxToVND(+a.amount||0,a.currency);
+  const qty=+a.qty||0,pp=+a.purchase_price||0;
+  return assetFxToVND(qty*pp,a.currency);
+}
+function assetPL(a){return assetCurrentValueVND(a)-assetPurchaseCostVND(a)}
+function assetDaysToMaturity(a){
+  if(a.type!=="savings"||!a.maturity_date)return null;
+  const md=parseLocalDate(a.maturity_date);if(!md||isNaN(md))return null;
+  return Math.ceil((md-new Date())/864e5);
+}
+const ASSET_TYPE_LABEL={savings:"Sổ TK",fund:"CCQ",gold:"Vàng"};
+const ASSET_TYPE_ICON={savings:"🏦",fund:"📈",gold:"🥇"};
+
+function renderAssetsTab(){
+  const w=h("div",null);
+  // Detail modal (edit)
+  if(state.assetDetailId){
+    const a=(state.assets||[]).find(x=>x.id===state.assetDetailId);
+    if(a)return renderAssetForm(a,a.type);
+    state.assetDetailId=null;
+  }
+  if(state.assetAddType){
+    return renderAssetForm(null,state.assetAddType);
+  }
+  const assets=state.assets||[];
+  const totalVND=assets.reduce((s,a)=>s+assetCurrentValueVND(a),0);
+  const totalCost=assets.reduce((s,a)=>s+assetPurchaseCostVND(a),0);
+  const pl=totalVND-totalCost;
+  const plPct=totalCost>0?(pl/totalCost*100):0;
+  const plColor=pl>=0?"var(--green)":"var(--warn)";
+  w.appendChild(h("div",{className:"hero"},
+    h("div",{className:"hero-lbl"},"Tổng tài sản"),
+    h("div",{className:"hero-num"},fmt(totalVND)+NBSP+"₫"),
+    h("div",{className:"hero-pot",style:{color:plColor}},
+      (pl>=0?"+":"")+fmtK(pl)+"₫ ("+(pl>=0?"+":"")+plPct.toFixed(1)+"%)"),
+    h("div",{className:"hero-foot"},h("span",null,h("b",null,assets.length)," tài sản"))));
+  // Segment
+  const seg=h("div",{className:"seg"});
+  [["savings","🏦 Sổ TK"],["fund","📈 CCQ"],["gold","🥇 Vàng"]].forEach(([k,l])=>
+    seg.appendChild(h("button",{className:"seg-btn"+(state.assetSubTab===k?" on":""),
+      onClick:()=>setState({assetSubTab:k})},l)));
+  w.appendChild(seg);
+  const sub=state.assetSubTab||"savings";
+  const filt=assets.filter(a=>a.type===sub);
+  const subVND=filt.reduce((s,a)=>s+assetCurrentValueVND(a),0);
+  w.appendChild(h("div",{className:"ev-section"},
+    ASSET_TYPE_ICON[sub]+" "+ASSET_TYPE_LABEL[sub]+" — "+fmt(subVND)+NBSP+"₫"));
+  if(!filt.length){
+    w.appendChild(h("p",{className:"hint",style:{padding:"12px"}},
+      "// chưa có "+ASSET_TYPE_LABEL[sub].toLowerCase()+" nào — bấm nút bên dưới để thêm"));
+  }else{
+    filt.forEach(a=>w.appendChild(renderAssetRow(a)));
+  }
+  // Add button
+  const addBtn=h("button",{className:"ics-btn",style:{marginTop:"16px",width:"100%"},
+    onClick:()=>{buzz(8);setState({assetAddType:sub})}},"+ Thêm "+ASSET_TYPE_LABEL[sub]);
+  w.appendChild(h("div",{style:{padding:"0 12px 20px"}},addBtn));
+  return w;
+}
+
+function renderAssetRow(a){
+  let right="",subline="";
+  if(a.type==="savings"){
+    const days=assetDaysToMaturity(a);
+    const exp=assetExpectedAmount(a);
+    subline=(a.provider?a.provider+" · ":"")+(a.rate_pct?a.rate_pct+"%":"—")
+      +(a.maturity_date?" · đáo hạn "+fmtDateVi(a.maturity_date)+(days!=null?" (còn "+days+"d)":""):"");
+    right=money(assetFxToVND(exp,a.currency));
+  }else if(a.type==="gold"){
+    const pl=assetPL(a),cost=assetPurchaseCostVND(a);
+    const pct=cost>0?(pl/cost*100):0;
+    subline=(a.qty||0)+" "+(a.unit||"chỉ")
+      +(a.purchase_price?" · mua "+fmtK(a.purchase_price)+"₫":"")
+      +(a.current_price?" → "+fmtK(a.current_price)+"₫":"");
+    right=(pl>=0?"+":"")+fmtK(pl)+"₫ ("+(pl>=0?"+":"")+pct.toFixed(1)+"%)";
+  }else if(a.type==="fund"){
+    const pl=assetPL(a),cost=assetPurchaseCostVND(a);
+    const pct=cost>0?(pl/cost*100):0;
+    subline=(a.provider?a.provider+" · ":"")+(a.qty||0)+" CCQ"
+      +(a.current_price?" @NAV "+fmtK(a.current_price):"");
+    right=money(assetCurrentValueVND(a))+" ("+(pl>=0?"+":"")+pct.toFixed(1)+"%)";
+  }
+  const plColor=(a.type!=="savings"&&assetPL(a)<0)?"var(--warn)":"var(--green)";
+  return h("div",{className:"ev-card",style:{cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px",padding:"12px",marginBottom:"8px",background:"var(--card-bg)",borderRadius:"10px",border:"1px solid var(--line)"},
+    onClick:()=>{buzz(6);setState({assetDetailId:a.id})}},
+    h("div",{style:{flex:"1",minWidth:0}},
+      h("div",{style:{fontWeight:"700",fontSize:"15px",color:"var(--text)"}},a.name||"(chưa tên)"),
+      h("div",{style:{fontSize:"12px",color:"var(--text2)",marginTop:"2px"}},subline)),
+    h("div",{style:{fontWeight:"700",fontSize:"14px",color:plColor,textAlign:"right",whiteSpace:"nowrap"}},right));
+}
+
+function renderAssetForm(item,type){
+  const isEdit=!!item;
+  const a=item?{...item}:{id:null,type,name:"",provider:"",note:"",currency:"VND",open_date:toLocalDateStr(new Date())};
+  if(!a.type)a.type=type;
+  if(type==="gold"&&!a.unit)a.unit="chỉ";
+  if(type==="savings"&&!a.interest_type)a.interest_type="Cuối kỳ";
+  const w=h("div",{style:{padding:"12px"}});
+  w.appendChild(h("div",{style:{display:"flex",alignItems:"center",gap:"8px",marginBottom:"16px"}},
+    h("button",{className:"seg-btn",style:{flex:"0 0 auto",padding:"8px 14px",background:"var(--bg3)"},
+      onClick:()=>setState({assetAddType:null,assetDetailId:null})},"← Quay lại"),
+    h("h2",{style:{margin:0,fontSize:"18px"}},(isEdit?"Sửa ":"Thêm ")+ASSET_TYPE_ICON[type]+" "+ASSET_TYPE_LABEL[type])));
+  const inpStyle={width:"100%",padding:"10px",fontSize:"15px",borderRadius:"8px",border:"1px solid var(--line)",background:"var(--bg2)",color:"var(--text)",fontFamily:"inherit",boxSizing:"border-box"};
+  const lblStyle={display:"block",fontSize:"12px",color:"var(--text2)",marginBottom:"4px",marginTop:"12px",fontWeight:"600"};
+  function fld(label,key,opts){
+    opts=opts||{};
+    w.appendChild(h("label",{style:lblStyle},label));
+    if(opts.select){
+      const sel=h("select",{style:inpStyle,onChange:e=>a[key]=e.target.value},
+        ...opts.select.map(o=>{const op=h("option",{value:o.v},o.l);if(a[key]===o.v)op.selected=true;return op}));
+      w.appendChild(sel);
+    }else{
+      const inp=h("input",{type:opts.type||"text",style:inpStyle,value:a[key]!=null?a[key]:"",placeholder:opts.ph||"",
+        onInput:e=>{a[key]=opts.type==="number"?(e.target.value===""?null:+e.target.value):e.target.value}});
+      w.appendChild(inp);
+    }
+  }
+  fld("Tên","name",{ph:type==="savings"?"VD: Sổ VCB 6M":type==="gold"?"VD: Vàng SJC":"VD: VESAF"});
+  if(type==="fund"){fld("Tên quỹ","provider",{ph:"VD: VinaCapital VESAF"});}
+  else{fld("Nhà cung cấp","provider",{ph:type==="savings"?"VD: Vietcombank":"VD: SJC"});}
+  fld("Loại tiền","currency",{select:[{v:"VND",l:"VND (₫)"},{v:"USD",l:"USD ($)"}]});
+  fld("Ngày mở/mua","open_date",{type:"date"});
+  if(type==="savings"){
+    fld("Số tiền gốc","amount",{type:"number",ph:"500000000"});
+    fld("Lãi suất (%/năm)","rate_pct",{type:"number",ph:"6.5"});
+    fld("Ngày đáo hạn","maturity_date",{type:"date"});
+    fld("Kiểu trả lãi","interest_type",{select:[{v:"Cuối kỳ",l:"Cuối kỳ"},{v:"Hàng tháng",l:"Hàng tháng"}]});
+  }else if(type==="gold"){
+    fld("Số lượng","qty",{type:"number",ph:"1"});
+    fld("Đơn vị","unit",{select:[{v:"chỉ",l:"chỉ"},{v:"lượng",l:"lượng"}]});
+    fld("Giá mua (mỗi "+(a.unit||"chỉ")+")","purchase_price",{type:"number",ph:"7500000"});
+    fld("Giá hiện tại (mỗi "+(a.unit||"chỉ")+")","current_price",{type:"number",ph:"7900000"});
+  }else if(type==="fund"){
+    fld("Số CCQ","qty",{type:"number",ph:"1000"});
+    fld("NAV mua","purchase_price",{type:"number",ph:"22800"});
+    fld("NAV hiện tại","current_price",{type:"number",ph:"24500"});
+  }
+  fld("Ghi chú","note",{ph:"tuỳ chọn"});
+  const btnRow=h("div",{style:{display:"flex",gap:"8px",marginTop:"20px"}});
+  btnRow.appendChild(h("button",{style:{flex:"1",padding:"12px",fontSize:"15px",fontWeight:"700",background:"var(--accent)",color:"#fff",border:"none",borderRadius:"8px",cursor:"pointer"},
+    onClick:()=>{
+      if(!a.name){showToast("⚠️ Cần nhập tên");return}
+      if(isEdit){
+        const i=state.assets.findIndex(x=>x.id===a.id);
+        if(i>=0)state.assets[i]={...a};
+      }else{
+        a.id=crypto.randomUUID();
+        state.assets=[...(state.assets||[]),a];
+      }
+      buzz(12);showToast(isEdit?"✓ Đã cập nhật":"✓ Đã thêm");
+      setState({assetAddType:null,assetDetailId:null});
+    }},isEdit?"💾 Lưu":"➕ Thêm"));
+  if(isEdit){
+    btnRow.appendChild(h("button",{style:{flex:"0 0 auto",padding:"12px 16px",fontSize:"15px",fontWeight:"700",background:"transparent",color:"var(--warn)",border:"1px solid var(--warn)",borderRadius:"8px",cursor:"pointer"},
+      onClick:()=>{
+        if(!confirm("Xoá tài sản này?"))return;
+        state.assets=state.assets.filter(x=>x.id!==a.id);
+        try{window.ctSync&&ctSync.tombstone("ct7-assets",a.id)}catch{}
+        buzz(14);showToast("✓ Đã xoá");
+        setState({assetAddType:null,assetDetailId:null});
+      }},"🗑 Xoá"));
+  }
+  w.appendChild(btnRow);
+  return w;
+}
 
 // ═══ RENDER ENGINE ═══
 function h(tag,attrs,...ch){
@@ -2219,6 +2427,7 @@ function render(){
     case"advice":content.appendChild(renderAdviceTab());break;
     case"txns":content.appendChild(renderTxnTab());break;
     case"alerts":content.appendChild(state.ptnCardId?renderPTNDetail(ALL_CARDS.find(c=>c.id===state.ptnCardId)):renderAlertsTab());break;
+    case"assets":content.appendChild(renderAssetsTab());break;
     case"add":content.appendChild(renderAddTab());break;
     default:state.tab="home";content.appendChild(renderHomeTab());
   }
@@ -2251,7 +2460,8 @@ function renderHeader(){
 
 // 4 tab + FAB thay cho 7 tab. "Chọn thẻ"/backup → settings sheet; PTN → gộp vào tab Nhắc.
 const TABS=[{key:"home",label:"Tổng quan",icon:"🏠"},{key:"advice",label:"Tra cứu",icon:"⚡"},
-            {key:"txns",label:"Giao dịch",icon:"🧾"},{key:"alerts",label:"Nhắc",icon:"⏰"}];
+            {key:"txns",label:"Giao dịch",icon:"🧾"},{key:"alerts",label:"Nhắc",icon:"⏰"},
+            {key:"assets",label:"Tài sản",icon:"💰"}];
 function goTab(key){buzz(8);setState({tab:key,detailCardId:null,editTxnId:null,ptnCardId:null,sheet:null})}
 function renderTabBar(){
   const bar=h("nav",{className:"tab-bar","aria-label":"Điều hướng chính"});
@@ -5441,6 +5651,32 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       id:x.id||crypto.randomUUID(),card_id:x.cardId||null,amount:x.amount||0,
       category:x.category||x.cat||null,day_of_month:x.day||x.dom||null,note:x.note||null,deleted_at:null,extra:x
     }),fromRow:r=>({...(r.extra||{}),id:r.id,cardId:r.card_id,amount:Number(r.amount),category:r.category,day:r.day_of_month,note:r.note})},
+    "ct7-assets":{table:"assets",kind:"array",toRow:x=>({
+      id:x.id||crypto.randomUUID(),
+      type:x.type||"other",
+      name:x.name||"(untitled)",
+      provider:x.provider||null,
+      amount:x.amount||null,
+      qty:x.qty||null,
+      unit:x.unit||null,
+      purchase_price:x.purchase_price||null,
+      current_price:x.current_price||null,
+      rate_pct:x.rate_pct||null,
+      open_date:x.open_date||null,
+      maturity_date:x.maturity_date||null,
+      interest_type:x.interest_type||null,
+      currency:x.currency||'VND',
+      note:x.note||null,
+      deleted_at:null,extra:x
+    }),fromRow:r=>({...(r.extra||{}),id:r.id,type:r.type,name:r.name,provider:r.provider,
+      amount:r.amount!=null?Number(r.amount):null,
+      qty:r.qty!=null?Number(r.qty):null,
+      unit:r.unit,
+      purchase_price:r.purchase_price!=null?Number(r.purchase_price):null,
+      current_price:r.current_price!=null?Number(r.current_price):null,
+      rate_pct:r.rate_pct!=null?Number(r.rate_pct):null,
+      open_date:r.open_date,maturity_date:r.maturity_date,interest_type:r.interest_type,
+      currency:r.currency||'VND',note:r.note})},
     "ct7-promos":{table:"promos",kind:"array",toRow:x=>({
       id:x.id||crypto.randomUUID(),card_id:x.cardId||null,title:x.title||"(promo)",
       starts_on:x.start||null,ends_on:x.end||null,categories:Array.isArray(x.categories)?x.categories:[],
