@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609121540';</script>
+<script>window.CT_BUILD='v202609121642';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2230,7 +2230,7 @@ function renderHeader(){
 }
 
 // 4 tab + FAB thay cho 7 tab. "Chọn thẻ"/backup → settings sheet; PTN → gộp vào tab Nhắc.
-const TABS=[{key:"home",label:"Tổng quan",icon:"🏠"},{key:"advice",label:"Nên quẹt",icon:"⚡"},
+const TABS=[{key:"home",label:"Tổng quan",icon:"🏠"},{key:"advice",label:"Tra cứu",icon:"⚡"},
             {key:"txns",label:"Giao dịch",icon:"🧾"},{key:"alerts",label:"Nhắc",icon:"⏰"}];
 function goTab(key){buzz(8);setState({tab:key,detailCardId:null,editTxnId:null,ptnCardId:null,sheet:null})}
 function renderTabBar(){
@@ -3089,14 +3089,15 @@ function renderAdviceTab(){
     return w;
   }
 
-  // ── Segmented: tư vấn tức thời 1 giao dịch, hoặc lập kế hoạch cả tháng đa thẻ ──
+  // ── Segmented: tư vấn tức thời 1 giao dịch, kế hoạch cả tháng, hoặc tra MCC/shop ──
   const seg=h("div",{className:"seg"});
-  [["txn","1 giao dịch"],["plan","Kế hoạch tháng"]].forEach(([k,l])=>
+  [["txn","1 giao dịch"],["plan","Kế hoạch tháng"],["mcc","🔎 Tra MCC"]].forEach(([k,l])=>
     seg.appendChild(h("button",{className:"seg-btn"+(_plMode===k?" on":""),
       onClick:()=>{if(_plMode!==k){_plMode=k;render()}}},l)));
   w.appendChild(seg);
 
   if(_plMode==="plan"){w.appendChild(advPlanBranch(cards));return w}
+  if(_plMode==="mcc"){w.appendChild(advMccLookup());return w}
 
   // ── 1. SỐ TIỀN TRƯỚC TIÊN ──
   const pAmt=parseAmount(state.advAmt),validAmt=!isNaN(pAmt)&&pAmt>0;
@@ -3278,9 +3279,10 @@ function advRenderShopList(el){
             top.forEach(rt=>{
               const cinfo=allCards.find(c=>c.id===rt.card_id);
               const nm=cinfo?cinfo.name:rt.card_id;
+              const last4=cinfo&&cinfo.last4?(" "+cinfo.last4):"";
               const cap=rt.cap_amount?(" · trần "+fmtK(rt.cap_amount)):"";
               se.appendChild(h("div",{className:"hint",style:{padding:"2px 8px"}},
-                "· "+nm+" — "+fmtRate(rt.rate_pct/100)+cap));
+                "· "+nm+last4+" — "+fmtRate(rt.rate_pct/100)+cap));
             });
           }
         }
@@ -5255,6 +5257,79 @@ function stRefBody(){
   w.appendChild(h("p",{className:"hint",style:{marginTop:"var(--s3)"}},
     "Data thẻ/shop/cashback rate từ Supabase — sync tự động mỗi 7 ngày. Admin cập nhật qua dashboard."));
   return w;
+}
+
+// ═══ Tra MCC / Shop — tab Tra cứu segment "🔎 Tra MCC" ═══
+let _mccQ = "";
+function advMccLookup(){
+  const w=h("div",{style:{marginTop:"var(--s2)"}});
+  const r=window.ctRef;
+  if(!r){w.appendChild(h("p",{className:"hint"},"Đang tải module dữ liệu tham chiếu…"));return w}
+  w.appendChild(h("p",{className:"hint",style:{marginBottom:"var(--s2)"}},
+    "Tra ngược: gõ mã MCC (4 số) hoặc tên shop → hiện shops liên quan + thẻ cashback."));
+  const inp=h("input",{type:"text",className:"input","data-fid":"mcc-lookup",id:"mcc-lookup-input",
+    placeholder:"VD: 5411 (Siêu thị) hoặc Grab / Highlands / Shopee",
+    autocomplete:"off",value:_mccQ,
+    onInput:e=>{_mccQ=e.target.value;clearTimeout(inp._t);inp._t=setTimeout(()=>{renderMccOut(out,inp.value)},180)}});
+  w.appendChild(inp);
+  const out=h("div",{style:{marginTop:"var(--s3)",fontSize:"14px",lineHeight:"1.6"}});
+  w.appendChild(out);
+  renderMccOut(out,_mccQ);
+  return w;
+}
+function renderMccOut(out,q){
+  out.innerHTML="";
+  const r=window.ctRef;if(!r)return;
+  q=(q||"").trim();
+  if(!q){out.appendChild(h("p",{className:"hint"},"Nhập MCC hoặc tên shop để tra…"));return}
+  const isNumeric=/^\d+$/.test(q);
+  const allShops=r.getShops(),allCards=r.getCards();
+  if(isNumeric){
+    const shops=allShops.filter(s=>s.mcc===q);
+    const rates=r.cardsForMcc(q);
+    out.appendChild(h("p",null,h("strong",null,"MCC "+q)));
+    if(shops.length){
+      out.appendChild(h("p",{className:"hint",style:{marginTop:"4px"}},
+        "Shops ("+shops.length+"): "+shops.map(s=>s.name).join(", ")));
+    }else{
+      out.appendChild(h("p",{className:"hint",style:{marginTop:"4px"}},"Không có shop nào MCC này."));
+    }
+    if(rates.length){
+      out.appendChild(h("p",{style:{marginTop:"8px",fontWeight:"600"}},"Thẻ cashback:"));
+      rates.forEach(rt=>{
+        const c=allCards.find(x=>x.id===rt.card_id);
+        const nm=c?c.name:rt.card_id;const l4=c&&c.last4?(" "+c.last4):"";
+        const cap=rt.cap_month?(" · max "+fmtK(rt.cap_month)):"";
+        out.appendChild(h("p",{className:"hint",style:{paddingLeft:"8px"}},
+          "· "+nm+l4+" — "+rt.rate_pct+"%"+cap));
+      });
+    }else{
+      out.appendChild(h("p",{className:"hint",style:{marginTop:"8px"}},"Chưa có thẻ nào cashback cho MCC này."));
+    }
+  }else{
+    const ql=q.toLowerCase();
+    const shops=allShops.filter(s=>s.name.toLowerCase().includes(ql));
+    if(!shops.length){out.appendChild(h("p",{className:"hint"},"Không tìm thấy shop khớp \""+q+"\"."));return}
+    shops.slice(0,10).forEach(s=>{
+      const rates=r.cardsForMcc(s.mcc);
+      out.appendChild(h("p",{style:{marginTop:"8px"}},
+        h("strong",null,s.name),
+        h("span",{className:"hint"}," — MCC "+s.mcc+(s.category?" · "+s.category:""))));
+      if(rates.length){
+        rates.slice(0,6).forEach(rt=>{
+          const c=allCards.find(x=>x.id===rt.card_id);
+          const nm=c?c.name:rt.card_id;const l4=c&&c.last4?(" "+c.last4):"";
+          const cap=rt.cap_month?(" · max "+fmtK(rt.cap_month)):"";
+          out.appendChild(h("p",{className:"hint",style:{paddingLeft:"12px"}},
+            "· "+nm+l4+" — "+rt.rate_pct+"%"+cap));
+        });
+      }else{
+        out.appendChild(h("p",{className:"hint",style:{paddingLeft:"12px"}},"chưa có thẻ cashback"));
+      }
+    });
+    if(shops.length>10)out.appendChild(h("p",{className:"hint",style:{marginTop:"8px"}},
+      "…và "+(shops.length-10)+" shop khác."));
+  }
 }
 
 function stCloudBody(){
