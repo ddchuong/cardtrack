@@ -1243,9 +1243,24 @@ function newTxnId(){const n=Math.max(Date.now(),_lastTxSeq+1);_lastTxSeq=n;retur
 function txSeq(t){return parseInt(String(t.id||"").replace(/\D/g,""))||0}
 function txOrder(a,b){return (a.date<b.date?-1:a.date>b.date?1:0)||txSeq(a)-txSeq(b)}
 
-// ═══ FIRST-CAT-ONLY (MSB, BVB) ═══
-function getActiveCat(card,ct){
+// ═══ FIRST-CAT-ONLY (MSB, BVB, SHB) ═══
+// User có thể override lĩnh vực đang chọn trong kỳ (state.catOverride[cardId|cycleKey] = category).
+// Nếu có override → dùng override. Nếu không → auto-detect từ GD đầu tiên trong kỳ.
+function getCatOverrideKey(card,ref){try{return card.id+"|"+cycleKey(card,ref)}catch{return null}}
+function getCatOverride(card,ref){
+  const k=getCatOverrideKey(card,ref);if(!k)return null;
+  return (state.catOverride||{})[k]||null;
+}
+function setCatOverride(card,category,ref){
+  const k=getCatOverrideKey(card,ref);if(!k)return;
+  const m={...(state.catOverride||{})};
+  if(category)m[k]=category;else delete m[k];
+  state.catOverride=m;persist();
+}
+function getActiveCat(card,ct,ref){
   if(!card.firstCatOnly)return null;
+  const ov=getCatOverride(card,ref);
+  if(ov)return ov;
   const sorted=[...ct].sort(txOrder);
   const first=sorted.find(tx=>card.cashbackCategories.some(c=>c.category===tx.category));
   return first?first.category:null;
@@ -1965,6 +1980,8 @@ let state={
   // ── 4.13 · vòng đời thẻ + promo ──
   cardMeta:load("ct7-cardmeta",{}),          // {cardId:{openedAt,closedAt,note}}
   promos:load("ct7-promos",[]),              // [{id,cardId,title,start,end,note}]
+  // firstCatOnly override: {"<cardId>|<cycleKeyISO>":"<category>"} — user chọn thủ công lĩnh vực kỳ
+  catOverride:load("ct7-catoverride",{}),
   // User cũ (đã có dữ liệu trong localStorage) coi như đã onboard — không bắt làm lại.
   onboarded:load("ct7-onboarded",localStorage.getItem("ct7-sel")!==null||localStorage.getItem("ct7-txns")!==null)
 };
@@ -2010,12 +2027,15 @@ function rehydrateState(){
   state.pointRates=load("ct7-points",{});
   state.cardMeta=load("ct7-cardmeta",{});
   state.promos=load("ct7-promos",[]);
+  state.catOverride=load("ct7-catoverride",{});
 }
 window.rehydrateState=rehydrateState;
 function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.transactions);save("ct7-txn-archive",state.txnArchive);save("ct7-events",state.events);save("ct7-history",state.history);save("ct7-paid",state.paidDues);save("ct7-noevt",state.noEvt);save("ct7-caladded",state.calAdded);save("ct7-caldismiss",state.calDismiss);save("ct7-afspend",state.afSpend);save("ct7-membertier",state.memberTier);save("ct7-cbactual",state.cbActual);save("ct7-stmts",state.stmts);save("ct7-limits",state.limits);save("ct7-onboarded",state.onboarded);
   save("ct7-cbpost",state.cbPost);save("ct7-ins",state.installments);save("ct7-rec",state.recurring);
   save("ct7-fxfees",state.fxFees);save("ct7-budgets",state.budgets);save("ct7-points",state.pointRates);
-  save("ct7-cardmeta",state.cardMeta);save("ct7-promos",state.promos);try{if(window.ctSync)ctSync.markAllDirty()}catch(e){}}
+  save("ct7-cardmeta",state.cardMeta);save("ct7-promos",state.promos);
+  save("ct7-catoverride",state.catOverride||{});
+  try{if(window.ctSync)ctSync.markAllDirty()}catch(e){}}
 // Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
 function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
 function toggleCardEvt(id){state.noEvt=cardEvtOn(id)?[...(state.noEvt||[]),id]:(state.noEvt||[]).filter(x=>x!==id);persist();render()}
@@ -2320,6 +2340,30 @@ function renderCardDetail(){
   {const mRow=renderMemberTierRow(card);if(mRow)w.appendChild(mRow);}
   {const msRow=renderMinSpendRow(card,ct);if(msRow)w.appendChild(msRow);}
   {const tRow=renderTierRow(card,ct);if(tRow)w.appendChild(tRow);}
+  // First-cat-only override picker (SHB, MSB mDigi, VPB Z, v.v.)
+  if(card.firstCatOnly){
+    const auto=getCatOverride(card)?null:getActiveCat(card,ct);
+    const chosen=getCatOverride(card);
+    const active=chosen||auto;
+    const row=h("div",{className:"detail-section",style:{marginTop:"10px"}},"Lĩnh vực CB kỳ này");
+    w.appendChild(row);
+    const box=h("div",{style:{padding:"8px 12px",background:"var(--bg2)",borderRadius:"8px",marginBottom:"8px"}});
+    const infoLine=h("div",{className:"hint",style:{marginBottom:"6px"}},
+      active?("Đang: "+active+(chosen?" (bạn chọn)":" (tự chọn theo GD đầu)")):"Chưa có GD nào trong kỳ — chọn lĩnh vực để giữ chỗ.");
+    box.appendChild(infoLine);
+    const sel=h("select",{style:{width:"100%",padding:"8px",borderRadius:"6px",border:"1px solid var(--line)",background:"var(--bg)",color:"var(--text)",fontSize:"14px"},
+      onChange:e=>{const v=e.target.value;setCatOverride(card,v||null);render()}});
+    sel.appendChild(h("option",{value:""},"— Auto (theo GD đầu tiên) —"));
+    card.cashbackCategories.forEach(cb=>{
+      const opt=h("option",{value:cb.category},cb.category+" ("+Math.round(cb.rate*100)+"%)");
+      if(chosen===cb.category)opt.selected=true;
+      sel.appendChild(opt);
+    });
+    box.appendChild(sel);
+    if(chosen)box.appendChild(h("button",{className:"link",style:{marginTop:"6px",background:"none",border:"0",color:"var(--accent)",cursor:"pointer",fontSize:"13px",padding:0},
+      onClick:()=>{setCatOverride(card,null);render()}},"↺ Xoá chọn thủ công (dùng auto)"));
+    w.appendChild(box);
+  }
   card.cashbackCategories.forEach(cb=>{w.appendChild(renderCbRow(card,ct,cb,shared,ts,true))});
   if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtTight(shared.total)} / ${fmtK(shared.max)}`));
   if(card.note)w.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
