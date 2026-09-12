@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609101748';</script>
+<script>window.CT_BUILD='v202609121416';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -742,7 +742,7 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 // ═══════════════════════════════════════════
 // DATA — synced with CardList.txt + Shops.txt
 // ═══════════════════════════════════════════
-const ALL_CARDS=[
+let ALL_CARDS=[
   // ── VIB MAX (hạng HV chọn được mỗi 3 tháng; rate/max theo hạng) ──
   {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:14,color:"#ADFF00",
     cashbackCategories:[
@@ -5615,6 +5615,38 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
   function refRead(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch{return null}}
   function refWrite(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
 
+  // Convert a cloud ref_cards row into the ALL_CARDS shape used by the app.
+  function cloudRowToAllCard(r){
+    const extra=r.extra||{};
+    return Object.assign({},extra,{
+      id:r.id,name:r.name,network:r.network||extra.network||"",last4:r.last4||extra.last4||"",
+      cardNum:r.card_num||extra.cardNum||("****"+(r.last4||"")),
+      stmtDay:(r.statement_day!=null)?r.statement_day:(extra.stmtDay||0),
+      dueDay:(r.due_day!=null)?r.due_day:(extra.dueDay||0),
+      color:r.color||extra.color||"#666",
+      note:r.notes||extra.note||"",
+      cashbackCategories:extra.cashbackCategories||[]
+    });
+  }
+  // Merge cloud cards into the in-memory ALL_CARDS array. Cloud is authoritative for shared fields.
+  function mergeCloudCards(rows){
+    if(!Array.isArray(rows)||!rows.length)return;
+    if(typeof window.ALL_CARDS==="undefined")return;
+    const byId={};(window.ALL_CARDS||[]).forEach(c=>{if(c&&c.id)byId[c.id]=c});
+    let added=0;
+    rows.forEach(r=>{
+      if(!r||!r.id)return;
+      const conv=cloudRowToAllCard(r);
+      if(byId[r.id]){
+        // In-place update: cloud values override, but keep any keys hardcoded had that cloud doesn't.
+        Object.assign(byId[r.id],conv);
+      }else{
+        window.ALL_CARDS.push(conv);byId[r.id]=conv;added++;
+      }
+    });
+    refLog("merged into ALL_CARDS: +"+added+" new, total now",window.ALL_CARDS.length);
+  }
+
   async function refPull(){
     const c=ensureClient();if(!c||!session){refLog("skip: no session");return false}
     if(!navigator.onLine){refLog("skip: offline");return false}
@@ -5632,7 +5664,10 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       refWrite(REF_KEYS.rates,rr.data||[]);
       localStorage.setItem(REF_KEYS.last,new Date().toISOString());
       refLog("pulled",(rc.data||[]).length,"cards,",(rs.data||[]).length,"shops,",(rr.data||[]).length,"rates");
+      // Merge cloud-only cards into ALL_CARDS so the app sees them everywhere.
+      try{mergeCloudCards(rc.data||[])}catch(e){refLog("merge err",e)}
       try{window.dispatchEvent(new CustomEvent("ct7-ref-change"))}catch{}
+      try{window.render&&render()}catch{}
       return true;
     }catch(e){refLog("err",e);return false}
   }
@@ -5643,6 +5678,9 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
     if(days>=7||!last){refLog("auto refresh (>=7d or first run)");setTimeout(()=>refPull(),3000)}
     else refLog("skip auto refresh; last was",Math.floor(days),"days ago");
   }
+
+  // On module load, merge whatever's already cached — so ALL_CARDS is populated before first pull.
+  try{const cached=refRead(REF_KEYS.cards);if(cached&&cached.length)setTimeout(()=>{try{mergeCloudCards(cached);window.render&&render()}catch{}},50)}catch{}
 
   window.ctRef={
     getCards:()=>refRead(REF_KEYS.cards)||[],
@@ -6017,6 +6055,8 @@ function pwaInstall() {
         }
         // Kick a version check shortly after boot too.
         setTimeout(checkVersionFromNetwork, 3000);
+        // Periodic check every 5 min while app is open (iOS PWA visibilitychange unreliable).
+        setInterval(checkVersionFromNetwork, 5*60*1000);
         // New SW took over — reload once to get latest UI.
         let _reloaded=false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
