@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609121422';</script>
+<script>window.CT_BUILD='v202609121452';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -5278,7 +5278,7 @@ function stCloudBody(){
     "Data cá nhân được lưu ở Supabase. Vẫn dùng offline được — sync khi có mạng."));
   return w;
 }
-function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if(s<60)return "vừa xong";if(s<3600)return Math.floor(s/60)+" phút trước";if(s<86400)return Math.floor(s/3600)+" giờ trước";return Math.floor(s/86400)+" ngày trước"}catch{return iso}}
+function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(iso).getTime();if(isNaN(t))return "chưa xác định";const s=(Date.now()-t)/1000;if(isNaN(s))return "chưa xác định";if(s<60)return "vừa xong";if(s<3600)return Math.floor(s/60)+" phút trước";if(s<86400)return Math.floor(s/3600)+" giờ trước";return Math.floor(s/86400)+" ngày trước"}catch{return String(iso||"")}}
 
 /* ═══ ctSync — Supabase cloud sync ═══
    NOTE: Auth uses email + password (signInWithPassword / signUp). Supabase project has

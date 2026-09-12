@@ -5278,7 +5278,7 @@ function stCloudBody(){
     "Data cá nhân được lưu ở Supabase. Vẫn dùng offline được — sync khi có mạng."));
   return w;
 }
-function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if(s<60)return "vừa xong";if(s<3600)return Math.floor(s/60)+" phút trước";if(s<86400)return Math.floor(s/3600)+" giờ trước";return Math.floor(s/86400)+" ngày trước"}catch{return iso}}
+function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(iso).getTime();if(isNaN(t))return "chưa xác định";const s=(Date.now()-t)/1000;if(isNaN(s))return "chưa xác định";if(s<60)return "vừa xong";if(s<3600)return Math.floor(s/60)+" phút trước";if(s<86400)return Math.floor(s/3600)+" giờ trước";return Math.floor(s/86400)+" ngày trước"}catch{return String(iso||"")}}
 
 /* ═══ ctSync — Supabase cloud sync ═══
    NOTE: Auth uses email + password (signInWithPassword / signUp). Supabase project has
