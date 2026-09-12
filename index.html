@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609121416';</script>
+<script>window.CT_BUILD='v202609121422';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -5628,23 +5628,36 @@ function ctRelTime(iso){try{const s=(Date.now()-new Date(iso).getTime())/1000;if
       cashbackCategories:extra.cashbackCategories||[]
     });
   }
-  // Merge cloud cards into the in-memory ALL_CARDS array. Cloud is authoritative for shared fields.
+  // Merge cloud cards into the in-memory ALL_CARDS array. Cloud is authoritative:
+  // - existing hardcoded cards get their shared fields overridden by cloud values
+  // - cloud-only cards are added
+  // - hardcoded-only cards are PRUNED (removed from ALL_CARDS) so admin controls the card list from Supabase
   function mergeCloudCards(rows){
     if(!Array.isArray(rows)||!rows.length)return;
     if(typeof window.ALL_CARDS==="undefined")return;
+    const cloudIds=new Set(rows.map(r=>r&&r.id).filter(Boolean));
     const byId={};(window.ALL_CARDS||[]).forEach(c=>{if(c&&c.id)byId[c.id]=c});
-    let added=0;
+    // Add / update from cloud
+    let added=0,updated=0;
     rows.forEach(r=>{
       if(!r||!r.id)return;
       const conv=cloudRowToAllCard(r);
-      if(byId[r.id]){
-        // In-place update: cloud values override, but keep any keys hardcoded had that cloud doesn't.
-        Object.assign(byId[r.id],conv);
-      }else{
-        window.ALL_CARDS.push(conv);byId[r.id]=conv;added++;
-      }
+      if(byId[r.id]){Object.assign(byId[r.id],conv);updated++}
+      else{window.ALL_CARDS.push(conv);byId[r.id]=conv;added++}
     });
-    refLog("merged into ALL_CARDS: +"+added+" new, total now",window.ALL_CARDS.length);
+    // Prune hardcoded cards not in cloud (cloud = source of truth)
+    let pruned=0;const prunedIds=[];
+    for(let i=window.ALL_CARDS.length-1;i>=0;i--){
+      const c=window.ALL_CARDS[i];
+      if(c&&c.id&&!cloudIds.has(c.id)){prunedIds.push(c.id);window.ALL_CARDS.splice(i,1);pruned++}
+    }
+    // Also drop pruned ids from selectedCardIds so they don't linger in the app state
+    if(pruned&&window.state&&Array.isArray(window.state.selectedCardIds)){
+      const before=window.state.selectedCardIds.length;
+      window.state.selectedCardIds=window.state.selectedCardIds.filter(id=>!prunedIds.includes(id));
+      if(window.state.selectedCardIds.length!==before)try{window.persist&&persist()}catch{}
+    }
+    refLog("merged ALL_CARDS: +"+added+" added, ~"+updated+" updated, -"+pruned+" pruned ("+prunedIds.join(",")+"); total now",window.ALL_CARDS.length);
   }
 
   async function refPull(){
