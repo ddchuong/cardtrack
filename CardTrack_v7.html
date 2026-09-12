@@ -3268,7 +3268,7 @@ function advRenderShopList(el){
       if(cr && cr.getRates().length>0){
         const rs=cr.shopByName(s.shop);
         if(rs && rs.mcc){
-          const top=cr.cardsForMcc(rs.mcc).slice(0,3);
+          const top=cr.cardsForMcc(rs.mcc).slice(0,8);
           if(top.length){
             const allCards=cr.getCards();
             const mc=h("div",{className:"shop-sub-divider",style:{marginTop:"8px"}},"🌐 Gợi ý theo MCC (cloud)");
