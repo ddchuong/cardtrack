@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
-<title>CardTrack v9</title>
+<title>CardTrack v11</title>
 <script>window.CT_BUILD='__CT_BUILD__';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
@@ -1857,13 +1857,14 @@ document.documentElement.setAttribute("data-theme",getTheme());
 
 // ═══ BACKUP / RESTORE ═══
 function exportBackup(){
-  const data={app:"cardtrack",version:9,exportedAt:new Date().toISOString(),
+  const data={app:"cardtrack",version:11,exportedAt:new Date().toISOString(),
     selectedCardIds:state.selectedCardIds,transactions:state.transactions,txnArchive:state.txnArchive,
     events:state.events,history:state.history,paidDues:state.paidDues,noEvt:state.noEvt,
     calAdded:state.calAdded,calDismiss:state.calDismiss,afSpend:state.afSpend,memberTier:state.memberTier,
     cbActual:state.cbActual,stmts:state.stmts,limits:state.limits,onboarded:state.onboarded,
     cbPost:state.cbPost,installments:state.installments,recurring:state.recurring,fxFees:state.fxFees,
     budgets:state.budgets,pointRates:state.pointRates,cardMeta:state.cardMeta,promos:state.promos,
+    assets:state.assets,catOverride:state.catOverride,
     theme:getTheme(),migrations:{"ct7-mig-1768":load("ct7-mig-1768",false)}};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
@@ -1939,7 +1940,7 @@ function _applyImport(d,S,A,_badCount){
         if(typeof d.calDismiss==="string")state.calDismiss=d.calDismiss;
         // v9: các nhóm dữ liệu mới — chỉ nạp khi đúng kiểu, thiếu thì giữ nguyên
         [["cbActual","o"],["stmts","o"],["limits","o"],["cbPost","o"],["fxFees","o"],["budgets","o"],
-         ["pointRates","o"],["cardMeta","o"],["installments","a"],["recurring","a"],["promos","a"]]
+         ["pointRates","o"],["cardMeta","o"],["catOverride","o"],["installments","a"],["recurring","a"],["promos","a"],["assets","a"]]
           .forEach(([k,t])=>{const v=d[k];
             if(t==="a"&&Array.isArray(v))state[k]=v;
             else if(t==="o"&&v&&typeof v==="object"&&!Array.isArray(v))state[k]=v});
@@ -2388,11 +2389,18 @@ function renderAssetForm(item,type){
   if(isEdit){
     btnRow.appendChild(h("button",{style:{flex:"0 0 auto",padding:"12px 16px",fontSize:"15px",fontWeight:"700",background:"transparent",color:"var(--warn)",border:"1px solid var(--warn)",borderRadius:"8px",cursor:"pointer"},
       onClick:()=>{
-        if(!confirm("Xoá tài sản này?"))return;
-        state.assets=state.assets.filter(x=>x.id!==a.id);
-        try{window.ctSync&&ctSync.tombstone("ct7-assets",a.id)}catch{}
-        buzz(14);showToast("✓ Đã xoá");
-        setState({assetAddType:null,assetDetailId:null});
+        askConfirm({title:"Xoá tài sản?",body:`Xoá "${a.name||"tài sản này"}"? Có thể hoàn tác ngay sau khi xoá.`,okLabel:"Xoá",danger:true,onOk:()=>{
+          const removed={...a};
+          state.assets=(state.assets||[]).filter(x=>x.id!==a.id);
+          try{window.ctSync&&ctSync.tombstone("ct7-assets",a.id)}catch{}
+          buzz(14);
+          setState({assetAddType:null,assetDetailId:null});
+          showToastUndo("Đã xoá tài sản",()=>{
+            state.assets=[...(state.assets||[]),removed];
+            try{window.ctSync&&ctSync.untombstone("ct7-assets",a.id)}catch{}
+            setState({});
+          });
+        }});
       }},"🗑 Xoá"));
   }
   w.appendChild(btnRow);
