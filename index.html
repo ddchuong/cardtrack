@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v9</title>
-<script>window.CT_BUILD='v202609122218';</script>
+<script>window.CT_BUILD='v202609141108';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -743,23 +743,28 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 // DATA — synced with CardList.txt + Shops.txt
 // ═══════════════════════════════════════════
 let ALL_CARDS=[
-  // ── VIB MAX (hạng HV chọn được mỗi 3 tháng; rate/max theo hạng) ──
+  // ── VIB MAX (Điểm thưởng theo Gói Hội Viên; user chọn hạng → app áp rate cho đúng) ──
+  // Rate/cap phụ thuộc Gói HV (Starter/Plus/Pro/Elite), áp cho GD thuộc 5 nhóm danh mục VIB.
+  // Việc đăng ký/đổi nhóm do user tự làm trên app VIB → app này coi mọi GD thuộc 5 nhóm là hưởng rate theo hạng.
+  // baseRate 0.1% cho GD ngoài 5 nhóm: ĐÃ áp dụng trong calc qua baseCb() (chờ chạy verify.js khi sandbox hoạt động).
   {id:"vib-4434",name:"VIB MAX",network:"Visa",last4:"4434",cardNum:"423865****4434",stmtDay:20,dueDay:14,color:"#ADFF00",
     cashbackCategories:[
-      {category:"Online",rate:.08,maxCashback:1000000,maxSpend:12500000},
-      {category:"Ẩm thực",rate:.08,maxCashback:1000000,maxSpend:12500000},
-      {category:"Thời trang",rate:.08,maxCashback:1000000,maxSpend:12500000},
-      {category:"Du lịch",rate:.08,maxCashback:1000000,maxSpend:12500000}
+      {category:"Online",rate:.08,maxCashback:1500000,maxSpend:18750000},
+      {category:"Online Shopee/Tiktok",rate:.08,maxCashback:1500000,maxSpend:18750000},
+      {category:"Ẩm thực",rate:.08,maxCashback:1500000,maxSpend:18750000},
+      {category:"Du lịch",rate:.08,maxCashback:1500000,maxSpend:18750000},
+      {category:"Giải trí",rate:.08,maxCashback:1500000,maxSpend:18750000},
+      {category:"Thời trang",rate:.08,maxCashback:1500000,maxSpend:18750000}
     ],
-    minSpend:0,sharedMaxCashback:1000000,
+    minSpend:0,sharedMaxCashback:1000000,baseRate:.001,
     memberTiers:[
-      {key:"elite",label:"Elite",rate:.10,max:1500000},
-      {key:"gold",label:"Gold",rate:.08,max:1000000},
+      {key:"starter",label:"Starter",rate:.005,max:500000},
       {key:"plus",label:"Plus",rate:.05,max:500000},
-      {key:"starter",label:"Starter",rate:.005,max:500000}
-    ],memberTierDefault:"gold",memberEvery:3,
-    note:"Tùy hạng HV: Elite 10%/1.5tr · Gold 8%/1tr · Plus 5%/500K · Starter 0.5%/500K.",
-    annualFee:500000,afNext:"2026-10",afDay:21,afRecur:3,afWaive:"Deal with bank (Alo); phí HV theo hạng (Gold 500K/3 tháng), charge ngày 21 mỗi 3 tháng"},
+      {key:"pro",label:"Pro",rate:.08,max:1000000},
+      {key:"elite",label:"Elite",rate:.10,max:1500000}
+    ],memberTierDefault:"pro",memberEvery:3,
+    note:"Điểm thưởng theo Gói HV: Starter 0.5%/500K · Plus 5%/500K · Pro 8%/1tr · Elite 10%/1.5tr (tối đa/kỳ sao kê). Áp cho 5 nhóm: Mua sắm (≈Thời trang), Du lịch, Ẩm thực, Giải trí, Trực tuyến (≈Online/Shopee-Tiktok). GD ngoài 5 nhóm: 0.1%. Chọn hạng HV ở chi tiết thẻ; đăng ký nhóm làm trên app VIB.",
+    annualFee:500000,afNext:"2026-10",afDay:21,afRecur:3,afWaive:"Deal with bank (Alo); phí HV theo hạng (Pro 500K/3 tháng), charge ngày 21 mỗi 3 tháng"},
 
   // ── SHINHAN ──
   {id:"shinhan-6864",name:"Shinhan 365",network:"Visa",last4:"6864",cardNum:"539463****6864",stmtDay:20,dueDay:4,color:"#004996",
@@ -1280,8 +1285,9 @@ function tierHi(card,ct){return !!(card.tierThreshold&&cycleSpendTotal(card,ct)>
 // Hạng hội viên hiện tại (VIB MAX): rate/max theo hạng đã chọn, override cả spend-tier
 function memberTier(card){
   if(!card.memberTiers)return null;
-  const key=(state.memberTier||{})[card.id]||card.memberTierDefault;
-  return card.memberTiers.find(t=>t.key===key)||card.memberTiers[0];
+  let key=(state.memberTier||{})[card.id]||card.memberTierDefault;
+  if(key==="gold")key="pro"; // migrate old VIB MAX tier key (Gold → Pro)
+  return card.memberTiers.find(t=>t.key===key)||card.memberTiers.find(t=>t.key===card.memberTierDefault)||card.memberTiers[0];
 }
 function effRate(card,ct,cb){const mt=memberTier(card);if(mt)return mt.rate;return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
 function effMaxCb(card,ct,cb){const mt=memberTier(card);if(mt)return mt.max;return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
@@ -1323,7 +1329,17 @@ function calcSharedCb(card,ct,raw){
   card.cashbackCategories.filter(c=>cats.includes(c.category)).forEach(c=>{total+=f(card,ct,c.category)});
   return{total:Math.min(total,smax),max:smax,isFull:total>=smax,cats,raw:!!raw};
 }
-// Tổng CB của thẻ = min(Σ lĩnh vực dùng max chung, max chung) + Σ lĩnh vực có max RIÊNG.
+// Rate nền (VIB MAX): GD ngoài các nhóm cashbackCategories vẫn hưởng card.baseRate (vd 0.1%).
+// CHỈ áp cho thẻ có card.baseRate; thẻ khác trả 0 → hành vi cũ giữ nguyên tuyệt đối.
+// Cộng NGOÀI max chung (base rate nhỏ, không thuộc trần điểm thưởng theo hạng). Refund (amount âm)
+// giảm chi tiêu nền nhưng kẹp ≥0 để không sinh CB nền âm.
+function baseCb(card,list){
+  if(!card.baseRate)return 0;
+  const inCat=new Set(card.cashbackCategories.map(c=>c.category));
+  const sp=Math.max(eligibleTxns(card,list).filter(t=>!inCat.has(t.category)).reduce((a,t)=>a+t.amount,0),0);
+  return sp*card.baseRate;
+}
+// Tổng CB của thẻ = min(Σ lĩnh vực dùng max chung, max chung) + Σ lĩnh vực có max RIÊNG + rate nền.
 // Trước đây clamp tổng của TẤT CẢ lĩnh vực vào max chung → HDB Vietjet mất 500K của Vé Vietjet.
 function calcTotalCbRaw(card,ct){
   const shared=calcSharedCb(card,ct,true);
@@ -1332,7 +1348,7 @@ function calcTotalCbRaw(card,ct){
   card.cashbackCategories.forEach(cb=>{
     if(!inShared.includes(cb.category))t+=calcCatCbRaw(card,ct,cb.category);
   });
-  return t;
+  return t+baseCb(card,ct);
 }
 function calcTotalCb(card,ct){
   return minSpendMet(card,ct)?calcTotalCbRaw(card,ct):0;
@@ -1374,6 +1390,7 @@ function calcTotalCbSeq(card,list,full){
     t+=Math.min(sh,effSharedMax(card,full));
   }
   card.cashbackCategories.forEach(cb=>{if(!cats.includes(cb.category))t+=catCb(cb.category)});
+  t+=baseCb(card,list);   // rate nền cho GD ngoài nhóm (chỉ thẻ có card.baseRate)
   return t;
 }
 
