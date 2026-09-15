@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609141334';</script>
+<script>window.CT_BUILD='v202609150742';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2358,38 +2358,64 @@ function renderAssetForm(item,type){
     h("h2",{style:{margin:0,fontSize:"18px"}},(isEdit?"Sửa ":"Thêm ")+ASSET_TYPE_ICON[type]+" "+ASSET_TYPE_LABEL[type])));
   const inpStyle={width:"100%",padding:"10px",fontSize:"15px",borderRadius:"8px",border:"1px solid var(--line)",background:"var(--bg2)",color:"var(--text)",fontFamily:"inherit",boxSizing:"border-box"};
   const lblStyle={display:"block",fontSize:"12px",color:"var(--text2)",marginBottom:"4px",marginTop:"12px",fontWeight:"600"};
+  // Kỳ hạn (tháng) + ngày mở → tự tính ngày đáo hạn (clamp cuối tháng). Vẫn cho sửa tay ngày đáo hạn.
+  function addMonthsStr(dateStr,months){
+    if(!dateStr||!months)return "";
+    const d=parseLocalDate(dateStr);if(isNaN(d))return "";
+    return toLocalDateStr(dateOn(d.getFullYear(),d.getMonth()+(+months),d.getDate()));
+  }
+  const recomputeMaturity=()=>{ if(a.open_date&&a.tenor){a.maturity_date=addMonthsStr(a.open_date,a.tenor);save("ct7-assetdraft",a);} };
   function fld(label,key,opts){
     opts=opts||{};
     w.appendChild(h("label",{style:lblStyle},label));
+    const commit=()=>{save("ct7-assetdraft",a);if(opts.onSet)opts.onSet();};
     if(opts.select){
-      const sel=h("select",{style:inpStyle,onChange:e=>{a[key]=e.target.value;save("ct7-assetdraft",a)}},
-        ...opts.select.map(o=>{const op=h("option",{value:o.v},o.l);if(a[key]===o.v)op.selected=true;return op}));
+      const sel=h("select",{style:inpStyle,onChange:e=>{a[key]=opts.num?(e.target.value===""?null:+e.target.value):e.target.value;commit();}},
+        ...opts.select.map(o=>{const op=h("option",{value:o.v},o.l);if(String(a[key]==null?"":a[key])===String(o.v))op.selected=true;return op}));
       w.appendChild(sel);
-    }else{
-      const inp=h("input",{type:opts.type||"text",style:inpStyle,value:a[key]!=null?a[key]:"",placeholder:opts.ph||"",
-        onInput:e=>{a[key]=opts.type==="number"?(e.target.value===""?null:+e.target.value):e.target.value;save("ct7-assetdraft",a)}});
+    }else if(opts.money){
+      // Ô tiền: mask nhóm nghìn khi gõ (giữ caret) + nút nhanh thêm 000 / 000.000
+      const inp=h("input",{type:"text",inputMode:"numeric",style:inpStyle,placeholder:opts.ph||"",
+        value:(a[key]!=null&&a[key]!=="")?fmtAmtDisplay(String(a[key])):"",
+        onInput:e=>amtMaskInput(e,f=>{a[key]=f?+f.replace(/\./g,""):null;save("ct7-assetdraft",a)})});
       w.appendChild(inp);
+      const qr=h("div",{style:{display:"flex",gap:"6px",marginTop:"6px"}});
+      [["000",1000],["000.000",1000000]].forEach(([lbl,mult])=>{
+        qr.appendChild(h("button",{className:"chip",style:{flex:"0 0 auto"},
+          onClick:()=>{const base=(a[key]!=null&&a[key]!=="")?Math.round(a[key]):0;a[key]=base?base*mult:null;
+            inp.value=a[key]!=null?fmtAmtDisplay(String(a[key])):"";save("ct7-assetdraft",a);buzz(6)}},lbl));
+      });
+      w.appendChild(qr);
+    }else{
+      const at={type:opts.type||"text",style:inpStyle,value:a[key]!=null?a[key]:"",placeholder:opts.ph||"",
+        onInput:e=>{a[key]=opts.type==="number"?(e.target.value===""?null:+e.target.value):e.target.value;commit()}};
+      if(opts.step)at.step=opts.step;
+      if(opts.type==="number")at.inputMode="decimal";
+      w.appendChild(h("input",at));
     }
   }
   fld("Tên","name",{ph:type==="savings"?"VD: Sổ VCB 6M":type==="gold"?"VD: Vàng SJC":"VD: VESAF"});
   if(type==="fund"){fld("Tên quỹ","provider",{ph:"VD: VinaCapital VESAF"});}
   else{fld("Nhà cung cấp","provider",{ph:type==="savings"?"VD: Vietcombank":"VD: SJC"});}
   fld("Loại tiền","currency",{select:[{v:"VND",l:"VND (₫)"},{v:"USD",l:"USD ($)"}]});
-  fld("Ngày mở/mua","open_date",{type:"date"});
+  fld("Ngày mở/mua","open_date",{type:"date",onSet:()=>{recomputeMaturity();render()}});
   if(type==="savings"){
-    fld("Số tiền gốc","amount",{type:"number",ph:"500000000"});
-    fld("Lãi suất (%/năm)","rate_pct",{type:"number",ph:"6.5"});
-    fld("Ngày đáo hạn","maturity_date",{type:"date"});
+    fld("Số tiền gốc","amount",{money:true,ph:"500.000.000"});
+    fld("Lãi suất (%/năm)","rate_pct",{type:"number",step:"0.01",ph:"6.5"});
+    fld("Kỳ hạn","tenor",{num:true,onSet:()=>{recomputeMaturity();render()},select:[
+      {v:"",l:"— tự nhập ngày đáo hạn —"},{v:"1",l:"1 tháng"},{v:"3",l:"3 tháng"},{v:"6",l:"6 tháng"},
+      {v:"9",l:"9 tháng"},{v:"12",l:"12 tháng"},{v:"13",l:"13 tháng"},{v:"18",l:"18 tháng"},{v:"24",l:"24 tháng"},{v:"36",l:"36 tháng"}]});
+    fld("Ngày đáo hạn"+(a.tenor?" (tự tính, sửa được)":""),"maturity_date",{type:"date"});
     fld("Kiểu trả lãi","interest_type",{select:[{v:"Cuối kỳ",l:"Cuối kỳ"},{v:"Hàng tháng",l:"Hàng tháng"}]});
   }else if(type==="gold"){
-    fld("Số lượng","qty",{type:"number",ph:"1"});
-    fld("Đơn vị","unit",{select:[{v:"chỉ",l:"chỉ"},{v:"lượng",l:"lượng"}]});
-    fld("Giá mua (mỗi "+(a.unit||"chỉ")+")","purchase_price",{type:"number",ph:"7500000"});
-    fld("Giá hiện tại (mỗi "+(a.unit||"chỉ")+")","current_price",{type:"number",ph:"7900000"});
+    fld("Số lượng","qty",{type:"number",step:"0.01",ph:"1"});
+    fld("Đơn vị","unit",{select:[{v:"chỉ",l:"chỉ"},{v:"lượng",l:"lượng"}],onSet:()=>render()});
+    fld("Giá mua (mỗi "+(a.unit||"chỉ")+")","purchase_price",{money:true,ph:"7.500.000"});
+    fld("Giá hiện tại (mỗi "+(a.unit||"chỉ")+")","current_price",{money:true,ph:"7.900.000"});
   }else if(type==="fund"){
-    fld("Số CCQ","qty",{type:"number",ph:"1000"});
-    fld("NAV mua","purchase_price",{type:"number",ph:"22800"});
-    fld("NAV hiện tại","current_price",{type:"number",ph:"24500"});
+    fld("Số CCQ","qty",{type:"number",step:"0.01",ph:"1000"});
+    fld("NAV mua","purchase_price",{money:true,ph:"22.800"});
+    fld("NAV hiện tại","current_price",{money:true,ph:"24.500"});
   }
   fld("Ghi chú","note",{ph:"tuỳ chọn"});
   const btnRow=h("div",{style:{display:"flex",gap:"8px",marginTop:"20px"}});
