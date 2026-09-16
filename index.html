@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609160838';</script>
+<script>window.CT_BUILD='v202609161116';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -6374,7 +6374,9 @@ function pwaEnsureLink(rel, attrs) {
 // LÝ DO không thể đăng ký qua Blob/data: URI — xem phần trả về mục 3 (đã kiểm chứng thực nghiệm,
 // Chromium từ chối "URL protocol ... blob:/data: is not supported" khi registerServiceWorker).
 function pwaServiceWorkerSource() {
-  // Network-first: khi online LUÔN lấy bản mới nhất (tránh kẹt bản cache cũ); offline mới dùng cache.
+  // Stale-while-revalidate: trả cache NGAY (mượt cả khi wifi yếu), tải bản mới ở nền. Freshness do
+  // toast "Có bản mới" (ctVer) đảm nhiệm. LƯU Ý: file TĨNH `sw.js` ở gốc repo mới là bản chạy thật;
+  // deploy.ps1 chỉ bump CACHE_NAME của sw.js, KHÔNG sinh lại từ hàm này — sửa chiến lược phải sửa sw.js.
   return [
     "const CACHE_NAME='cardtrack-v2';",
     "const APP_SHELL=['./','./index.html'];",
@@ -6384,10 +6386,13 @@ function pwaServiceWorkerSource() {
     "  if(e.request.method!=='GET')return;",
     "  var url=new URL(e.request.url);",
     "  if(url.origin!==self.location.origin)return;",
-    "  e.respondWith(fetch(e.request).then(function(res){",
-    "    if(res&&res.status===200){var copy=res.clone();caches.open(CACHE_NAME).then(function(c){c.put(e.request,copy);});}",
-    "    return res;",
-    "  }).catch(function(){return caches.match(e.request).then(function(c){return c||caches.match('./index.html');});}));",
+    "  e.respondWith((async function(){",
+    "    var cache=await caches.open(CACHE_NAME);",
+    "    var cached=await cache.match(e.request);",
+    "    var netP=fetch(e.request).then(function(res){if(res&&res.status===200){cache.put(e.request,res.clone());}return res;}).catch(function(){return null;});",
+    "    if(cached) return cached;",
+    "    var net=await netP; return net || cache.match('./index.html');",
+    "  })());",
     "});"
   ].join("\n") + "\n";
 }

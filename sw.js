@@ -1,5 +1,5 @@
 // Bump this on every deploy so old caches get purged and clients pick up new code.
-const CACHE_NAME='cardtrack-v202609160838';
+const CACHE_NAME='cardtrack-v202609161116';
 const APP_SHELL=['./','./index.html'];
 
 self.addEventListener('install',function(e){
@@ -27,26 +27,20 @@ self.addEventListener('fetch',function(e){
   var url=new URL(e.request.url);
   if(url.origin!==self.location.origin)return;
 
-  // HTML navigations: ALWAYS try network first with no HTTP cache — never serve stale HTML.
-  // Only fall back to cache if the network truly fails (offline).
-  var isHTML = e.request.mode==='navigate' ||
-               (e.request.headers.get('accept')||'').indexOf('text/html')!==-1 ||
-               url.pathname.endsWith('/') || url.pathname.endsWith('.html');
-  if(isHTML){
-    e.respondWith(
-      fetch(e.request,{cache:'no-store'}).then(function(res){
-        if(res&&res.status===200){var copy=res.clone();caches.open(CACHE_NAME).then(function(c){c.put(e.request,copy)})}
-        return res;
-      }).catch(function(){
-        return caches.match(e.request).then(function(c){return c||caches.match('./index.html')});
-      })
-    );
-    return;
-  }
-
-  // Other assets: network-first with cache fallback (unchanged).
-  e.respondWith(fetch(e.request).then(function(res){
-    if(res&&res.status===200){var copy=res.clone();caches.open(CACHE_NAME).then(function(c){c.put(e.request,copy)})}
-    return res;
-  }).catch(function(){return caches.match(e.request)}));
+  // Stale-while-revalidate: trả bản CACHE NGAY (không chờ mạng → mượt cả khi wifi yếu / chập chờn),
+  // đồng thời tải bản mới ở NỀN để cập nhật cache cho lần mở sau. Không lo kẹt bản cũ vì app đã có
+  // cơ chế báo "🔄 Có bản mới / Tải lại" (ctVer so window.CT_BUILD với sw.js trên server).
+  // Trước đây HTML dùng network-first + no-store → mỗi lần mở/‌foreground phải chờ tải nguyên file
+  // HTML (~0.5MB) xong mới hiện, wifi kém là đơ.
+  e.respondWith((async function(){
+    var cache=await caches.open(CACHE_NAME);
+    var cached=await cache.match(e.request);
+    var netP=fetch(e.request).then(function(res){
+      if(res&&res.status===200){cache.put(e.request,res.clone())}
+      return res;
+    }).catch(function(){return null});
+    if(cached) return cached;                 // có cache → trả ngay, cập nhật nền
+    var net=await netP;                       // chưa có cache (lần đầu) → chờ mạng
+    return net || cache.match('./index.html');
+  })());
 });
