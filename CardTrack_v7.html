@@ -829,15 +829,16 @@ let ALL_CARDS=[
     note:"Du lịch/Thời trang/Giải trí 8%; Online/Ẩm thực 2%; tổng CB max 500K/kỳ chung; đổi danh mục ưu đãi 1 lần/ngày; chu kỳ tháng lịch",
     annualFee:900000,afNext:"2027-01",afWaive:"là Khách hàng Inspire"},
 
-  // ── LPB JCB Ultimate (minSpend 8tr) ──
-  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",cardNum:"356772****2059",stmtDay:20,dueDay:4,color:"#C17F3A",
+  // ── VPB JCB Z (thay LPB JCB Ultimate đã bỏ theo dõi) ──
+  {id:"vpb-0277",name:"VPB JCB Z",network:"JCB",last4:"0277",cardNum:"356772****0277",stmtDay:27,dueDay:10,color:"#8B0F1F",
     cashbackCategories:[
-      {category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},
-      {category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},
-      {category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}
+      {category:"Ẩm thực",rate:.15,maxCashback:500000,maxSpend:3333333},
+      {category:"Giải trí",rate:.15,maxCashback:500000,maxSpend:3333333},
+      {category:"Di chuyển",rate:.15,maxCashback:500000,maxSpend:3333333}
     ],
-    minSpend:8000000,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K; Chi tiêu tối thiểu 8tr/kỳ",
-    annualFee:1500000,afNext:"2026-11",afWaive:"240tr/năm"},
+    minSpend:0,sharedMaxCashback:1000000,calendarMonth:true,
+    note:"Hoàn 15% max 500K/lĩnh vực (Ăn uống / Giải trí-Fitness / Di chuyển & đặt đồ ăn); tổng max 1tr/tháng; chu kỳ tháng lịch",
+    annualFee:399000,afNext:"2027-09",afWaive:"Miễn nếu chi ≥80tr/năm; nếu không charge 399K vào Tháng 9/2027"},
 
   // ── HDB Visa EZ Gold (calendar month) ──
   {id:"hdb-4497",name:"HDB Visa EZ",network:"Visa",last4:"4497",cardNum:"498767****4497",stmtDay:20,dueDay:4,color:"#ED1C24",
@@ -860,11 +861,10 @@ let ALL_CARDS=[
     note:"Ẩm thực & Du lịch max CB 300K chung (không bao gồm Fastfood); Vé Vietjet riêng max 500K; chu kỳ tháng lịch",
     annualFee:990000,afNext:"2027-02",afWaive:"60tr/năm"},
 
-  // ── Seabank Sea-Easy (calendar month) ──
-  {id:"seabank-6891",name:"Seabank Sea-Easy",network:"Visa",last4:"6891",cardNum:"426545****6891",stmtDay:30,dueDay:8,color:"#E31B23",
-    cashbackCategories:[{category:"Online",rate:.08,maxCashback:600000,maxSpend:7500000}],
-    minSpend:0,calendarMonth:true,note:"Chỉ áp dụng GD tại Shopee; chu kỳ tháng lịch",
-    annualFee:440000,afNext:"2027-02",afWaive:"70tr/năm"},
+  // ── Vikki Go (thay Seabank Sea-Easy đã bỏ theo dõi) — không cashback, free PTN trọn đời ──
+  {id:"vikki-5977",name:"Vikki Go (T)",network:"MC",last4:"5977",cardNum:"526263****5977",stmtDay:15,dueDay:10,color:"#F04E2A",
+    cashbackCategories:[],minSpend:0,note:"Không có cashback; free phí thường niên trọn đời.",
+    annualFee:0},
 
   // ── Sacombank Platinum AMEX (bỏ điều kiện tối thiểu) ──
   {id:"sacom-9870",name:"Sacom Plat AMEX",network:"Amex",last4:"9870",cardNum:"370989****9870",stmtDay:30,dueDay:20,color:"#0054A4",
@@ -1062,7 +1062,7 @@ const SHOP_CARD_MAP=[
   {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
   {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
   {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
-  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","seabank-6891","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
+  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
   {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
   // ── Thời trang ──
   {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
@@ -1081,24 +1081,24 @@ const SHOP_CARD_MAP=[
   {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   // ── Y tế ──
-  {shop:"Choray",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"HaiYen",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Choray",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"TMH SG",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Victoria HC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"VNVC",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"YDuoc",category:"Y tế",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"TMH SG",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Victoria HC",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"YDuoc",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Giáo dục ──
-  {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
-  {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
-  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
+  {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
   // ── Bảo hiểm ──
-  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Manulife",category:"Bảo hiểm",cardIds:["lpb-2059","mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Manulife",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
   // ── Giải trí ──
@@ -6048,6 +6048,12 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     signOut:async()=>{const c=ensureClient();if(!c)return;await c.auth.signOut();session=null;localStorage.removeItem("ct7-sync-migrated");localStorage.removeItem("ct7-cloud-skip");location.reload()}
   };
 
+  // Test hooks — chỉ expose khi URL có ?ct_test=1 để verify-sync.js gọi được nội bộ IIFE.
+  // KHÔNG bao giờ true trong production (URL bình thường).
+  try{if(/[?&]ct_test=1/.test(location.search)){
+    window.__ctSyncTest={KEY_MAP,SKIP_KEYS,isEphemeral,readTombs,writeTombs,collectSettings};
+  }}catch{}
+
   // ══════════════════════════════════════════════════════════════
   // ctRef — Reference-data module (Phase 7)
   // Pulls shared ref_cards / ref_shops / ref_card_mcc_rates from Supabase.
@@ -6150,6 +6156,11 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     syncNow:refPull,
     autoSync:refAutoSync
   };
+
+  // Test hooks — chỉ expose khi ?ct_test=1
+  try{if(/[?&]ct_test=1/.test(location.search)){
+    window.__ctRefTest={REF_KEYS,cloudRowToAllCard,mergeCloudCards};
+  }}catch{}
 })();
 
 /*@ENDFRAG:settings2*/
