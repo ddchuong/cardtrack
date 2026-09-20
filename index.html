@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609201301';</script>
+<script>window.CT_BUILD='v202609201326';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -784,6 +784,19 @@ let ALL_CARDS=[
     note:"Mỗi lĩnh vực 10% max 300K; tổng max 1.2tr/tháng; GD lĩnh vực khác hoàn 0.4% (app không tính); chi tiêu tối thiểu 3tr/kỳ",
     annualFee:1100000,afNext:"2027-06",afWaive:"110tr/năm"},
 
+  // ── SHINHAN Supreme (điểm thưởng 1đ=1đ; nhảy bậc theo tổng chi kỳ 15tr; shared cap 300K→1tr) ──
+  {id:"shinhan-4549",name:"Shinhan Supreme",network:"Visa",last4:"4549",cardNum:"4030****4549",stmtDay:20,dueDay:4,color:"#1E2A47",
+    cashbackCategories:[
+      {category:"Online",rate:.12,maxCashback:300000,maxSpend:2500000,hiRate:.12,hiMaxCashback:1000000,hiMaxSpend:8333333},
+      {category:"Giáo dục",rate:.12,maxCashback:300000,maxSpend:2500000,hiRate:.12,hiMaxCashback:1000000,hiMaxSpend:8333333},
+      {category:"Y tế",rate:.06,maxCashback:300000,maxSpend:5000000,hiRate:.06,hiMaxCashback:1000000,hiMaxSpend:16666667},
+      {category:"Bảo hiểm",rate:.06,maxCashback:300000,maxSpend:5000000,hiRate:.06,hiMaxCashback:1000000,hiMaxSpend:16666667}
+    ],
+    minSpend:3000000,sharedMaxCashback:300000,hiSharedMaxCashback:1000000,tierThreshold:15000000,
+    sharedCats:["Online","Giáo dục","Y tế","Bảo hiểm"],
+    note:"Điểm thưởng 1đ = 1đ. Nhảy bậc theo tổng chi kỳ sao kê: 3tr–<15tr shared cap 300K; ≥15tr shared cap 1tr. TMĐT/Điện máy/Giáo dục/Nhà sách 12%; Bệnh viện/Bảo hiểm 6% (Điện máy & Nhà sách chưa map trong app — dùng lĩnh vực Khác/Giáo dục thủ công). Base 0.3% và ưu đãi TTĐK 50% (Netflix/Spotify/ChatGPT max 50K/kỳ) app không tính. Nếu tổng chi <3tr, tất cả cat đặc biệt về 0.3%.",
+    annualFee:550000,afNext:"2027-09",afWaive:"Theo Shinhan"},
+
   // ── MSB mDigi ──
   {id:"msb-0691",name:"MSB mDigi (C)",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
@@ -1003,6 +1016,7 @@ let ALL_CARDS=[
 window.ALL_CARDS = ALL_CARDS; // expose so ctRef.mergeCloudCards can mutate the array
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
+window.CATEGORIES = CATEGORIES;
 const SHOP_SUGGESTIONS={
   "Siêu thị":["KingFood","TopsMarket","Coop","MegaM","Emart","AnNam","BHX","BigC","Glam Beautique","Muji","Winmart"],
   "Ẩm thực":["ShopeeFood","BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
@@ -3420,13 +3434,14 @@ function renderAdviceTab(){
 
   // ── Segmented: tư vấn tức thời 1 giao dịch, kế hoạch cả tháng, hoặc tra MCC/shop ──
   const seg=h("div",{className:"seg"});
-  [["txn","1 giao dịch"],["plan","Kế hoạch tháng"],["mcc","🔎 Tra MCC"]].forEach(([k,l])=>
+  [["txn","1 giao dịch"],["plan","Kế hoạch tháng"],["mcc","🔎 Tra MCC"],["addshop","➕ Shop"]].forEach(([k,l])=>
     seg.appendChild(h("button",{className:"seg-btn"+(_plMode===k?" on":""),
       onClick:()=>{if(_plMode!==k){_plMode=k;render()}}},l)));
   w.appendChild(seg);
 
   if(_plMode==="plan"){w.appendChild(advPlanBranch(cards));return w}
   if(_plMode==="mcc"){w.appendChild(advMccLookup());return w}
+  if(_plMode==="addshop"){w.appendChild(advAddShop());return w}
 
   // ── 1. SỐ TIỀN TRƯỚC TIÊN ──
   const pAmt=parseAmount(state.advAmt),validAmt=!isNaN(pAmt)&&pAmt>0;
@@ -5659,6 +5674,66 @@ function renderMccOut(out,q){
   }
 }
 
+// ═══ Thêm Shop mới → ref_shops (Supabase, shared) ═══
+let _addShopDraft={name:"",mcc:"",category:""};
+let _addShopMsg={type:"",text:""};
+function advAddShop(){
+  const w=h("div",{style:{marginTop:"var(--s2)"}});
+  const r=window.ctRef;
+  if(!r){w.appendChild(h("p",{className:"hint"},"Đang tải module dữ liệu…"));return w}
+  w.appendChild(h("p",{className:"hint",style:{marginBottom:"var(--s2)"}},
+    "Thêm shop mới vào kho dùng chung (Supabase). Cả app sẽ thấy sau khi cache đồng bộ."));
+  if(!r.hasSession||!r.hasSession()){
+    w.appendChild(h("p",{className:"hint",style:{color:"var(--warn)"}},
+      "⚠️ Cần đăng nhập cloud (Sync) trước khi thêm shop."));
+    return w;
+  }
+  const inpStyle={width:"100%",padding:"10px 12px",fontSize:"15px",border:"1.5px solid var(--border)",borderRadius:"8px",background:"var(--bg2)",color:"var(--text)",marginTop:"4px",boxSizing:"border-box"};
+  const lblStyle={display:"block",fontSize:"13px",fontWeight:"600",color:"var(--text2)",marginTop:"10px"};
+
+  const nameIn=h("input",{type:"text",style:inpStyle,placeholder:"VD: Highlands Coffee",value:_addShopDraft.name,
+    onInput:e=>{_addShopDraft.name=e.target.value}});
+  const mccIn=h("input",{type:"text",inputMode:"numeric",maxLength:"4",style:inpStyle,placeholder:"VD: 5814",value:_addShopDraft.mcc,
+    onInput:e=>{_addShopDraft.mcc=e.target.value.replace(/[^\d]/g,"").slice(0,4)}});
+  const catSel=h("select",{style:inpStyle,onChange:e=>{_addShopDraft.category=e.target.value}});
+  catSel.appendChild(h("option",{value:""},"— chọn lĩnh vực —"));
+  (window.CATEGORIES||["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"])
+    .forEach(c=>{const op=h("option",{value:c},c);if(_addShopDraft.category===c)op.selected=true;catSel.appendChild(op)});
+
+  w.appendChild(h("label",{style:lblStyle},"Tên shop *"));w.appendChild(nameIn);
+  w.appendChild(h("label",{style:lblStyle},"MCC (4 chữ số) *"));w.appendChild(mccIn);
+  w.appendChild(h("p",{className:"hint",style:{fontSize:"12px",marginTop:"4px"}},
+    "Tra MCC ở tab 🔎 Tra MCC hoặc google 'MCC + tên ngành'"));
+  w.appendChild(h("label",{style:lblStyle},"Lĩnh vực *"));w.appendChild(catSel);
+
+  if(_addShopMsg.text){
+    w.appendChild(h("p",{style:{marginTop:"12px",padding:"8px 10px",borderRadius:"6px",fontSize:"13px",
+      background:_addShopMsg.type==="ok"?"var(--accentBg)":"rgba(220,80,80,.12)",
+      color:_addShopMsg.type==="ok"?"var(--accent)":"var(--warn)"}},_addShopMsg.text));
+  }
+
+  const btnRow=h("div",{style:{display:"flex",gap:"8px",marginTop:"16px"}});
+  const submitBtn=h("button",{style:{flex:"1",padding:"12px",fontSize:"15px",fontWeight:"700",background:"var(--accent)",color:"#fff",border:"none",borderRadius:"8px",cursor:"pointer"},
+    onClick:async()=>{
+      submitBtn.disabled=true;submitBtn.textContent="Đang lưu…";
+      const res=await r.addShop({name:_addShopDraft.name,mcc:_addShopDraft.mcc,category:_addShopDraft.category});
+      submitBtn.disabled=false;submitBtn.textContent="💾 Lưu shop";
+      if(res.ok){
+        _addShopMsg={type:"ok",text:'✅ Đã thêm "'+_addShopDraft.name+'" (MCC '+_addShopDraft.mcc+')'};
+        _addShopDraft={name:"",mcc:"",category:""};
+        try{showToast&&showToast("✅ Đã thêm shop")}catch{}
+      }else{
+        _addShopMsg={type:"err",text:"❌ "+(res.err||"Lỗi không xác định")};
+      }
+      render();
+    }},"💾 Lưu shop");
+  const clearBtn=h("button",{style:{padding:"12px 16px",fontSize:"15px",background:"var(--bg3)",color:"var(--text2)",border:"1.5px solid var(--border)",borderRadius:"8px",cursor:"pointer"},
+    onClick:()=>{_addShopDraft={name:"",mcc:"",category:""};_addShopMsg={type:"",text:""};render()}},"Xoá");
+  btnRow.appendChild(submitBtn);btnRow.appendChild(clearBtn);
+  w.appendChild(btnRow);
+  return w;
+}
+
 function stCloudBody(){
   const w=h("div",{className:"st-body"});
   const s=window.ctSync;
@@ -6144,6 +6219,32 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   // On module load, merge whatever's already cached — so ALL_CARDS is populated before first pull.
   try{const cached=refRead(REF_KEYS.cards);if(cached&&cached.length)setTimeout(()=>{try{mergeCloudCards(cached);window.render&&render()}catch{}},50)}catch{}
 
+  // Insert 1 shop mới do user thêm vào ref_shops (shared). Sau khi insert thành công
+  // → refPull() để cache local có shop mới. Cần đã đăng nhập & online.
+  async function refAddShop(payload){
+    const c=ensureClient();if(!c)return {ok:false,err:"Chưa tải được Supabase client"};
+    if(!session)return {ok:false,err:"Chưa đăng nhập cloud"};
+    if(!navigator.onLine)return {ok:false,err:"Đang offline"};
+    const name=String(payload&&payload.name||"").trim();
+    const mcc=String(payload&&payload.mcc||"").trim();
+    const category=String(payload&&payload.category||"").trim();
+    if(!name)return {ok:false,err:"Tên shop trống"};
+    if(!/^\d{4}$/.test(mcc))return {ok:false,err:"MCC phải là 4 chữ số"};
+    if(!category)return {ok:false,err:"Chọn lĩnh vực"};
+    // Trùng tên (case-insensitive) → chặn ở client (server có thể có unique constraint riêng)
+    const dup=(refRead(REF_KEYS.shops)||[]).find(s=>String(s.name||"").toLowerCase()===name.toLowerCase());
+    if(dup)return {ok:false,err:'Đã có shop "'+dup.name+'" (MCC '+dup.mcc+')'};
+    const row={name,mcc,category};
+    const aliases=(payload&&payload.aliases)||null;
+    if(Array.isArray(aliases)&&aliases.length)row.aliases=aliases;
+    try{
+      const res=await c.from("ref_shops").insert([row]).select();
+      if(res.error)return {ok:false,err:res.error.message||String(res.error)};
+      await refPull();
+      return {ok:true,data:res.data&&res.data[0]};
+    }catch(e){return {ok:false,err:String(e&&e.message||e)}}
+  }
+
   window.ctRef={
     getCards:()=>refRead(REF_KEYS.cards)||[],
     getShops:()=>refRead(REF_KEYS.shops)||[],
@@ -6151,6 +6252,8 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     ratesFor:(cardId)=>{const r=refRead(REF_KEYS.rates)||[];return r.filter(x=>x.card_id===cardId)},
     cardsForMcc:(mcc)=>{const r=refRead(REF_KEYS.rates)||[];return r.filter(x=>x.mcc===mcc).sort((a,b)=>(b.rate_pct||0)-(a.rate_pct||0))},
     shopByName:(name)=>{const s=refRead(REF_KEYS.shops)||[];const n=String(name||"").toLowerCase();return s.find(x=>x.name.toLowerCase()===n||(x.aliases||[]).some(a=>a.toLowerCase()===n))},
+    hasSession:()=>!!session,
+    addShop:refAddShop,
     lastSync:()=>localStorage.getItem(REF_KEYS.last),
     syncNow:refPull,
     autoSync:refAutoSync
