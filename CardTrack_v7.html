@@ -836,8 +836,8 @@ let ALL_CARDS=[
       {category:"Giải trí",rate:.15,maxCashback:500000,maxSpend:3333333},
       {category:"Di chuyển",rate:.15,maxCashback:500000,maxSpend:3333333}
     ],
-    minSpend:0,sharedMaxCashback:1000000,calendarMonth:true,
-    note:"Hoàn 15% max 500K/lĩnh vực (Ăn uống / Giải trí-Fitness / Di chuyển & đặt đồ ăn); tổng max 1tr/tháng; chu kỳ tháng lịch",
+    minSpend:0,sharedMaxCashback:1000000,
+    note:"Hoàn 15% max 500K/lĩnh vực (Ăn uống / Giải trí-Fitness / Di chuyển & đặt đồ ăn); tổng max 1tr/kỳ; chu kỳ theo sao kê (27→26)",
     annualFee:399000,afNext:"2027-09",afWaive:"Miễn nếu chi ≥80tr/năm; nếu không charge 399K vào Tháng 9/2027"},
 
   // ── HDB Visa EZ Gold (calendar month) ──
@@ -1004,8 +1004,8 @@ window.ALL_CARDS = ALL_CARDS; // expose so ctRef.mergeCloudCards can mutate the 
 
 const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 const SHOP_SUGGESTIONS={
-  "Siêu thị":["AnNam","BHX","BigC","Coop","Emart","Glam Beautique","KingFood","MegaM","Muji","Winmart"],
-  "Ẩm thực":["BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","ShopeeFood","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
+  "Siêu thị":["KingFood","TopsMarket","Coop","MegaM","Emart","AnNam","BHX","BigC","Glam Beautique","Muji","Winmart"],
+  "Ẩm thực":["ShopeeFood","BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
   "Y tế":["Choray","HaiYen","Pharmacity","TMH SG","Victoria HC","Vinmec","VNVC","YDuoc","Á Châu"],
   "Giáo dục":["Fahasa","MyKingdom","NS PhuongNam","ReadingQ","SSC"],
   "Online":["Adidas Online","Lazada","Shopee","Tiktok"],
@@ -1015,7 +1015,8 @@ const SHOP_SUGGESTIONS={
   "Di chuyển":["Be","Grab"],
   "Vé Vietjet":["Vietjet"],
   "Giải trí":["CGV","Galaxy Cinema","Lotte Cinema"],
-  "Nước ngoài":[]
+  "Nước ngoài":[],
+  "Khác":["Petrolimex","Comeco"]
 };
 
 const SHOP_CARD_MAP=[
@@ -3439,7 +3440,6 @@ function renderAdviceTab(){
   [["000","000"],["000.000","000000"]].forEach(([lbl,z])=>aqa.appendChild(h("button",{className:"chip amt-unit",
     title:z==="000"?"Thêm 3 số 0 (nghìn)":"Thêm 6 số 0 (triệu)",
     onClick:()=>{const cur=(state.advAmt||"").replace(/[^\d]/g,"");if(!cur){buzz(6);return}setAdvAmt(cur+z)}},lbl)));
-  [["100k",100000],["500k",500000],["1tr",1000000],["2tr",2000000]].forEach(([lbl,val])=>aqa.appendChild(h("button",{className:"chip",onClick:()=>setAdvAmt(String(val))},lbl)));
   w.appendChild(aqa);
   advMaybeAutoFocus();
 
@@ -4490,7 +4490,6 @@ function renderAddTxn(){
   [["000","000"],["000.000","000000"]].forEach(([lbl,z])=>qa.appendChild(h("button",{className:"chip amt-unit",
     title:z==="000"?"Thêm 3 số 0 (nghìn)":"Thêm 6 số 0 (triệu)",
     onClick:()=>{const cur=(state.addAmount||"").replace(/[^\d]/g,"");if(!cur){buzz(6);return}setAmt(cur+z)}},lbl)));
-  [["100k",100000],["200k",200000],["500k",500000],["1tr",1000000],["2tr",2000000]].forEach(([lbl,val])=>qa.appendChild(h("button",{className:"chip",onClick:()=>setAmt(String(val))},lbl)));
   w.appendChild(qa);
 
   // ── 2. THẺ ──
