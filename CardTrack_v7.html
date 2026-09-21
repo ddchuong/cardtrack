@@ -1015,13 +1015,14 @@ let ALL_CARDS=[
 ];
 window.ALL_CARDS = ALL_CARDS; // expose so ctRef.mergeCloudCards can mutate the array
 
-const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
+const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Nhà sách","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
 window.CATEGORIES = CATEGORIES;
 const SHOP_SUGGESTIONS={
   "Siêu thị":["KingFood","TopsMarket","Coop","MegaM","Emart","AnNam","BHX","BigC","Glam Beautique","Muji","Winmart"],
   "Ẩm thực":["ShopeeFood","BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
   "Y tế":["Choray","HaiYen","Pharmacity","TMH SG","Victoria HC","Vinmec","VNVC","YDuoc","Á Châu"],
-  "Giáo dục":["Fahasa","MyKingdom","NS PhuongNam","ReadingQ","SSC"],
+  "Giáo dục":["ReadingQ","SSC"],
+  "Nhà sách":["Fahasa","MyKingdom","NS NguyenHue","NS PhuongNam"],
   "Online":["Adidas Online","Lazada","Shopee","Tiktok"],
   "Bảo hiểm":["Bảo Việt","Manulife"],
   "Thời trang":["Adidas","Bath Body Works","Decathlon","H&M","SuperSports","Uniqlo","Zara"],
@@ -1106,11 +1107,12 @@ const SHOP_CARD_MAP=[
   {shop:"YDuoc",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Giáo dục ──
-  {shop:"Fahasa",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
-  {shop:"MyKingdom",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
-  {shop:"NS PhuongNam",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"Fahasa",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
+  {shop:"MyKingdom",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
+  {shop:"NS NguyenHue",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
+  {shop:"NS PhuongNam",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
   // ── Bảo hiểm ──
   {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Manulife",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
@@ -1123,7 +1125,7 @@ const SHOP_CARD_MAP=[
 ]
 
 
-const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
+const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
@@ -6234,7 +6236,11 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     // Trùng tên (case-insensitive) → chặn ở client (server có thể có unique constraint riêng)
     const dup=(refRead(REF_KEYS.shops)||[]).find(s=>String(s.name||"").toLowerCase()===name.toLowerCase());
     if(dup)return {ok:false,err:'Đã có shop "'+dup.name+'" (MCC '+dup.mcc+')'};
-    const row={name,mcc,category};
+    // Gen id client-side: ref_shops.id là NOT NULL không có default. Dùng slug từ tên + rand.
+    const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"shop";
+    const rand=Math.random().toString(36).slice(2,8);
+    const id="u-"+slug+"-"+rand;
+    const row={id,name,mcc,category};
     const aliases=(payload&&payload.aliases)||null;
     if(Array.isArray(aliases)&&aliases.length)row.aliases=aliases;
     try{
