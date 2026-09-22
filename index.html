@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609211126';</script>
+<script>window.CT_BUILD='v202609221056';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -785,7 +785,7 @@ let ALL_CARDS=[
     annualFee:1100000,afNext:"2027-06",afWaive:"110tr/năm"},
 
   // ── SHINHAN Supreme (điểm thưởng 1đ=1đ; nhảy bậc theo tổng chi kỳ 15tr; shared cap 300K→1tr) ──
-  {id:"shinhan-4549",name:"Shinhan Supreme",network:"Visa",last4:"4549",cardNum:"4030****4549",stmtDay:20,dueDay:4,color:"#1E2A47",
+  {id:"shinhan-8149",name:"Shinhan Supreme",network:"Visa",last4:"8149",cardNum:"403013****8149",stmtDay:20,dueDay:4,color:"#1E2A47",
     cashbackCategories:[
       {category:"Online",rate:.12,maxCashback:300000,maxSpend:2500000,hiRate:.12,hiMaxCashback:1000000,hiMaxSpend:8333333},
       {category:"Giáo dục",rate:.12,maxCashback:300000,maxSpend:2500000,hiRate:.12,hiMaxCashback:1000000,hiMaxSpend:8333333},
@@ -795,7 +795,7 @@ let ALL_CARDS=[
     minSpend:3000000,sharedMaxCashback:300000,hiSharedMaxCashback:1000000,tierThreshold:15000000,
     sharedCats:["Online","Giáo dục","Y tế","Bảo hiểm"],
     note:"Điểm thưởng 1đ = 1đ. Nhảy bậc theo tổng chi kỳ sao kê: 3tr–<15tr shared cap 300K; ≥15tr shared cap 1tr. TMĐT/Điện máy/Giáo dục/Nhà sách 12%; Bệnh viện/Bảo hiểm 6% (Điện máy & Nhà sách chưa map trong app — dùng lĩnh vực Khác/Giáo dục thủ công). Base 0.3% và ưu đãi TTĐK 50% (Netflix/Spotify/ChatGPT max 50K/kỳ) app không tính. Nếu tổng chi <3tr, tất cả cat đặc biệt về 0.3%.",
-    annualFee:550000,afNext:"2027-09",afWaive:"Theo Shinhan"},
+    annualFee:550000,afNext:"2027-08",afWaive:"Theo Shinhan"},
 
   // ── MSB mDigi ──
   {id:"msb-0691",name:"MSB mDigi (C)",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
@@ -1107,12 +1107,12 @@ const SHOP_CARD_MAP=[
   {shop:"YDuoc",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Giáo dục ──
-  {shop:"Fahasa",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
-  {shop:"MyKingdom",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
-  {shop:"NS NguyenHue",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
-  {shop:"NS PhuongNam",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-4549"]},
+  {shop:"Fahasa",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+  {shop:"MyKingdom",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+  {shop:"NS NguyenHue",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+  {shop:"NS PhuongNam",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   // ── Bảo hiểm ──
   {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Manulife",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
@@ -3208,11 +3208,24 @@ const alDraft={}; // input đang gõ: "pay-<cardId>" | "s-<cardId>" | "m-<cardId
 
 
 /* ══ khôi phục function của fragment: home ══ */
+// Rút gọn tên thẻ hiển thị trong row: bỏ prefix bank (đã có header bank group phía trên).
+// VD "Shinhan MyLife" → "MyLife", "VPB JCB Z" → "JCB Z", "VIB MAX" → "MAX".
+const _BANK_PREFIXES=["Shinhan","Sacom","Sacombank","BIDV","SHB","CIMB","HDBank","HDB","HSBC","LPBank","LPB","MB Bank","MB","MSB","Seabank","SeaBank","Techcombank","TCB","VIB","UOB","VPBank","VPB","Vikki"];
+function shortCardName(card){
+  const n=(card&&card.name)||"";
+  // Sort dài trước để "MB Bank" match trước "MB"
+  const sorted=_BANK_PREFIXES.slice().sort((a,b)=>b.length-a.length);
+  for(const p of sorted){
+    if(n===p)return n;
+    if(n.toLowerCase().startsWith(p.toLowerCase()+" "))return n.slice(p.length+1);
+  }
+  return n;
+}
 function hmRowBadge(card,ct,ts){
   const u=utilOf(card);
-  if(u&&u.hot)return h("span",{className:"badge badge-warn hm-badge"},u.over?"⚠ Vượt hạn mức":"🔥 "+Math.round(u.pct)+"%");
-  if(card.minSpend>0&&ts<card.minSpend)return h("span",{className:"badge badge-muted hm-badge"},"Chưa đạt min");
-  if(card.tierThreshold&&!tierHi(card,ct))return h("span",{className:"badge badge-muted hm-badge"},"Chưa lên bậc");
+  if(u&&u.hot)return h("span",{className:"badge badge-warn hm-badge"},u.over?"⚠ Vượt HM":"🔥 "+Math.round(u.pct)+"%");
+  if(card.minSpend>0&&ts<card.minSpend)return h("span",{className:"badge badge-muted hm-badge",title:"Chưa đạt chi tiêu tối thiểu"},"≤ min");
+  if(card.tierThreshold&&!tierHi(card,ct))return h("span",{className:"badge badge-muted hm-badge",title:"Chưa lên bậc cao"},"≤ bậc");
   return null;
 }
 function hmCardRow(card){
@@ -3227,7 +3240,7 @@ function hmCardRow(card){
     h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),
     h("div",{className:"hm-mid"},
       h("div",{className:"hm-name-line"},
-        h("span",{className:"hm-name"},`${card.name} •${card.last4||(card.cardNum||"").slice(-4)}`),
+        h("span",{className:"hm-name"},`${shortCardName(card)} •${card.last4||(card.cardNum||"").slice(-4)}`),
         badge),
       h("div",{className:"bar-track",role:"progressbar","aria-label":`Cashback ${card.name}`,"aria-valuenow":Math.round(tc),"aria-valuemin":0,"aria-valuemax":Math.round(maxCb)},
         h("div",{className:"bar-fill",style:{width:pct+"%",background:"var(--green)"}}))),
