@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609231603';</script>
+<script>window.CT_BUILD='v202609231628';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2331,11 +2331,60 @@ function renderAssetsTab(){
   }else{
     filt.forEach(a=>w.appendChild(renderAssetRow(a)));
   }
-  // Add button
-  const addBtn=h("button",{className:"ics-btn",style:{marginTop:"16px",width:"100%"},
+  // Add button + Bulk import (dán JSON nhiều mục cùng lúc)
+  const addBtn=h("button",{className:"ics-btn",style:{flex:"1"},
     onClick:()=>{buzz(8);setState({assetAddType:sub})}},"+ Thêm "+ASSET_TYPE_LABEL[sub]);
-  w.appendChild(h("div",{style:{padding:"0 12px 20px"}},addBtn));
+  const importBtn=h("button",{className:"ics-btn",style:{padding:"0 14px",background:"var(--accentBg)",color:"var(--accent)",border:"1px solid var(--accentBorder)"},
+    title:"Dán JSON array của nhiều tài sản để nhập cùng lúc",
+    onClick:()=>bulkImportAssets(sub)},"📋 Dán");
+  w.appendChild(h("div",{style:{padding:"0 12px 20px",display:"flex",gap:"8px"}},addBtn,importBtn));
   return w;
+}
+
+// Bulk import assets từ JSON array — hỗ trợ savings/fund/gold
+function bulkImportAssets(defaultType){
+  const example=defaultType==="gold"?
+`[
+  {"open_date":"2025-12-12","qty":10,"unit":"chỉ","purchase_price":14470000,"provider":"Kim Túc (T.Hòa)","note":"vàng nhẫn, 2x5c, dì Di"},
+  {"open_date":"2026-01-05","qty":5,"unit":"chỉ","purchase_price":15140000,"provider":"Kim Túc (T.Hòa)","note":"vàng nhẫn, 1x5c"}
+]`:
+`[
+  {"name":"Sổ VCB 6M","provider":"Vietcombank","amount":100000000,"rate_pct":6.5,"open_date":"2026-01-01","tenor":6}
+]`;
+  const raw=prompt(
+    `Dán JSON array của các ${ASSET_TYPE_LABEL[defaultType]} (type mặc định = "${defaultType}").\n\n`+
+    `Trường bắt buộc: name (hoặc auto từ note/provider), open_date, purchase_price (vàng/CCQ) hoặc amount (sổ TK).\n\n`+
+    `Ví dụ:\n${example}`,"");
+  if(!raw||!raw.trim())return;
+  let arr;
+  try{arr=JSON.parse(raw.trim())}catch(e){alert("❌ JSON lỗi: "+e.message);return}
+  if(!Array.isArray(arr))arr=[arr];
+  const now=Date.now();
+  const news=arr.map((x,i)=>{
+    const a={...x};
+    a.type=a.type||defaultType;
+    if(!a.id)a.id="a-"+(now+i);
+    if(!a.name){
+      if(a.type==="gold")a.name=(a.unit?a.qty+" "+a.unit:"Vàng")+(a.provider?" · "+a.provider:"");
+      else if(a.type==="fund")a.name=(a.provider||"CCQ");
+      else a.name=(a.provider||"Sổ TK");
+    }
+    if(!a.currency)a.currency="VND";
+    if(a.type==="gold"&&!a.current_price)a.current_price=a.purchase_price;
+    return a;
+  });
+  const preview=news.map(a=>`  · ${a.name} — ${a.open_date||"?"} — ${a.type==="gold"?a.qty+" "+(a.unit||"chỉ")+" @ "+fmtK(a.purchase_price):fmtK(a.amount||a.purchase_price)}₫`).join("\n");
+  if(!confirm(`Thêm ${news.length} ${ASSET_TYPE_LABEL[defaultType]}?\n\n${preview}`))return;
+  state.assets=(state.assets||[]).concat(news);
+  persist();
+  try{
+    const dirty=new Set(JSON.parse(localStorage.getItem("ct7-sync-dirty")||"[]"));
+    dirty.add("ct7-assets");
+    localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
+    if(window.ctSync&&ctSync.syncNow)ctSync.syncNow();
+  }catch{}
+  try{showToast&&showToast(`✅ Đã thêm ${news.length} tài sản`)}catch{}
+  render();
 }
 
 function renderAssetRow(a){
