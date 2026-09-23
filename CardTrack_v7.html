@@ -2971,8 +2971,10 @@ function renderPTNDetail(c){
     const val=m[cy.key]||"";
     w.appendChild(h("div",{className:"ptn-cyc-row"},
       h("span",{className:"ptn-cyc-lbl"},cy.label),
-      h("input",{className:"input ptn-cyc-inp",type:"text",inputmode:"numeric",placeholder:"0",value:val?String(val):"",
+      h("input",{className:"input ptn-cyc-inp",type:"text",inputmode:"numeric",placeholder:"0",
+        value:val?fmtAmtDisplay(String(val)):"",
         "data-fid":"af-"+c.id+"-"+cy.key,
+        onInput:e=>amtMaskInput(e,f=>{}),
         onChange:e=>{const a=parseAmount(e.target.value);setAfSpend(c.id,cy.key,isNaN(a)?0:a);render();}}),
       h("span",{className:"ptn-cyc-fmt"},(m[cy.key]?fmtK(m[cy.key]):"—"))));
   });
