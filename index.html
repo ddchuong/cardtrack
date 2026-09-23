@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609221344';</script>
+<script>window.CT_BUILD='v202609231358';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -396,7 +396,7 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 
 /* home */
 
-.hm-row{min-height:68px}
+.hm-row{min-height:60px;padding-top:8px;padding-bottom:8px}
 .hm-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;justify-content:center}
 .hm-name-line{display:flex;align-items:center;gap:6px;min-width:0}
 .hm-name{font-weight:700;font-size:15px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
@@ -417,7 +417,9 @@ select{flex:1;min-width:0;appearance:none;background-image:url("data:image/svg+x
 .cyc-days{font-size:12px;font-family:var(--font-mono);color:var(--text3);margin-left:auto;white-space:nowrap}
 .cyc-days.warn{color:var(--warn);font-weight:800}
 .cyc-sub{font-size:12px;color:var(--text3);margin-top:3px;line-height:1.4}
-.hm-grp{font-size:11px;font-weight:800;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin:4px 0 4px 2px}
+.hm-grp{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:var(--text);letter-spacing:.3px;margin:14px 0 6px 2px}
+.hm-grp:first-child{margin-top:2px}
+.bank-badge{width:26px;height:26px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;font-family:var(--font-mono);flex-shrink:0;letter-spacing:.2px;line-height:1;padding:0 2px;box-sizing:border-box}
 .hm-more{display:block;width:100%;text-align:center;background:transparent;border:none;color:var(--accent);font-weight:700;font-size:13px;min-height:36px;cursor:pointer;font-family:var(--font-body)}
 .hm-hotrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:5px 0;cursor:pointer;background:transparent;border:none;width:100%;text-align:left;font-family:var(--font-body);min-height:44px}
 .hm-hotrow+.hm-hotrow,.hm-hotrow+.alert-row,.alert-row+.hm-hotrow{border-top:1px dashed var(--warnBorder)}
@@ -1023,6 +1025,7 @@ const SHOP_SUGGESTIONS={
   "Y tế":["Choray","HaiYen","Pharmacity","TMH SG","Victoria HC","Vinmec","VNVC","YDuoc","Á Châu"],
   "Giáo dục":["ReadingQ","SSC"],
   "Nhà sách":["Fahasa","MyKingdom","NS NguyenHue","NS PhuongNam"],
+  "Điện máy":["CellphoneS","DMX","FPT Shop","HHMobile","Nguyen Kim","ShopDunk","TGDD","Viettel Store","DM Cho Lon"],
   "Online":["Adidas Online","Lazada","Shopee","Tiktok"],
   "Bảo hiểm":["Bảo Việt","Manulife"],
   "Thời trang":["Adidas","Bath Body Works","Decathlon","H&M","SuperSports","Uniqlo","Zara"],
@@ -1113,6 +1116,17 @@ const SHOP_CARD_MAP=[
   {shop:"NS PhuongNam",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+
+  // ── Điện máy (MCC 5732 / 5722) — chủ yếu Supreme 12% ──
+  {shop:"CellphoneS",   category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"DMX",          category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"FPT Shop",     category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"HHMobile",     category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"Nguyen Kim",   category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"ShopDunk",     category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"TGDD",         category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"Viettel Store",category:"Điện máy",cardIds:["shinhan-8149"]},
+  {shop:"DM Cho Lon",   category:"Điện máy",cardIds:["shinhan-8149"]},
   // ── Bảo hiểm ──
   {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"Manulife",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
@@ -2579,6 +2593,30 @@ const BANK_DISPLAY = {
   Seabank:"SeaBank", Shinhan:"Shinhan", TCB:"Techcombank",
   VIB:"VIB", UOB:"UOB", VPB:"VPBank", Vikki:"Vikki"
 };
+// Badge màu brand + short code hiển thị trên header bank group (Tổng quan)
+const BANK_STYLE = {
+  "BIDV":       {bg:"#005BAA",code:"BIDV"},
+  "SHB":        {bg:"#003399",code:"SHB"},
+  "CIMB":       {bg:"#EF3E42",code:"CIMB"},
+  "HDBank":     {bg:"#ED1C24",code:"HDB"},
+  "HSBC":       {bg:"#DB0011",code:"HSBC"},
+  "LPBank":     {bg:"#00A652",code:"LPB"},
+  "MB Bank":    {bg:"#E60021",code:"MB"},
+  "MSB":        {bg:"#EB5B21",code:"MSB"},
+  "Sacombank":  {bg:"#00358E",code:"STB"},
+  "SeaBank":    {bg:"#002B7F",code:"SEA"},
+  "Shinhan":    {bg:"#0046FF",code:"SHIN"},
+  "Techcombank":{bg:"#E60000",code:"TCB"},
+  "VIB":        {bg:"#00538B",code:"VIB"},
+  "UOB":        {bg:"#003DA5",code:"UOB"},
+  "VPBank":     {bg:"#00A651",code:"VPB"},
+  "Vikki":      {bg:"#00A2E8",code:"VIKKI"},
+  "Khác":       {bg:"#666",   code:"—"}
+};
+function bankBadge(name){
+  const s=BANK_STYLE[name]||{bg:"#666",code:(name||"?").slice(0,3).toUpperCase()};
+  return h("span",{className:"bank-badge",style:{background:s.bg}},s.code);
+}
 function bankKeyOf(card){
   if(!card)return"Khác";
   // Preferred: cloud bank field (source of truth for cards seeded from Supabase)
@@ -3330,7 +3368,7 @@ function renderHomeTab(){
   cards.forEach(card=>{
     if(state.cardSort==="bank"){
       const bankName=bankKeyOf(card);
-      if(bankName!==lastBank){lastBank=bankName;w.appendChild(h("div",{className:"hm-grp"},bankName))}
+      if(bankName!==lastBank){lastBank=bankName;w.appendChild(h("div",{className:"hm-grp"},bankBadge(bankName),h("span",null,bankName)))}
     }
     w.appendChild(hmCardRow(card));
   });
