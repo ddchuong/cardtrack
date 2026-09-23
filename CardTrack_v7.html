@@ -3294,9 +3294,11 @@ function hmCardRow(card){
   const dl=daysUntilDue(card);
   const dEnd=daysUntilCycleEnd(card);
   const badge=hmRowBadge(card,ct,ts);
+  // Stripe + network badge dùng màu brand của bank (đồng bộ với logo header)
+  const brand=(BANK_STYLE[bankKeyOf(card)]||{}).bg||card.color;
   return h("button",{className:"row-btn hm-row",onClick:()=>setState({detailCardId:card.id})},
-    h("div",{className:"stripe",style:{background:card.color}}),
-    h("span",{className:"net-sm",style:{background:card.color}},NET_ICONS[card.network]),
+    h("div",{className:"stripe",style:{background:brand}}),
+    h("span",{className:"net-sm",style:{background:brand}},NET_ICONS[card.network]),
     h("div",{className:"hm-mid"},
       h("div",{className:"hm-name-line"},
         h("span",{className:"hm-name"},`${shortCardName(card)} •${card.last4||(card.cardNum||"").slice(-4)}`),
