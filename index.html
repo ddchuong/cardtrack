@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609231438';</script>
+<script>window.CT_BUILD='v202609231555';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2960,7 +2960,13 @@ function renderPTNDetail(c){
     w.appendChild(h("div",{className:"hint",style:{marginTop:"8px"}},"// Điều kiện miễn không theo số tiền — nhập để tự theo dõi tổng chi"));
     w.appendChild(h("div",{className:"summary-bar",style:{marginTop:"4px"}},h("span",null,"Tổng đã nhập"),h("span",{style:{fontWeight:800}},money(spent))));
   }
-  w.appendChild(h("div",{className:"ptn-cyc-head"},`Chi tiêu ${cycles.length} kỳ (đến kỳ trước ngày charge)`));
+  // Header + nút "Dán nhanh" (bulk import từ clipboard/prompt) — không cần DevTools
+  const cycHead=h("div",{className:"ptn-cyc-head",style:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"8px"}},
+    h("span",null,`Chi tiêu ${cycles.length} kỳ (đến kỳ trước ngày charge)`),
+    h("button",{style:{padding:"4px 10px",fontSize:"12px",fontWeight:"700",background:"var(--accentBg)",color:"var(--accent)",border:"1px solid var(--accentBorder)",borderRadius:"6px",cursor:"pointer"},
+      title:"Dán JSON {\"YYYY-MM\":số...} hoặc số cách dòng theo đúng thứ tự các kỳ",
+      onClick:()=>bulkPasteAfSpend(c,cycles)},"📋 Dán nhanh"));
+  w.appendChild(cycHead);
   cycles.forEach(cy=>{
     const val=m[cy.key]||"";
     w.appendChild(h("div",{className:"ptn-cyc-row"},
@@ -2971,6 +2977,51 @@ function renderPTNDetail(c){
       h("span",{className:"ptn-cyc-fmt"},(m[cy.key]?fmtK(m[cy.key]):"—"))));
   });
   return w;
+}
+
+// Bulk import chi tiêu 12 kỳ — dán JSON hoặc CSV; parse rồi cập nhật state.afSpend
+function bulkPasteAfSpend(card,cycles){
+  const example='{\n  "2026-01": 6197517,\n  "2026-02": 10422259,\n  ...\n}';
+  const raw=prompt(
+    `Dán chi tiêu ${cycles.length} kỳ cho "${card.name}".\n\n`+
+    `Cách 1 — JSON theo YYYY-MM (ưu tiên):\n${example}\n\n`+
+    `Cách 2 — số cách dòng theo đúng thứ tự các kỳ (${cycles[0].label} → ${cycles[cycles.length-1].label}):\n`+
+    `6197517\n10422259\n...`,"");
+  if(!raw)return;
+  const s=raw.trim();
+  let upd={};
+  try{
+    // JSON path
+    if(s.startsWith("{")){
+      const parsed=JSON.parse(s);
+      Object.entries(parsed).forEach(([k,v])=>{
+        const km=String(k).match(/(\d{4})[-/](\d{1,2})/);
+        if(!km)return;
+        const key=km[1]+"-"+String(km[2]).padStart(2,"0");
+        const a=+String(v).replace(/[^\d]/g,"");
+        if(a>0)upd[key]=a;
+      });
+    }else{
+      // Line-by-line — map vào cycles theo thứ tự
+      const nums=s.split(/[\n,;]+/).map(x=>+x.replace(/[^\d]/g,"")).filter(x=>x>0);
+      nums.forEach((a,i)=>{if(i<cycles.length)upd[cycles[i].key]=a});
+    }
+  }catch(e){alert("❌ Không parse được: "+e.message);return}
+  const n=Object.keys(upd).length;
+  if(!n){alert("❌ Không tìm thấy số nào hợp lệ");return}
+  const preview=Object.entries(upd).sort().map(([k,v])=>`  ${k}: ${v.toLocaleString('vi-VN')}`).join("\n");
+  if(!confirm(`Ghi đè ${n} kỳ cho ${card.name}?\n\n${preview}`))return;
+  const m={...(state.afSpend||{})};m[card.id]={...(m[card.id]||{}),...upd};state.afSpend=m;
+  persist();
+  // Đánh dấu dirty để lần sync tới đẩy lên cloud (settings blob)
+  try{
+    const dirty=new Set(JSON.parse(localStorage.getItem("ct7-sync-dirty")||"[]"));
+    dirty.add("ct7-afspend");
+    localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
+    if(window.ctSync&&ctSync.syncNow)ctSync.syncNow();
+  }catch{}
+  try{showToast&&showToast(`✅ Đã cập nhật ${n} kỳ`)}catch{}
+  render();
 }
 
 // ═══ ADD TAB ═══
