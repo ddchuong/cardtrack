@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609231433';</script>
+<script>window.CT_BUILD='v202609231438';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2612,22 +2612,23 @@ const BANK_LOGO_PNG = {
   "UOB":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAB2ElEQVR42u3YP0hbQRzA8e+9vGiNr8YYpEhAqYhCFQQTDVIjiCku7SLFUWunouLWBv+Ak2AHF8GhSgehFMcuLUIEhRZs3axCDb52UFREEW2bKNrkOVgDUYMKap/lftNxdxwffr/j4H6CxjGOhcG/D3E0UEyIS3AoJsQleBST4uJIxcS4U++gBP53QDXZwuZE66nzWTWD17ZXllgCJVACJVACJVACJVACJVACbwzQWnUfx6JOVaEDgPGAh0/d3vh6yuN6MiaDZIZmyXj/DrXSi7/YiTFShzFSR3jYz3jAg9C068+g6i4jvf8le29H2XZXEl3Q0V6/wpFuBcDXO037m3lq7zmxFBZczrfz+DfQX+wkmGTvQHMfHYD9h5v98jK8c3Y+12uUuA6z9bGrAgB9LUJp9jMiNdHLz2A0dtjCEX87dwIRnzsrfL3TeHqmKLhj42m162pKrK9FiBkG3nw7Ts1KUY6N0GoYgA9f1xEI2vy53L6l0lKby8+dP8wt/z5xTlqK5UJAQePYubtb7Q/yCDy8S6ZN5cv3bZqGZlna3AXgic9F56N8XI5Uvq2EeT4awqIIgi88AOzux5jSt2gYnGHj197VAOU7mAQobkIGzYoUSsJ9NBkO4ACXCn95OhNI2gAAAABJRU5ErkJggg==",
   "Vikki":"data:image/png;base64,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"
 };
-// Badge màu brand + short code hiển thị trên header bank group (Tổng quan)
+// Badge màu brand + short code hiển thị trên header bank group (Tổng quan).
+// Màu chọn theo dominant color của favicon thật (đã fetch từ site bank) để đồng bộ với logo.
 const BANK_STYLE = {
-  "BIDV":       {bg:"#005BAA",code:"BIDV"},
-  "SHB":        {bg:"#003399",code:"SHB"},
+  "BIDV":       {bg:"#00954D",code:"BIDV"},
+  "SHB":        {bg:"#EE7C1F",code:"SHB"},
   "CIMB":       {bg:"#EF3E42",code:"CIMB"},
-  "HDBank":     {bg:"#ED1C24",code:"HDB"},
+  "HDBank":     {bg:"#F0B000",code:"HDB"},
   "HSBC":       {bg:"#DB0011",code:"HSBC"},
   "LPBank":     {bg:"#00A652",code:"LPB"},
-  "MB Bank":    {bg:"#E60021",code:"MB"},
+  "MB Bank":    {bg:"#004890",code:"MB"},
   "MSB":        {bg:"#EB5B21",code:"MSB"},
   "Sacombank":  {bg:"#00358E",code:"STB"},
-  "SeaBank":    {bg:"#002B7F",code:"SEA"},
+  "SeaBank":    {bg:"#A32026",code:"SEA"},
   "Shinhan":    {bg:"#0046FF",code:"SHIN"},
   "Techcombank":{bg:"#E60000",code:"TCB"},
   "VIB":        {bg:"#00538B",code:"VIB"},
-  "UOB":        {bg:"#003DA5",code:"UOB"},
+  "UOB":        {bg:"#005EB8",code:"UOB"},
   "VPBank":     {bg:"#00A651",code:"VPB"},
   "Vikki":      {bg:"#00A2E8",code:"VIKKI"},
   "Khác":       {bg:"#666",   code:"—"}
