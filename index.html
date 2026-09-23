@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202609231628';</script>
+<script>window.CT_BUILD='v202609231644';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2362,7 +2362,13 @@ function bulkImportAssets(defaultType){
   const now=Date.now();
   const news=arr.map((x,i)=>{
     const a={...x};
-    a.type=a.type||defaultType;
+    // Auto-detect type từ field nếu JSON không khai báo (chống nhầm segment)
+    if(!a.type){
+      if(a.qty&&a.unit&&a.purchase_price&&!a.tenor)a.type="gold";
+      else if(a.tenor||(a.amount&&a.rate_pct))a.type="savings";
+      else if(a.qty&&(a.purchase_price||a.current_price)&&!a.unit)a.type="fund";
+      else a.type=defaultType;
+    }
     if(!a.id)a.id="a-"+(now+i);
     if(!a.name){
       if(a.type==="gold")a.name=(a.unit?a.qty+" "+a.unit:"Vàng")+(a.provider?" · "+a.provider:"");
@@ -2401,7 +2407,7 @@ function renderAssetRow(a){
     subline=(a.qty||0)+" "+(a.unit||"chỉ")
       +(a.purchase_price?" · mua "+fmtK(a.purchase_price)+"₫":"")
       +(a.current_price?" → "+fmtK(a.current_price)+"₫":"");
-    right=(pl>=0?"+":"")+fmtK(pl)+"₫ ("+(pl>=0?"+":"")+pct.toFixed(1)+"%)";
+    right="Gốc "+fmtK(cost)+"₫ · "+(pl>=0?"+":"")+fmtK(pl)+"₫ ("+(pl>=0?"+":"")+pct.toFixed(1)+"%)";
   }else if(a.type==="fund"){
     const pl=assetPL(a),cost=assetPurchaseCostVND(a);
     const pct=cost>0?(pl/cost*100):0;
