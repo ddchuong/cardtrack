@@ -2394,34 +2394,48 @@ function bulkImportAssets(defaultType){
 }
 
 function renderAssetRow(a){
-  let right="",subline="";
+  // Layout 3 cột: icon · [title/subtitle] · [right-top / right-bottom]
+  const icon=ASSET_TYPE_ICON[a.type]||"💠";
+  let title=a.name||"(chưa tên)", subline="", rightTop="", rightBot="", rightBotColor="var(--text2)";
+
   if(a.type==="savings"){
     const days=assetDaysToMaturity(a);
     const exp=assetExpectedAmount(a);
-    subline=(a.provider?a.provider+" · ":"")+(a.rate_pct?a.rate_pct+"%":"—")
+    title=a.name||a.provider||"Sổ TK";
+    subline=(a.provider&&a.name!==a.provider?a.provider+" · ":"")+(a.rate_pct?a.rate_pct+"%":"—")
       +(a.maturity_date?" · đáo hạn "+fmtDateVi(a.maturity_date)+(days!=null?" (còn "+days+"d)":""):"");
-    right=money(assetFxToVND(exp,a.currency));
+    rightTop=money(assetFxToVND(exp,a.currency));
+    rightBotColor="var(--green)";
   }else if(a.type==="gold"){
     const pl=assetPL(a),cost=assetPurchaseCostVND(a);
     const pct=cost>0?(pl/cost*100):0;
-    subline=(a.qty||0)+" "+(a.unit||"chỉ")
-      +(a.purchase_price?" · mua "+fmtK(a.purchase_price)+"₫":"")
-      +(a.current_price?" → "+fmtK(a.current_price)+"₫":"");
-    right="Gốc "+fmtK(cost)+"₫ · "+(pl>=0?"+":"")+fmtK(pl)+"₫ ("+(pl>=0?"+":"")+pct.toFixed(1)+"%)";
+    const sign=pl>0?"+":(pl<0?"-":"");
+    title=(a.qty||0)+" "+(a.unit||"chỉ")+(a.provider?" · "+a.provider:"");
+    subline="mua "+money(a.purchase_price||0)+(a.current_price?" → "+money(a.current_price):"");
+    rightTop="Gốc "+money(cost);
+    rightBot=sign+money(Math.abs(pl))+" ("+(pct>=0?"+":"")+pct.toFixed(1)+"%)";
+    rightBotColor=pl>=0?"var(--green)":"var(--warn)";
   }else if(a.type==="fund"){
     const pl=assetPL(a),cost=assetPurchaseCostVND(a);
     const pct=cost>0?(pl/cost*100):0;
-    subline=(a.provider?a.provider+" · ":"")+(a.qty||0)+" CCQ"
+    const sign=pl>0?"+":(pl<0?"-":"");
+    title=a.name||a.provider||"CCQ";
+    subline=(a.provider&&a.name!==a.provider?a.provider+" · ":"")+(a.qty||0)+" CCQ"
       +(a.current_price?" @NAV "+fmtK(a.current_price):"");
-    right=money(assetCurrentValueVND(a))+" ("+(pl>=0?"+":"")+pct.toFixed(1)+"%)";
+    rightTop="Gốc "+money(cost);
+    rightBot=sign+money(Math.abs(pl))+" ("+(pct>=0?"+":"")+pct.toFixed(1)+"%)";
+    rightBotColor=pl>=0?"var(--green)":"var(--warn)";
   }
-  const plColor=(a.type!=="savings"&&assetPL(a)<0)?"var(--warn)":"var(--green)";
-  return h("div",{className:"ev-card",style:{cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px",padding:"12px",marginBottom:"8px",background:"var(--card-bg)",borderRadius:"10px",border:"1px solid var(--line)"},
+
+  return h("div",{className:"ev-card",style:{cursor:"pointer",display:"flex",alignItems:"center",gap:"10px",padding:"12px",marginBottom:"8px",background:"var(--card-bg)",borderRadius:"10px",border:"1px solid var(--line)"},
     onClick:()=>{buzz(6);setState({assetDetailId:a.id})}},
+    h("div",{style:{fontSize:"22px",flexShrink:0,lineHeight:"1"}},icon),
     h("div",{style:{flex:"1",minWidth:0}},
-      h("div",{style:{fontWeight:"700",fontSize:"15px",color:"var(--text)"}},a.name||"(chưa tên)"),
-      h("div",{style:{fontSize:"12px",color:"var(--text2)",marginTop:"2px"}},subline)),
-    h("div",{style:{fontWeight:"700",fontSize:"14px",color:plColor,textAlign:"right",whiteSpace:"nowrap"}},right));
+      h("div",{style:{fontWeight:"700",fontSize:"14px",color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},title),
+      h("div",{style:{fontSize:"12px",color:"var(--text3)",marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},subline)),
+    h("div",{style:{textAlign:"right",flexShrink:0,minWidth:"110px"}},
+      h("div",{style:{fontSize:"12px",color:"var(--text2)",fontWeight:"600",fontFamily:"var(--font-mono)",whiteSpace:"nowrap"}},rightTop),
+      rightBot?h("div",{style:{fontSize:"13px",fontWeight:"800",color:rightBotColor,marginTop:"2px",fontFamily:"var(--font-mono)",whiteSpace:"nowrap"}},rightBot):null));
 }
 
 function renderAssetForm(item,type){
