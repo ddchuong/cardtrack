@@ -2394,38 +2394,34 @@ function bulkImportAssets(defaultType){
 }
 
 function renderAssetRow(a){
-  // Layout 3 cột: icon · [title/subtitle] · [right-top / right-bottom]
+  // Layout 3 cột: icon · [title/subtitle] · [Hiện tại / Gốc (±%)]
   const icon=ASSET_TYPE_ICON[a.type]||"💠";
-  let title=a.name||"(chưa tên)", subline="", rightTop="", rightBot="", rightBotColor="var(--text2)";
+  let title=a.name||"(chưa tên)", subline="";
+  let cur=0, cost=0, hasPct=true;
 
   if(a.type==="savings"){
     const days=assetDaysToMaturity(a);
-    const exp=assetExpectedAmount(a);
+    cur=assetFxToVND(assetExpectedAmount(a),a.currency);
+    cost=assetFxToVND(a.amount||0,a.currency);
     title=a.name||a.provider||"Sổ TK";
     subline=(a.provider&&a.name!==a.provider?a.provider+" · ":"")+(a.rate_pct?a.rate_pct+"%":"—")
       +(a.maturity_date?" · đáo hạn "+fmtDateVi(a.maturity_date)+(days!=null?" (còn "+days+"d)":""):"");
-    rightTop=money(assetFxToVND(exp,a.currency));
-    rightBotColor="var(--green)";
+    hasPct=cost>0&&cur!==cost;
   }else if(a.type==="gold"){
-    const pl=assetPL(a),cost=assetPurchaseCostVND(a);
-    const pct=cost>0?(pl/cost*100):0;
-    const sign=pl>0?"+":(pl<0?"-":"");
+    cur=assetCurrentValueVND(a); cost=assetPurchaseCostVND(a);
     title=(a.qty||0)+" "+(a.unit||"chỉ")+(a.provider?" · "+a.provider:"");
     subline="mua "+money(a.purchase_price||0)+(a.current_price?" → "+money(a.current_price):"");
-    rightTop="Gốc "+money(cost);
-    rightBot=sign+money(Math.abs(pl))+" ("+(pct>=0?"+":"")+pct.toFixed(1)+"%)";
-    rightBotColor=pl>=0?"var(--green)":"var(--warn)";
   }else if(a.type==="fund"){
-    const pl=assetPL(a),cost=assetPurchaseCostVND(a);
-    const pct=cost>0?(pl/cost*100):0;
-    const sign=pl>0?"+":(pl<0?"-":"");
+    cur=assetCurrentValueVND(a); cost=assetPurchaseCostVND(a);
     title=a.name||a.provider||"CCQ";
     subline=(a.provider&&a.name!==a.provider?a.provider+" · ":"")+(a.qty||0)+" CCQ"
       +(a.current_price?" @NAV "+fmtK(a.current_price):"");
-    rightTop="Gốc "+money(cost);
-    rightBot=sign+money(Math.abs(pl))+" ("+(pct>=0?"+":"")+pct.toFixed(1)+"%)";
-    rightBotColor=pl>=0?"var(--green)":"var(--warn)";
   }
+
+  const pl=cur-cost;
+  const pct=cost>0?(pl/cost*100):0;
+  const plColor=pl>0?"var(--green)":(pl<0?"var(--warn)":"var(--text2)");
+  const pctStr=hasPct?" ("+(pct>=0?"+":"")+pct.toFixed(1)+"%)":"";
 
   return h("div",{className:"ev-card",style:{cursor:"pointer",display:"flex",alignItems:"center",gap:"10px",padding:"12px",marginBottom:"8px",background:"var(--card-bg)",borderRadius:"10px",border:"1px solid var(--line)"},
     onClick:()=>{buzz(6);setState({assetDetailId:a.id})}},
@@ -2433,9 +2429,9 @@ function renderAssetRow(a){
     h("div",{style:{flex:"1",minWidth:0}},
       h("div",{style:{fontWeight:"700",fontSize:"14px",color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},title),
       h("div",{style:{fontSize:"12px",color:"var(--text3)",marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},subline)),
-    h("div",{style:{textAlign:"right",flexShrink:0,minWidth:"110px"}},
-      h("div",{style:{fontSize:"12px",color:"var(--text2)",fontWeight:"600",fontFamily:"var(--font-mono)",whiteSpace:"nowrap"}},rightTop),
-      rightBot?h("div",{style:{fontSize:"13px",fontWeight:"800",color:rightBotColor,marginTop:"2px",fontFamily:"var(--font-mono)",whiteSpace:"nowrap"}},rightBot):null));
+    h("div",{style:{textAlign:"right",flexShrink:0,minWidth:"120px"}},
+      h("div",{style:{fontSize:"14px",fontWeight:"800",color:"var(--text)",fontFamily:"var(--font-mono)",whiteSpace:"nowrap"}},"HT "+money(cur)),
+      h("div",{style:{fontSize:"12px",color:plColor,marginTop:"2px",fontFamily:"var(--font-mono)",whiteSpace:"nowrap",fontWeight:"600"}},"Gốc "+money(cost)+pctStr)));
 }
 
 function renderAssetForm(item,type){
