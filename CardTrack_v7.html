@@ -2405,7 +2405,7 @@ function renderAssetRow(a){
     cost=assetFxToVND(a.amount||0,a.currency);
     title=a.name||a.provider||"Sổ TK";
     subline=(a.provider&&a.name!==a.provider?a.provider+" · ":"")+(a.rate_pct?a.rate_pct+"%":"—")
-      +(a.maturity_date?" · đáo hạn "+fmtDateVi(a.maturity_date)+(days!=null?" (còn "+days+"d)":""):"");
+      +(a.maturity_date?" · "+fmtDateVi(a.maturity_date)+(days!=null?" (còn "+days+"d)":""):"");
     hasPct=cost>0&&cur!==cost;
   }else if(a.type==="gold"){
     cur=assetCurrentValueVND(a); cost=assetPurchaseCostVND(a);
