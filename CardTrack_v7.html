@@ -1281,7 +1281,7 @@ function setAfSpend(cardId,key,amt){
     const dirty=new Set(JSON.parse(localStorage.getItem("ct7-sync-dirty")||"[]"));
     dirty.add("ct7-afspend");localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
     if(_afSpendSyncTimer)clearTimeout(_afSpendSyncTimer);
-    _afSpendSyncTimer=setTimeout(()=>{if(window.ctSync&&ctSync.syncNow)ctSync.syncNow()},3000);
+    _afSpendSyncTimer=setTimeout(()=>{if(window.ctSync&&ctSync.syncOnce)ctSync.syncOnce()},3000);
   }catch{}
 }
 
@@ -2400,7 +2400,7 @@ function bulkImportAssets(defaultType){
     const dirty=new Set(JSON.parse(localStorage.getItem("ct7-sync-dirty")||"[]"));
     dirty.add("ct7-assets");
     localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
-    if(window.ctSync&&ctSync.syncNow)ctSync.syncNow();
+    if(window.ctSync&&ctSync.syncOnce)ctSync.syncOnce();
   }catch{}
   try{showToast&&showToast(`✅ Đã thêm ${news.length} tài sản`)}catch{}
   render();
@@ -3100,7 +3100,7 @@ function bulkPasteAfSpend(card,cycles){
     const dirty=new Set(JSON.parse(localStorage.getItem("ct7-sync-dirty")||"[]"));
     dirty.add("ct7-afspend");
     localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
-    if(window.ctSync&&ctSync.syncNow)ctSync.syncNow();
+    if(window.ctSync&&ctSync.syncOnce)ctSync.syncOnce();
   }catch{}
   try{showToast&&showToast(`✅ Đã cập nhật ${n} kỳ`)}catch{}
   render();
