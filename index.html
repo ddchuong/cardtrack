@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202610011518';</script>
+<script>window.CT_BUILD='v202610011528';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -6082,6 +6082,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   }
   function clearDirty(){localStorage.setItem("ct7-sync-dirty","[]")}
 
+  let _pushSnap=null;
   function collectSettings(){
     // everything ct7-* not mapped and not ephemeral -> settings.data
     const data={};
@@ -6145,6 +6146,9 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     // Merge with cloud settings first — never let a device with stale/empty local wipe cloud-only keys
     const localSet=collectSettings();
     let mergedSet=localSet;
+    // Snapshot raw local values at push time — pullRemote must not overwrite keys the user changed meanwhile
+    _pushSnap={};
+    for(const k of Object.keys(localSet)){try{_pushSnap[k]=localStorage.getItem(k)}catch{}}
     try{
       const {data:rs}=await client.from("settings").select("data").eq("user_id",session.user.id).maybeSingle();
       const rd=rs&&rs.data&&typeof rs.data==="object"?rs.data:{};
@@ -6155,7 +6159,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
         const m={};
         for(const c of new Set([...Object.keys(ra),...Object.keys(la||{})])){m[c]=Object.assign({},ra[c]||{},(la&&la[c])||{})}
         mergedSet["ct7-afspend"]=m;
-        try{localStorage.setItem("ct7-afspend",JSON.stringify(m))}catch{}
+        try{localStorage.setItem("ct7-afspend",JSON.stringify(m));_pushSnap["ct7-afspend"]=localStorage.getItem("ct7-afspend")}catch{}
       }
     }catch(e){log("settings merge err",e)}
     const {error:se}=await client.from("settings").upsert({user_id:session.user.id,data:mergedSet},{onConflict:"user_id"});
@@ -6205,6 +6209,8 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       for(const [k,v] of Object.entries(sr.data)){
         if(isEphemeral(k))continue;
         if(KEY_MAP[k])continue;
+        // User changed this key since push began (e.g. tapped a card) → keep local, leave dirty for next sync
+        if(_pushSnap&&(k in _pushSnap)&&localStorage.getItem(k)!==_pushSnap[k]){log("pull skip (changed locally)",k);continue}
         try{localStorage.setItem(k,JSON.stringify(v))}catch{}
       }
     }
