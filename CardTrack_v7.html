@@ -1271,7 +1271,19 @@ function afCycles(card){
 function afSpentTotal(card){const m=(state.afSpend||{})[card.id]||{};return afCycles(card).reduce((s,c)=>s+(+m[c.key]||0),0);}
 // Ngưỡng chi tiêu để miễn PTN (parse "50tr/năm"→50tr); trả null nếu điều kiện không theo tiền
 function afWaiveThreshold(card){if(!card.afWaive)return null;const m=card.afWaive.match(/(\d+(?:[.,]\d+)?)\s*tr/i);return m?Math.round(parseFloat(m[1].replace(",","."))*1e6):null;}
-function setAfSpend(cardId,key,amt){const m={...(state.afSpend||{})};m[cardId]={...(m[cardId]||{})};if(amt>0)m[cardId][key]=amt;else delete m[cardId][key];state.afSpend=m;persist();}
+let _afSpendSyncTimer=null;
+function setAfSpend(cardId,key,amt){
+  const m={...(state.afSpend||{})};m[cardId]={...(m[cardId]||{})};
+  if(amt>0)m[cardId][key]=amt;else delete m[cardId][key];
+  state.afSpend=m;persist();
+  // Debounced auto-sync: push lên cloud sau 3s không nhập thêm
+  try{
+    const dirty=new Set(JSON.parse(localStorage.getItem("ct7-sync-dirty")||"[]"));
+    dirty.add("ct7-afspend");localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
+    if(_afSpendSyncTimer)clearTimeout(_afSpendSyncTimer);
+    _afSpendSyncTimer=setTimeout(()=>{if(window.ctSync&&ctSync.syncNow)ctSync.syncNow()},3000);
+  }catch{}
+}
 
 // Thứ tự "giao dịch nào trước" — theo NGÀY, id (timestamp lúc nhập) chỉ làm tiebreak.
 // Trước đây sort thuần theo id nên nhập bù một giao dịch cũ sẽ lock sai lĩnh vực firstCatOnly.
