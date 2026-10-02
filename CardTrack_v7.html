@@ -800,6 +800,17 @@ let ALL_CARDS=[
     note:"Điểm thưởng 1đ = 1đ. Nhảy bậc theo tổng chi kỳ sao kê: 3tr–<15tr shared cap 300K; ≥15tr shared cap 1tr. TMĐT/Điện máy/Giáo dục/Nhà sách 12%; Bệnh viện/Bảo hiểm 6% (Điện máy & Nhà sách chưa map trong app — dùng lĩnh vực Khác/Giáo dục thủ công). Base 0.3% và ưu đãi TTĐK 50% (Netflix/Spotify/ChatGPT max 50K/kỳ) app không tính. Nếu tổng chi <3tr, tất cả cat đặc biệt về 0.3%.",
     annualFee:550000,afNext:"2027-08",afWaive:"Theo Shinhan"},
 
+  // ── ACB Privilege Visa Signature (điểm ACB Rewards 1đ=1đ; tháng lịch; x3 T10–T11/2026) ──
+  {id:"acb-4847",name:"ACB Privilege Visa Signature",network:"Visa",last4:"4847",cardNum:"436599****4847",stmtDay:24,dueDay:15,color:"#1F5CA9",
+    cashbackCategories:[
+      {category:"Ẩm thực",rate:.05,maxCashback:500000,maxSpend:10000000,promoRate:.15,promoMaxCashback:1000000,promoMaxSpend:6666667},
+      {category:"Du lịch",rate:.05,maxCashback:500000,maxSpend:10000000,promoRate:.15,promoMaxCashback:1000000,promoMaxSpend:6666667}
+    ],
+    minSpend:0,calendarMonth:true,sharedMaxCashback:500000,sharedCats:["Ẩm thực","Du lịch"],
+    promoBoost:{from:"2026-10",to:"2026-11"},promoSharedMax:1000000,
+    note:"Điểm ACB Rewards 1đ = 1đ, chu kỳ tháng lịch. Nhà hàng/ăn uống (5812, 5814), đại lý du lịch (4722), vé máy bay, khách sạn: 5% (50đ/1.000đ), tối đa 500K điểm/tháng; T10–T11/2026 x3 = 15%, tối đa 1tr/tháng. Chi tiêu khác 1% (app không tính). Vé máy bay/khách sạn gộp vào lĩnh vực Du lịch.",
+    annualFee:1900000,afNext:"2027-09",afWaive:"Miễn phí — KH Ưu tiên (nếu không còn KHƯT: 1.9tr)"},
+
   // ── MSB mDigi ──
   {id:"msb-0691",name:"MSB mDigi (C)",network:"MC",last4:"0691",cardNum:"532451****0691",stmtDay:20,dueDay:4,color:"#EB5B21",
     cashbackCategories:[{category:"Ẩm thực",rate:.20,maxCashback:300000,maxSpend:1500000},{category:"Du lịch",rate:.20,maxCashback:300000,maxSpend:1500000}],
@@ -1333,10 +1344,17 @@ function memberTier(card){
   if(key==="gold")key="pro"; // migrate old VIB MAX tier key (Gold → Pro)
   return card.memberTiers.find(t=>t.key===key)||card.memberTiers.find(t=>t.key===card.memberTierDefault)||card.memberTiers[0];
 }
-function effRate(card,ct,cb){const mt=memberTier(card);if(mt)return mt.rate;return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
-function effMaxCb(card,ct,cb){const mt=memberTier(card);if(mt)return mt.max;return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
-function effMaxSpend(card,ct,cb){const mt=memberTier(card);if(mt)return Math.round(mt.max/mt.rate);return tierHi(card,ct)&&cb.hiMaxSpend!=null?cb.hiMaxSpend:cb.maxSpend}
-function effSharedMax(card,ct){const mt=memberTier(card);if(mt)return mt.max;return tierHi(card,ct)&&card.hiSharedMaxCashback!=null?card.hiSharedMaxCashback:card.sharedMaxCashback}
+// Khuyến mãi theo thời gian (vd ACB Privilege x3 điểm T10–T11/2026): card.promoBoost={from:"YYYY-MM",to:"YYYY-MM"}
+// + cb.promoRate/promoMaxCashback/promoMaxSpend + card.promoSharedMax. Xét theo THÁNG HIỆN TẠI.
+function promoOn(card){
+  const p=card&&card.promoBoost;if(!p)return false;
+  const n=new Date(),k=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0");
+  return k>=p.from&&k<=p.to;
+}
+function effRate(card,ct,cb){const mt=memberTier(card);if(mt)return mt.rate;if(promoOn(card)&&cb.promoRate!=null)return cb.promoRate;return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
+function effMaxCb(card,ct,cb){const mt=memberTier(card);if(mt)return mt.max;if(promoOn(card)&&cb.promoMaxCashback!=null)return cb.promoMaxCashback;return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
+function effMaxSpend(card,ct,cb){const mt=memberTier(card);if(mt)return Math.round(mt.max/mt.rate);if(promoOn(card)&&cb.promoMaxSpend!=null)return cb.promoMaxSpend;return tierHi(card,ct)&&cb.hiMaxSpend!=null?cb.hiMaxSpend:cb.maxSpend}
+function effSharedMax(card,ct){const mt=memberTier(card);if(mt)return mt.max;if(promoOn(card)&&card.promoSharedMax!=null)return card.promoSharedMax;return tierHi(card,ct)&&card.hiSharedMaxCashback!=null?card.hiSharedMaxCashback:card.sharedMaxCashback}
 
 // ═══ CASHBACK CALC ═══
 // Điều kiện tổng chi tiêu tối thiểu trong kỳ (Shinhan/MSB/CIMB 3tr, LPB 8tr).
@@ -2669,7 +2687,7 @@ function renderFab(){
 // Map short bank code (from cloud ref_cards.bank) → display name shown in card groups.
 // New bank added on Supabase? Just insert here (or leave — will fall through to raw code).
 const BANK_DISPLAY = {
-  BIDV:"BIDV", SHB:"SHB", CIMB:"CIMB", HDB:"HDBank", HSBC:"HSBC",
+  ACB:"ACB", BIDV:"BIDV", SHB:"SHB", CIMB:"CIMB", HDB:"HDBank", HSBC:"HSBC",
   LPB:"LPBank", MB:"MB Bank", MSB:"MSB", Sacom:"Sacombank",
   Seabank:"SeaBank", Shinhan:"Shinhan", TCB:"Techcombank",
   VIB:"VIB", UOB:"UOB", VPB:"VPBank", Vikki:"Vikki"
@@ -2695,6 +2713,7 @@ const BANK_LOGO_PNG = {
 // Badge màu brand + short code hiển thị trên header bank group (Tổng quan).
 // Màu chọn theo dominant color của favicon thật (đã fetch từ site bank) để đồng bộ với logo.
 const BANK_STYLE = {
+  "ACB":        {bg:"#1F5CA9",code:"ACB"},
   "BIDV":       {bg:"#00954D",code:"BIDV"},
   "SHB":        {bg:"#EE7C1F",code:"SHB"},
   "CIMB":       {bg:"#EF3E42",code:"CIMB"},
@@ -2725,6 +2744,7 @@ function bankKeyOf(card){
   if(card.bank){return BANK_DISPLAY[card.bank] || card.bank;}
   // Fallback: id-prefix (for legacy cards without bank field, or txns referencing orphan ids)
   const id=card.id||"";
+  if(id.startsWith("acb"))return"ACB";
   if(id.startsWith("bidv"))return"BIDV";
   if(id.startsWith("shb"))return"SHB";
   if(id.startsWith("cimb"))return"CIMB";
