@@ -824,10 +824,6 @@ let ALL_CARDS=[
     annualFee:400000,afNext:"2027-04",afWaive:"60tr/năm"},
 
   // ── MSB Visa Online (2 cards, stmtDay=25, dueDay=10) ──
-  {id:"msb-9372",name:"MSB Visa Online (C)",network:"Visa",last4:"9372",cardNum:"402215****9372",stmtDay:25,dueDay:10,color:"#EB5B21",
-    cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
-    minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng",
-    annualFee:400000,afNext:"2027-04",afWaive:"60tr/năm"},
   {id:"msb-1712",name:"MSB Visa Online (T)",network:"Visa",last4:"1712",cardNum:"402215****1712",stmtDay:25,dueDay:10,color:"#EB5B21",
     cashbackCategories:[{category:"Online",rate:.10,maxCashback:300000,maxSpend:3000000}],
     minSpend:3000000,note:"Online: Shopee, Lazada, Tiktok; Chi tiêu tối thiểu 3tr/tháng",
@@ -903,18 +899,20 @@ let ALL_CARDS=[
   {id:"mb-4887",name:"MB JCB Ultimate (C)",network:"JCB",last4:"4887",cardNum:"356772****4887",stmtDay:8,dueDay:20,color:"#003399",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
-      {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
-      {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
+      {category:"Y tế",rate:.10,maxCashback:400000,maxSpend:4000000},
+      {category:"Giáo dục",rate:.10,maxCashback:400000,maxSpend:4000000}
     ],
-    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K",
+    minSpend:0,minOtherSpend:2000000,sharedMaxCashback:800000,sharedCats:["Bảo hiểm","Y tế","Giáo dục"],
+    note:"Thể lệ từ 09/10/2026: hoàn 10% Bảo hiểm–Y tế–Giáo dục, tối đa 400K/lĩnh vực/kỳ, tổng 800K/kỳ; điều kiện chi tiêu lĩnh vực KHÁC ≥ 2tr/kỳ. GD có MCC rủi ro (4111/4131/4789, 4829/6011/6051, 6211, 7801/7995 — tra MCC trong tab Tra cứu) nhập lĩnh vực Risk_MB, không tính vào mốc 2tr.",
     annualFee:800000,afNext:"2027-03",afWaive:"100tr/năm"},
   {id:"mb-8026",name:"MB JCB Ultimate (T)",network:"JCB",last4:"8026",cardNum:"356772****8026",stmtDay:8,dueDay:20,color:"#1A4DB3",
     cashbackCategories:[
       {category:"Bảo hiểm",rate:.10,maxCashback:400000,maxSpend:4000000},
-      {category:"Y tế",rate:.10,maxCashback:800000,maxSpend:8000000},
-      {category:"Giáo dục",rate:.10,maxCashback:800000,maxSpend:8000000}
+      {category:"Y tế",rate:.10,maxCashback:400000,maxSpend:4000000},
+      {category:"Giáo dục",rate:.10,maxCashback:400000,maxSpend:4000000}
     ],
-    minSpend:0,sharedMaxCashback:800000,note:"Max 800K chung; riêng BH max 400K",
+    minSpend:0,minOtherSpend:2000000,sharedMaxCashback:800000,sharedCats:["Bảo hiểm","Y tế","Giáo dục"],
+    note:"Thể lệ từ 09/10/2026: hoàn 10% Bảo hiểm–Y tế–Giáo dục, tối đa 400K/lĩnh vực/kỳ, tổng 800K/kỳ; điều kiện chi tiêu lĩnh vực KHÁC ≥ 2tr/kỳ. GD có MCC rủi ro (4111/4131/4789, 4829/6011/6051, 6211, 7801/7995 — tra MCC trong tab Tra cứu) nhập lĩnh vực Risk_MB, không tính vào mốc 2tr.",
     annualFee:800000,afNext:"2027-05",afWaive:"100tr/năm"},
 
   // ── MB JCB Hi Collection (T) — Di chuyển & CHTL (cửa hàng tiện lợi) 10% max 50K/danh mục ──
@@ -976,17 +974,6 @@ let ALL_CARDS=[
     minSpend:10000000,calendarMonth:true,note:"5 lĩnh vực CB độc lập 20%, mỗi lĩnh vực max 200K & phải chi ≥800K/lĩnh vực mới được hoàn; tổng chi tối thiểu 10tr/tháng; chu kỳ tháng lịch; KH Ưu tiên",
     annualFee:0,afNext:"2027-08",afWaive:"Miễn phí — KH Ưu tiên"},
 
-  // ── LPBank JCB Ultimate (Bảo hiểm/Y tế/Giáo dục 15%; tổng max 800K, riêng BH max 400K; minSpend 8tr) ──
-  {id:"lpb-2059",name:"LPB JCB Ultimate",network:"JCB",last4:"2059",cardNum:"356772****2059",stmtDay:20,dueDay:4,color:"#F99D1C",
-    cashbackCategories:[
-      {category:"Bảo hiểm",rate:.15,maxCashback:400000,maxSpend:2666667},
-      {category:"Y tế",rate:.15,maxCashback:800000,maxSpend:5333333},
-      {category:"Giáo dục",rate:.15,maxCashback:800000,maxSpend:5333333}
-    ],
-    minSpend:8000000,sharedMaxCashback:800000,sharedCats:["Bảo hiểm","Y tế","Giáo dục"],
-    note:"Bảo hiểm/Y tế/Giáo dục hoàn 15%, tổng max 800K/kỳ, riêng Bảo hiểm max 400K; chi tiêu tối thiểu 8tr/kỳ sao kê",
-    annualFee:1650000,afNext:"2026-11",afWaive:"240tr/năm"},
-
   // ── SHB MC Cashback (firstCatOnly; 2 nhóm cap; tổng max 500K/kỳ) ──
   {id:"shb-7936",name:"SHB MC Cashback",network:"MC",last4:"7936",cardNum:"533398****7936",stmtDay:5,dueDay:20,color:"#E4002B",
     cashbackCategories:[
@@ -1040,8 +1027,11 @@ let ALL_CARDS=[
 ];
 window.ALL_CARDS = ALL_CARDS; // expose so ctRef.mergeCloudCards can mutate the array
 
-const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Nhà sách","Điện máy","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Khác"];
+const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Nhà sách","Điện máy","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Risk_MB","Khác"];
 window.CATEGORIES = CATEGORIES;
+// MCC bị MB JCB Ultimate loại khỏi "chi tiêu lĩnh vực khác" (thể lệ 09/10/2026) — nhập GD vào lĩnh vực "Risk_MB"
+const RISK_MB_MCC={"4111":"Vận tải khác","4131":"Vận tải khác","4789":"Vận tải khác","4829":"Chuyển tiền","6011":"Rút tiền mặt","6051":"Ngoại tệ / money order / séc du lịch","6211":"Môi giới / giao dịch chứng khoán","7801":"Sòng bạc trực tuyến","7995":"Cá cược / đánh bạc"};
+window.RISK_MB_MCC=RISK_MB_MCC;
 const SHOP_SUGGESTIONS={
   "Siêu thị":["KingFood","TopsMarket","Coop","MegaM","Emart","AnNam","BHX","BigC","Glam Beautique","Muji","Winmart"],
   "Ẩm thực":["ShopeeFood","BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
@@ -1101,11 +1091,11 @@ const SHOP_CARD_MAP=[
   {shop:"WarningZone",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","tcb-6661","shinhan-2647","hsbc-3008"]},
   {shop:"Wrap n Roll",category:"Ẩm thực",cardIds:["msb-0691","msb-4232","hdb-4497","hdb-1541","vib-4434","tcb-6661","shinhan-2647","hsbc-3008"]},
   // ── Online ──
-  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
-  {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-9372","msb-1712","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
-  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
-  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
-  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-9372","msb-1712","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
+  {shop:"Adidas Online",category:"Online",cardIds:["vib-4434","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
+  {shop:"Hóa đơn (Shopee)",category:"Online",cardIds:["msb-1712","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
+  {shop:"Lazada",category:"Online",cardIds:["vib-4434","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"]},
+  {shop:"Shopee",category:"Online",cardIds:["vib-4434","msb-1712","tcb-5166","tcb-7929","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
+  {shop:"Tiktok",category:"Online",cardIds:["vib-4434","msb-1712","tcb-6661","bidv-1768"],cardCats:{"bidv-1768":"Online Shopee/Tiktok"}},
   // ── Thời trang ──
   {shop:"Adidas",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
   {shop:"Bath Body Works",category:"Thời trang",cardIds:["vib-4434","tcb-6661","hsbc-3008","shb-7936","bidv-3761"]},
@@ -1123,22 +1113,22 @@ const SHOP_CARD_MAP=[
   {shop:"Traveloka",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   {shop:"Trip",category:"Du lịch",cardIds:["sacom-9870","vib-4434","tcb-6661"]},
   // ── Y tế ──
-  {shop:"Choray",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"HaiYen",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
-  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
-  {shop:"TMH SG",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"Victoria HC",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"Vinmec",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"VNVC",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"YDuoc",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936"]},
+  {shop:"Choray",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"HaiYen",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"Pharmacity",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"TMH SG",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Victoria HC",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Vinmec",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"VNVC",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"YDuoc",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936"]},
   // ── Giáo dục ──
   {shop:"Fahasa",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   {shop:"MyKingdom",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   {shop:"NS NguyenHue",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   {shop:"NS PhuongNam",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
-  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","shinhan-8149"]},
-  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","shinhan-8149"]},
+  {shop:"ReadingQ",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
+  {shop:"SSC",category:"Giáo dục",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
 
   // ── Điện máy (MCC 5732 / 5722) — chủ yếu Supreme 12% ──
   {shop:"CellphoneS",   category:"Điện máy",cardIds:["shinhan-8149"]},
@@ -1151,8 +1141,8 @@ const SHOP_CARD_MAP=[
   {shop:"Viettel Store",category:"Điện máy",cardIds:["shinhan-8149"]},
   {shop:"DM Cho Lon",   category:"Điện máy",cardIds:["shinhan-8149"]},
   // ── Bảo hiểm ──
-  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
-  {shop:"Manulife",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","lpb-2059","shb-7936","bidv-3761"]},
+  {shop:"Bảo Việt",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
+  {shop:"Manulife",category:"Bảo hiểm",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   // ── Vé Vietjet ──
   {shop:"Vietjet",category:"Vé Vietjet",cardIds:["hdb-1541"]},
   // ── Giải trí ──
@@ -1162,7 +1152,7 @@ const SHOP_CARD_MAP=[
 ]
 
 
-const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Điện máy":"📺","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Khác":"📦"};
+const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Điện máy":"📺","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Risk_MB":"⛔","Khác":"📦"};
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
@@ -1371,7 +1361,14 @@ function effSharedMax(card,ct){const mt=memberTier(card);if(mt)return mt.max;if(
 // Điều kiện tổng chi tiêu tối thiểu trong kỳ (Shinhan/MSB/CIMB 3tr, LPB 8tr).
 // Chưa đạt → ngân hàng KHÔNG hoàn tiền. Trước đây minSpend chỉ ảnh hưởng giao diện,
 // nên app báo có cashback trong khi thực tế là 0 — và con số sai đó bị archive vĩnh viễn.
-function minSpendMet(card,ct){return !(card.minSpend>0&&cycleSpendTotal(card,ct)<card.minSpend)}
+// Chi tiêu "lĩnh vực khác" (MB JCB Ultimate từ 09/10/2026): GD thuộc lĩnh vực KHÔNG có trong cashbackCategories của thẻ.
+// Lưu ý: app không phân biệt MCC rủi ro (vận tải/tiền mặt/chứng khoán/cờ bạc) — người dùng tự không nhập các GD đó vào "Khác".
+function otherSpendTotal(card,ct){const cats=new Set((card.cashbackCategories||[]).map(c=>c.category));return Math.max(ct.filter(t=>!cats.has(t.category)&&t.category!=="Risk_MB").reduce((s,t)=>s+t.amount,0),0)}
+function minSpendMet(card,ct){
+  if(card.minSpend>0&&cycleSpendTotal(card,ct)<card.minSpend)return false;
+  if(card.minOtherSpend>0&&otherSpendTotal(card,ct)<card.minOtherSpend)return false;
+  return true;
+}
 // Txns below card.minTxnAmount (e.g. TCB <200K) are not CB-eligible
 // Giao dịch hoàn tiền có amount ÂM. Ngưỡng minTxnAmount so theo TRỊ TUYỆT ĐỐI để refund của
 // một giao dịch đủ điều kiện vẫn được trừ lại đúng.
@@ -1539,6 +1536,20 @@ function cardAlerts(){
 }
 
 // ═══ MINSPEND ROW RENDER ═══
+// Mốc chi tiêu "lĩnh vực khác" (MB JCB Ultimate): GD ngoài BH/Y tế/Giáo dục và ngoài Risk_MB
+function renderOtherSpendRow(card,ct){
+  if(!card.minOtherSpend||card.minOtherSpend<=0)return null;
+  const os=otherSpendTotal(card,ct),need=card.minOtherSpend,met=os>=need,pct=Math.min(os/need*100,100);
+  const risk=ct.filter(t=>t.category==="Risk_MB").reduce((a,t)=>a+t.amount,0);
+  return h("div",{className:"minspend-row "+(met?"met":"unmet")},
+    h("div",{className:"minspend-head"},
+      h("span",{className:"minspend-label"},"Chi tiêu lĩnh vực khác"),
+      h("span",{className:"minspend-val "+(met?"met":"unmet")},`${fmtK(os)} / ${fmtK(need)}`)),
+    h("div",{className:"bar-track"},h("div",{className:"bar-fill",style:{width:pct+"%",background:met?"var(--green)":"var(--warn)",transition:"width .5s cubic-bezier(.4,0,.2,1)"}})),
+    h("div",{className:"minspend-sub"},
+      (met?"✓ Đã đạt — cashback Bảo hiểm/Y tế/Giáo dục được kích hoạt":`Còn thiếu ${fmtK(Math.max(need-os,0))} chi tiêu lĩnh vực khác để kích hoạt cashback`)
+      +(risk>0?` · Risk_MB ${fmtK(risk)} (không tính)`:"")));
+}
 function renderMinSpendRow(card,ct){
   if(!card.minSpend||card.minSpend<=0)return null;
   const ts=ct.reduce((s,t)=>s+t.amount,0);
@@ -2812,6 +2823,7 @@ function renderCardDetail(){
 
   {const mRow=renderMemberTierRow(card);if(mRow)w.appendChild(mRow);}
   {const msRow=renderMinSpendRow(card,ct);if(msRow)w.appendChild(msRow);}
+  {const osRow=renderOtherSpendRow(card,ct);if(osRow)w.appendChild(osRow);}
   {const tRow=renderTierRow(card,ct);if(tRow)w.appendChild(tRow);}
   // First-cat-only override picker (SHB, MSB mDigi, VPB Z, v.v.)
   if(card.firstCatOnly){
@@ -5884,6 +5896,10 @@ function renderMccOut(out,q){
     const shops=allShops.filter(s=>s.mcc===q);
     const rates=r.cardsForMcc(q);
     out.appendChild(h("p",null,h("strong",null,"MCC "+q)));
+    if(window.RISK_MB_MCC&&RISK_MB_MCC[q]){
+      out.appendChild(h("div",{style:{margin:"6px 0",padding:"8px 10px",borderRadius:"8px",background:"var(--warnBg)",color:"var(--warn)",border:"1px solid var(--warnBorder)",fontSize:"13px"}},
+        "⛔ Thuộc nhóm Risk_MB ("+RISK_MB_MCC[q]+"): thẻ MB JCB Ultimate KHÔNG tính vào chi tiêu lĩnh vực khác (mốc 2tr). Khi nhập giao dịch bằng thẻ MB, chọn lĩnh vực \"Risk_MB\"."));
+    }
     if(shops.length){
       out.appendChild(h("p",{className:"hint",style:{marginTop:"4px"}},
         "Shops ("+shops.length+"): "+shops.map(s=>s.name).join(", ")));
