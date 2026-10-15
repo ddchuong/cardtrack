@@ -1027,7 +1027,7 @@ let ALL_CARDS=[
 ];
 window.ALL_CARDS = ALL_CARDS; // expose so ctRef.mergeCloudCards can mutate the array
 
-const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Nhà sách","Điện máy","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Risk_MB","Khác"];
+const CATEGORIES=["Siêu thị","Ẩm thực","Du lịch","Online","Online Shopee/Tiktok","Bảo hiểm","Y tế","Giáo dục","Nhà sách","Điện máy","Thời trang","Di chuyển","Giải trí","Vé Vietjet","Nước ngoài","Mua sắm","Beauty","Risk_MB","Khác"];
 window.CATEGORIES = CATEGORIES;
 // MCC bị MB JCB Ultimate loại khỏi "chi tiêu lĩnh vực khác" (thể lệ 09/10/2026) — nhập GD vào lĩnh vực "Risk_MB"
 const RISK_MB_MCC={"4111":"Vận tải khác","4131":"Vận tải khác","4789":"Vận tải khác","4829":"Chuyển tiền","6011":"Rút tiền mặt","6051":"Ngoại tệ / money order / séc du lịch","6211":"Môi giới / giao dịch chứng khoán","7801":"Sòng bạc trực tuyến","7995":"Cá cược / đánh bạc"};
@@ -1040,6 +1040,8 @@ const SHOP_SUGGESTIONS={
   "Nhà sách":["Fahasa","MyKingdom","NS NguyenHue","NS PhuongNam"],
   "Điện máy":["CellphoneS","DMX","FPT Shop","HHMobile","Nguyen Kim","ShopDunk","TGDD","Viettel Store","DM Cho Lon"],
   "Online":["Adidas Online","Lazada","Shopee","Tiktok"],
+  "Mua sắm":["Nitori Thao Dien","Nitori Bình Dương"],
+  "Beauty":["Facial skin care meT"],
   "Bảo hiểm":["Bảo Việt","Manulife"],
   "Thời trang":["Adidas","Bath Body Works","Decathlon","H&M","SuperSports","Uniqlo","Zara"],
   "Du lịch":["Agoda","Booking","Traveloka","Trip"],
@@ -1152,7 +1154,7 @@ const SHOP_CARD_MAP=[
 ]
 
 
-const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Điện máy":"📺","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Risk_MB":"⛔","Khác":"📦"};
+const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Điện máy":"📺","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Mua sắm":"🏬","Beauty":"💄","Risk_MB":"⛔","Khác":"📦"};
 const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
