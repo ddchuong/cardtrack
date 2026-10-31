@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202610311027';</script>
+<script>window.CT_BUILD='v202610311040';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -6086,7 +6086,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     // they'll be empty. This closes the "map-type resurrect on delete" gap from Phase 6.
   };
   // Ephemeral/UI keys never synced
-  const SKIP_KEYS=new Set(["ct7-sync-last","ct7-sync-status","ct7-sync-dirty","ct7-sync-migrated","ct7-cloud-skip","ct7-lasttab","ct7-tombstones","ct7-assetdraft"]);
+  const SKIP_KEYS=new Set(["ct7-sync-last","ct7-sync-status","ct7-sync-dirty","ct7-sync-migrated","ct7-cloud-skip","ct7-lasttab","ct7-tombstones","ct7-assetdraft","ct7-rowhash","ct7-kvhash"]);
   const isEphemeral=k=>SKIP_KEYS.has(k)||k.startsWith("ct7-cache-")||k.startsWith("ct7-pwa-")||k.startsWith("ct7-mig-");
 
   let client=null,session=null,inflight=false;
@@ -6108,6 +6108,90 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     localStorage.setItem("ct7-sync-dirty",JSON.stringify([...dirty]));
   }
   function clearDirty(){localStorage.setItem("ct7-sync-dirty","[]")}
+
+  // ═══ CHIA SẺ GIỮA 2 ACCOUNT (household) ═══
+  // Bảng giao dịch (transactions/installments/recurring/promos) dùng RLS theo household (xem supabase/share_household.sql).
+  // Các key cấu hình dạng map/list (chi tiêu từng kỳ, hạn mức, sao kê, đã thanh toán, nhắc...) đồng bộ qua bảng shared_kv,
+  // 1 dòng cho mỗi "entry" (vd 'ct7-afspend|hdb-4497'), last-write-wins theo từng entry. Tài sản (ct7-assets) KHÔNG chia sẻ.
+  const KV_MAP_KEYS=["ct7-afspend","ct7-cbactual","ct7-cbpost","ct7-stmts","ct7-limits","ct7-membertier","ct7-fxfees","ct7-budgets","ct7-points","ct7-cardmeta","ct7-catoverride"];
+  const KV_LIST_KEYS=["ct7-paid","ct7-noevt","ct7-events"];
+  function h32(str){let h=5381;for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return String(h>>>0)}
+  function canon(v){
+    if(Array.isArray(v))return "["+v.map(canon).join(",")+"]";
+    if(v&&typeof v==="object")return "{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+canon(v[k])).join(",")+"}";
+    return JSON.stringify(v===undefined?null:v);
+  }
+  function readJSONLS(k,d){try{return JSON.parse(localStorage.getItem(k)||"null")||d}catch{return d}}
+  function kvListId(key,el,s){return key+"|#"+((el&&typeof el==="object"&&el.id!=null)?el.id:"h"+h32(s))}
+  function kvFlatten(key,val){
+    const m=new Map();
+    if(KV_MAP_KEYS.includes(key)){
+      if(val&&typeof val==="object"&&!Array.isArray(val))for(const [k,v] of Object.entries(val))m.set(key+"|"+k,canon(v));
+    }else if(Array.isArray(val)){
+      for(const el of val){const s=canon(el);m.set(kvListId(key,el,s),s)}
+    }
+    return m;
+  }
+  function kvRebuild(key,entries,prevVal){
+    if(KV_MAP_KEYS.includes(key)){const o={};for(const [ek,js] of entries)o[ek.slice(key.length+1)]=JSON.parse(js);return o}
+    const out=[],seen=new Set();
+    if(Array.isArray(prevVal))for(const el of prevVal){const ek=kvListId(key,el,canon(el));if(entries.has(ek)&&!seen.has(ek)){out.push(JSON.parse(entries.get(ek)));seen.add(ek)}}
+    for(const [ek,js] of entries)if(!seen.has(ek)){out.push(JSON.parse(js));seen.add(ek)}
+    return out;
+  }
+  // Lập kế hoạch đồng bộ 1 key: so entry local (LE) với hash lần sync trước (lastH) và entry mới nhất trên cloud (remote: Map entryKey→{data,deleted}).
+  //  - local đổi so với lần trước → ĐẨY lên (local thắng); local xoá entry → đẩy tombstone
+  //  - local không đổi → NHẬN giá trị mới từ cloud (kể cả do account kia sửa/xoá)
+  function kvPlan(key,localVal,lastH,remote){
+    const LE=kvFlatten(key,localVal),finalE=new Map(LE),pushes=[],newH={};
+    const pre=key+"|";
+    const keys=new Set([...LE.keys(),...Object.keys(lastH||{}).filter(k=>k.startsWith(pre)),...[...remote.keys()].filter(k=>k.startsWith(pre))]);
+    for(const k of keys){
+      const l=LE.get(k),lh=(lastH||{})[k],r=remote.get(k);
+      const changed=l!==undefined?h32(l)!==lh:lh!==undefined;
+      if(changed){
+        if(l!==undefined){pushes.push({entry_key:k,data:JSON.parse(l),deleted:false});newH[k]=h32(l)}
+        else pushes.push({entry_key:k,data:null,deleted:true});
+      }else if(r){
+        if(r.deleted){if(l!==undefined)finalE.delete(k)}
+        else{const rj=canon(r.data);if(rj!==l)finalE.set(k,rj);newH[k]=h32(rj)}
+      }else if(l!==undefined&&lh!==undefined)newH[k]=lh;
+    }
+    let modified=finalE.size!==LE.size;
+    if(!modified)for(const [k,v] of finalE)if(LE.get(k)!==v){modified=true;break}
+    return {pushes,newH,finalE,modified};
+  }
+  function readKH(){return readJSONLS("ct7-kvhash",{})}
+  async function syncSharedKV(){
+    if(!session)return;
+    const {data:rows,error}=await client.from("shared_kv").select("entry_key,data,deleted,updated_at");
+    if(error){log("kv pull skip (chưa tạo bảng shared_kv?)",error.message||error);return}
+    const latest=new Map();
+    for(const r of rows||[]){const c=latest.get(r.entry_key);if(!c||String(r.updated_at)>String(c.updated_at))latest.set(r.entry_key,r)}
+    const kvh=readKH(),plans=[],allPushes=[];
+    for(const key of [...KV_MAP_KEYS,...KV_LIST_KEYS]){
+      const rawStr=localStorage.getItem(key);let localVal=null;try{localVal=rawStr==null?null:JSON.parse(rawStr)}catch{}
+      const plan=kvPlan(key,localVal,kvh[key]||{},latest);
+      plans.push({key,rawStr,localVal,plan});plan.pushes.forEach(p=>allPushes.push(Object.assign({user_id:session.user.id},p)));
+    }
+    for(let i=0;i<allPushes.length;i+=100){
+      const {error:ue}=await client.from("shared_kv").upsert(allPushes.slice(i,i+100),{onConflict:"user_id,entry_key"});
+      if(ue){log("kv push err",ue);setStatus("error:shared_kv: "+(ue.message||ue));throw ue}
+    }
+    for(const {key,rawStr,localVal,plan} of plans){
+      const unchanged=localStorage.getItem(key)===rawStr;
+      if(unchanged){
+        if(plan.modified){try{localStorage.setItem(key,JSON.stringify(kvRebuild(key,plan.finalE,localVal)))}catch{}}
+        kvh[key]=plan.newH;
+      }else{ // user vừa sửa trong lúc sync: chỉ ghi nhận phần đã đẩy, phần nhận từ cloud để lần sau
+        const h=Object.assign({},kvh[key]||{});
+        plan.pushes.forEach(p=>{if(p.deleted)delete h[p.entry_key];else h[p.entry_key]=h32(canon(p.data))});
+        kvh[key]=h;
+      }
+    }
+    try{localStorage.setItem("ct7-kvhash",JSON.stringify(kvh))}catch{}
+    log("shared_kv synced, pushed",allPushes.length,"entries");
+  }
 
   let _pushSnap=null;
   function collectSettings(){
@@ -6142,17 +6226,22 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
         rows=Object.entries(raw).map(([k,v])=>def.toRow(k,v));
       }
       log("push try",def.table,"local rows:",rows.length,rows[0]?("sample "+JSON.stringify(rows[0]).slice(0,200)):"(empty)");
-      if(rows.length){
-        const {data:back,error}=await client.from(def.table).upsert(rows,{onConflict:"id"}).select("id");
+      // Chỉ đẩy dòng đã thay đổi từ lần sync trước (tránh ghi đè bản mới của account kia khi bảng chia sẻ)
+      const RH=readJSONLS("ct7-rowhash",{});RH[key]=RH[key]||{};
+      const changedRows=rows.filter(r=>RH[key][r.id]!==h32(JSON.stringify(r)));
+      if(changedRows.length){
+        const {data:back,error}=await client.from(def.table).upsert(changedRows,{onConflict:"id"}).select("id");
         if(error){log("push err",def.table,error);setStatus("error:"+def.table+": "+(error.message||error));throw error}
         const got=(back||[]).length;
-        log("pushed",def.table,"sent",rows.length,"acknowledged",got);
-        if(got!==rows.length){
-          const msg="ack mismatch "+got+"/"+rows.length;
+        log("pushed",def.table,"sent",changedRows.length,"acknowledged",got);
+        if(got!==changedRows.length){
+          const msg="ack mismatch "+got+"/"+changedRows.length;
           log("push warn",def.table,msg);
           setStatus("error:"+def.table+": "+msg);
           throw new Error(def.table+" "+msg);
         }
+        changedRows.forEach(r=>{RH[key][r.id]=h32(JSON.stringify(r))});
+        try{localStorage.setItem("ct7-rowhash",JSON.stringify(RH))}catch{}
       }
       // Apply tombstones for this key (soft-delete rows on cloud)
       const tks=tombs[key];
@@ -6180,14 +6269,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       const {data:rs}=await client.from("settings").select("data").eq("user_id",session.user.id).maybeSingle();
       const rd=rs&&rs.data&&typeof rs.data==="object"?rs.data:{};
       mergedSet=Object.assign({},rd,localSet);
-      // afSpend: merge per card & per cycle (local wins per cycle)
-      const ra=rd["ct7-afspend"],la=localSet["ct7-afspend"];
-      if(ra&&typeof ra==="object"){
-        const m={};
-        for(const c of new Set([...Object.keys(ra),...Object.keys(la||{})])){m[c]=Object.assign({},ra[c]||{},(la&&la[c])||{})}
-        mergedSet["ct7-afspend"]=m;
-        try{localStorage.setItem("ct7-afspend",JSON.stringify(m));_pushSnap["ct7-afspend"]=localStorage.getItem("ct7-afspend")}catch{}
-      }
+      // afSpend & các key chia sẻ khác nay đồng bộ qua shared_kv (syncSharedKV) — không merge trong blob nữa để xoá không bị "sống lại"
     }catch(e){log("settings merge err",e)}
     const {error:se}=await client.from("settings").upsert({user_id:session.user.id,data:mergedSet},{onConflict:"user_id"});
     if(se){log("push err settings",se);setStatus("error:settings: "+(se.message||se));throw se}
@@ -6216,6 +6298,14 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
         remote.filter(r=>r.deleted_at).forEach(r=>{if(byId[r.id]){nDel++;delete byId[r.id]}});
         const merged=Object.values(byId);
         log("pull merged",def.table,"+"+nNew,"~"+nUpd,"-"+nDel);
+        try{
+          const RH=readJSONLS("ct7-rowhash",{});RH[key]=RH[key]||{};
+          remote.forEach(r=>{
+            if(r.deleted_at){delete RH[key][r.id];return}
+            const it=def.fromRow(r);if(it&&it.id)RH[key][it.id]=h32(JSON.stringify(def.toRow(it)));
+          });
+          localStorage.setItem("ct7-rowhash",JSON.stringify(RH));
+        }catch(e){log("rowhash err",e)}
         // Only overwrite when we actually have data, else leave local intact
         if(merged.length||local.length===0){
           localStorage.setItem(key,JSON.stringify(merged));
@@ -6236,6 +6326,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       for(const [k,v] of Object.entries(sr.data)){
         if(isEphemeral(k))continue;
         if(KEY_MAP[k])continue;
+        if(KV_MAP_KEYS.includes(k)||KV_LIST_KEYS.includes(k))continue; // đã đồng bộ qua shared_kv
         // User changed this key since push began (e.g. tapped a card) → keep local, leave dirty for next sync
         if(_pushSnap&&(k in _pushSnap)&&localStorage.getItem(k)!==_pushSnap[k]){log("pull skip (changed locally)",k);continue}
         try{localStorage.setItem(k,JSON.stringify(v))}catch{}
@@ -6252,6 +6343,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       // (Old order pull→push wiped local when remote was empty.)
       markAllDirty();
       await pushLocal();
+      try{await syncSharedKV()}catch(e){log("shared kv err",e)}
       await pullRemote();
       clearDirty();
       localStorage.setItem("ct7-sync-last",new Date().toISOString());
@@ -6288,8 +6380,14 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   function autoSync(){
     const last=localStorage.getItem("ct7-sync-last");
     const hrs=last?(Date.now()-new Date(last).getTime())/3600000:999;
-    if(hrs>=24||!last)setTimeout(()=>syncOnce(),1500);
+    if(hrs>=0.25||!last)setTimeout(()=>syncOnce(),1500);   // 15 phút (dữ liệu chia sẻ giữa 2 account)
   }
+  // Quay lại app (iOS PWA resume): đồng bộ nếu lần cuối > 5 phút
+  try{document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState!=="visible"||!session)return;
+    const last=localStorage.getItem("ct7-sync-last");
+    if(!last||Date.now()-new Date(last).getTime()>5*60000)setTimeout(()=>syncOnce(),800);
+  })}catch{}
 
   function renderOverlay(){
     const existing=document.getElementById("ct-auth-overlay");
@@ -6396,7 +6494,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   // Test hooks — chỉ expose khi URL có ?ct_test=1 để verify-sync.js gọi được nội bộ IIFE.
   // KHÔNG bao giờ true trong production (URL bình thường).
   try{if(/[?&]ct_test=1/.test(location.search)){
-    window.__ctSyncTest={KEY_MAP,SKIP_KEYS,isEphemeral,readTombs,writeTombs,collectSettings};
+    window.__ctSyncTest={KEY_MAP,SKIP_KEYS,isEphemeral,readTombs,writeTombs,collectSettings,kvPlan,kvFlatten,kvRebuild,h32,canon};
   }}catch{}
 
   // ══════════════════════════════════════════════════════════════
