@@ -1597,9 +1597,11 @@ function renderCbRow(card,ct,cb,shared,ts,detail){
   const sharedFull=!!(inShared&&shared.isFull);
   const capShown=capEff>0?capEff:emc;            // tránh hiện "0 / 0" khi max chung đã bị lĩnh vực khác dùng hết
   const isFull=active&&(sharedFull||(capEff>0&&earned/capEff>=0.995));
-  const pct=isFull?100:(capShown>0?Math.min(earned/capShown*100,100):0);
   const minNotMet=card.minSpend>0&&ts<card.minSpend;
   const catMinNotMet=cb.catMin>0&&cs<cb.catMin;
+  // Chưa đạt ngưỡng chi của lĩnh vực (catMin): CB thực = 0, nhưng thanh vẫn hiện phần "tiềm năng" theo chi tiêu hiện có (mờ)
+  const potential=(active&&catMinNotMet&&cs>0)?Math.min(cs*er,capShown):0;
+  const pct=isFull?100:(capShown>0?Math.min((earned>0?earned:potential)/capShown*100,100):0);
   const remCb=Math.max(capEff-earned,0);
   const remSpend=Math.max(Math.min(ems,er>0?capEff/er:0)-cs,0);
   const badges=[];
@@ -1619,7 +1621,7 @@ function renderCbRow(card,ct,cb,shared,ts,detail){
       h("span",null,h("span",{className:"cb-cat"},`${cb.label||cat} ${fmtRate(er)}`),...badges),
       h("span",{className:"cb-amt"},`${fmtTight(earned)}${detail?" / ":"/"}${fmtK(capShown)}`)),
     h("div",{className:"bar-track",role:"progressbar","aria-label":`Cashback ${cat}`,"aria-valuenow":Math.round(earned),"aria-valuemin":0,"aria-valuemax":Math.round(capShown)},
-      h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--green)":"var(--accent)"}})),
+      h("div",{className:"bar-fill",style:{width:pct+"%",background:isFull?"var(--green)":"var(--accent)",opacity:(potential>0&&earned<=0)?.4:1}})),
     h("div",{className:"cb-foot"},...foot,
       isFull?h("span",{className:"badge badge-active"},capOtherUsed?"✓ Kín max chung":"✓ Đã tối ưu"):null));
 }
