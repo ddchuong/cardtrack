@@ -92,7 +92,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 /* Network badges */
 .net{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
-.net-sm{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
+.net-sm{min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;letter-spacing:.2px;font-weight:800;flex-shrink:0;font-family:var(--font-mono)}
 
 /* Select Tab */
 .sel-item{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:var(--radius);cursor:pointer;transition:all .2s;margin-bottom:6px;box-shadow:var(--shadow)}
@@ -1132,7 +1132,7 @@ const SHOP_CARD_MAP=[
 
 
 const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Điện máy":"📺","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Mua sắm":"🏬","Beauty":"💄","Risk_MB":"⛔","Khác":"📦"};
-const NET_ICONS={Visa:"V",MC:"M",JCB:"J",Amex:"A"};
+const NET_ICONS={Visa:"VISA",MC:"MC",JCB:"JCB",Amex:"AMEX"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
 // ═══ HELPERS ═══
