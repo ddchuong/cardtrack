@@ -2882,7 +2882,7 @@ function renderShopRec(cid,category,isSel,isBest,shopName){
   const inNote=(!active&&card.firstCatOnly)?getActiveCat(card,ct):null;
   const minNotMet=card.minSpend>0&&ct.reduce((a,t)=>a+t.amount,0)<card.minSpend;
   const sty=isSel
-    ?{borderColor:isBest?"var(--accent)":(isFull?"var(--warnBorder)":`${card.color}40`),background:isFull?"var(--warnBg)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,boxShadow:isBest?`inset 3px 0 0 0 ${card.color},0 0 0 1.5px var(--accentBorder)`:`inset 3px 0 0 0 ${card.color}`,opacity:(active&&!minNotMet)?1:.72,cursor:"pointer"}
+    ?{borderColor:isBest?"var(--accent)":(isFull?"var(--border)":`${card.color}40`),background:isFull?"var(--bg2)":`color-mix(in srgb,${card.color} 4%,var(--bg3))`,boxShadow:isBest?`inset 3px 0 0 0 ${card.color},0 0 0 1.5px var(--accentBorder)`:`inset 3px 0 0 0 ${isFull?"var(--border2)":card.color}`,opacity:isFull?.5:((active&&!minNotMet)?1:.72),filter:isFull?"grayscale(.6)":"none",cursor:"pointer"}
     :{borderColor:`${card.color}33`};
   return h("div",{className:"shop-rec"+(isSel?"":" unsel"),style:sty,
       onClick:isSel
@@ -3818,8 +3818,11 @@ function advRenderShopList(el){
       h("div",null,h("div",{className:"shop-name"},s.shop),h("div",{className:"shop-cat"},s.category))));
     // Một shop có thể map sang lĩnh vực khác nhau tuỳ thẻ (vd Shopee → "Online Shopee/Tiktok" của BIDV-1768).
     const catOf=cid=>(s.cardCats&&s.cardCats[cid])||s.category;
-    const sel=s.cardIds.filter(id=>selIds.includes(id)).sort((a,b)=>shopRemCb(b,catOf(b))-shopRemCb(a,catOf(a)));
-    const oth=s.cardIds.filter(id=>!selIds.includes(id)).sort((a,b)=>shopRemCb(b,catOf(b))-shopRemCb(a,catOf(a)));
+    // Thẻ còn cashback kỳ này trước (tỉ lệ cao trước, rồi còn nhiều trước), thẻ đã hết hạn mức xếp sau
+    const shopRate=cid=>{const cd=ALL_CARDS.find(c=>c.id===cid),cb=cd&&cd.cashbackCategories.find(x=>x.category===catOf(cid));return cb?effRate(cd,getCycleTxns(cd),cb):0};
+    const shopCmp=(a,b)=>((shopUsable(b,catOf(b))?1:0)-(shopUsable(a,catOf(a))?1:0))||(shopRate(b)-shopRate(a))||(shopRemCb(b,catOf(b))-shopRemCb(a,catOf(a)));
+    const sel=s.cardIds.filter(id=>selIds.includes(id)).sort(shopCmp);
+    const oth=s.cardIds.filter(id=>!selIds.includes(id)).sort(shopCmp);
     const bestId=sel.find(cid=>shopUsable(cid,catOf(cid)))||null;
     if(!sel.length)se.appendChild(h("div",{className:"shop-sub-divider"},"Gợi ý · chưa chọn thẻ nào"));
     sel.forEach(cid=>{const r=renderShopRec(cid,catOf(cid),true,cid===bestId,s.shop);if(r)se.appendChild(r)});
@@ -3831,21 +3834,14 @@ function advRenderShopList(el){
       if(cr && cr.getRates().length>0){
         const rs=cr.shopByName(s.shop);
         if(rs && rs.mcc){
-          const top=cr.cardsForMcc(rs.mcc).slice(0,8);
+          const top=cr.cardsForMcc(rs.mcc);
           if(top.length){
             const allCards=cr.getCards();
             const mc=h("div",{className:"shop-sub-divider",style:{marginTop:"8px"}},"🌐 Gợi ý theo MCC (cloud)");
             se.appendChild(mc);
             se.appendChild(h("div",{className:"hint",style:{padding:"2px 8px",fontSize:"11px"}},
               "MCC "+rs.mcc+(rs.mcc_name?" · "+rs.mcc_name:"")));
-            top.forEach(rt=>{
-              const cinfo=allCards.find(c=>c.id===rt.card_id);
-              const nm=cinfo?cinfo.name:rt.card_id;
-              const last4=cinfo&&cinfo.last4?(" "+cinfo.last4):"";
-              const cap=rt.cap_amount?(" · trần "+fmtK(rt.cap_amount)):"";
-              se.appendChild(h("div",{className:"hint",style:{padding:"2px 8px"}},
-                "· "+nm+last4+" — "+fmtRate(rt.rate_pct/100)+cap));
-            });
+            renderRateRows(se,top,mccCatCandidates(rs.mcc,[rs.category||s.category]),"8px",8);
           }
         }
       }
@@ -5864,6 +5860,63 @@ function advMccLookup(){
   renderMccOut(out,_mccQ);
   return w;
 }
+// ═══ Gợi ý thẻ theo MCC/shop: thẻ CÒN cashback kỳ này (tỉ lệ cao trước) → thẻ HẾT hạn mức (màu tối hơn) ═══
+// MCC → ứng viên lĩnh vực (best-effort) để suy ra lĩnh vực mà thẻ áp dụng khi chỉ biết MCC.
+function mccCatCandidates(mcc,shopCats){
+  const n=+mcc,out=[...(shopCats||[]).filter(Boolean)],add=c=>{if(!out.includes(c))out.push(c)};
+  if([4119,5047,5122,5912,5975,5976,7298].includes(n)||(n>=8011&&n<=8099))add("Y tế");
+  if([6300,6381,6399,5960].includes(n))add("Bảo hiểm");
+  if(n===7295||n===8351||n===8111||(n>=8211&&n<=8299))add("Giáo dục");
+  if([5811,5812,5813,5814].includes(n))add("Ẩm thực");
+  if([5411,5422,5441,5451,5462,5499,5309,5311,5331].includes(n))add("Siêu thị");
+  if(n===4722||n===7011||n===4511||n===4411||n===4112||(n>=3000&&n<=3299)||(n>=3501&&n<=3799))add("Du lịch");
+  if(n>=5611&&n<=5699)add("Thời trang");
+  if(n===5942)add("Nhà sách");
+  if(n===5732||n===5722)add("Điện máy");
+  return out;
+}
+// Trạng thái cashback KỲ NÀY của 1 dòng (thẻ, MCC). Chỉ đánh giá "hết hạn mức" với thẻ anh đang theo dõi.
+function rateRowStatus(rt,cats){
+  const card=ALL_CARDS.find(c=>c.id===rt.card_id);
+  const st={rate:Number(rt.rate_pct)||0,tracked:false,exhausted:false,rem:null,note:""};
+  if(!card)return st;
+  st.tracked=state.selectedCardIds.includes(card.id);
+  const cat=(cats||[]).find(c=>(card.cashbackCategories||[]).some(x=>x.category===c));
+  if(!cat)return st;
+  const cb=card.cashbackCategories.find(x=>x.category===cat),ct=getCycleTxns(card);
+  st.rate=Math.round(effRate(card,ct,cb)*10000)/100;
+  if(!st.tracked){st.note="chưa theo dõi";return st}
+  const active=isCatActive(card,ct,cat);
+  let rem=active?Math.max(effMaxCb(card,ct,cb)-calcCatCbRaw(card,ct,cat),0):0;
+  const sh=calcSharedCb(card,ct,true);
+  if(active&&sh&&sh.cats&&sh.cats.includes(cat))rem=Math.min(rem,Math.max(sh.max-sh.total,0));
+  st.rem=rem;st.exhausted=!active||rem<=0;
+  if(!active&&card.firstCatOnly)st.note="kỳ này đã dùng lĩnh vực "+(getActiveCat(card,ct)||"khác");
+  else if(st.exhausted)st.note="đã hết hạn mức kỳ này";
+  else if(!minSpendMet(card,ct))st.note="cần đạt chi tiêu tối thiểu kỳ này";
+  return st;
+}
+function renderRateRows(out,rates,cats,pad,limit){
+  const allCards=(window.ctRef&&ctRef.getCards())||[];
+  const rows=rates.map(rt=>({rt,st:rateRowStatus(rt,cats)}));
+  rows.sort((a,b)=>(a.st.exhausted-b.st.exhausted)||(b.st.rate-a.st.rate)||((b.st.rem||0)-(a.st.rem||0)));
+  const shown=limit?rows.slice(0,limit):rows;
+  let dividerDone=false;
+  shown.forEach(({rt,st})=>{
+    if(st.exhausted&&!dividerDone){dividerDone=true;
+      out.appendChild(h("p",{className:"hint",style:{paddingLeft:pad,marginTop:"6px",fontSize:"11px",opacity:.7}},"Đã hết hạn mức cashback kỳ này"));}
+    const ci=allCards.find(x=>x.id===rt.card_id)||ALL_CARDS.find(x=>x.id===rt.card_id);
+    const nm=ci?ci.name:rt.card_id,l4=ci&&ci.last4?(" "+ci.last4):"";
+    const cap=rt.cap_month?(" · max "+fmtK(rt.cap_month)):"";
+    const rem=(st.rem!=null&&!st.exhausted)?(" · còn ~"+fmtK(st.rem)):"";
+    const note=st.note?(" · "+st.note):"";
+    out.appendChild(h("p",{className:"hint",style:st.exhausted
+      ?{paddingLeft:pad,opacity:.5,color:"var(--text3)",background:"var(--bg2)",borderRadius:"6px",margin:"2px 0",padding:"2px 6px 2px "+pad}
+      :{paddingLeft:pad,color:st.tracked?"var(--text)":undefined,fontWeight:st.tracked?"600":undefined}},
+      (st.exhausted?"✗ ":"· ")+nm+l4+" — "+st.rate+"%"+cap+rem+note));
+  });
+}
+
 function renderMccOut(out,q){
   out.innerHTML="";
   const r=window.ctRef;if(!r)return;
@@ -5887,13 +5940,7 @@ function renderMccOut(out,q){
     }
     if(rates.length){
       out.appendChild(h("p",{style:{marginTop:"8px",fontWeight:"600"}},"Thẻ cashback:"));
-      rates.forEach(rt=>{
-        const c=allCards.find(x=>x.id===rt.card_id);
-        const nm=c?c.name:rt.card_id;const l4=c&&c.last4?(" "+c.last4):"";
-        const cap=rt.cap_month?(" · max "+fmtK(rt.cap_month)):"";
-        out.appendChild(h("p",{className:"hint",style:{paddingLeft:"8px"}},
-          "· "+nm+l4+" — "+rt.rate_pct+"%"+cap));
-      });
+      renderRateRows(out,rates,mccCatCandidates(q,shops.map(s=>s.category)),"8px");
     }else{
       out.appendChild(h("p",{className:"hint",style:{marginTop:"8px"}},"Chưa có thẻ nào cashback cho MCC này."));
     }
@@ -5907,13 +5954,7 @@ function renderMccOut(out,q){
         h("strong",null,s.name),
         h("span",{className:"hint"}," — MCC "+s.mcc+(s.category?" · "+s.category:""))));
       if(rates.length){
-        rates.slice(0,6).forEach(rt=>{
-          const c=allCards.find(x=>x.id===rt.card_id);
-          const nm=c?c.name:rt.card_id;const l4=c&&c.last4?(" "+c.last4):"";
-          const cap=rt.cap_month?(" · max "+fmtK(rt.cap_month)):"";
-          out.appendChild(h("p",{className:"hint",style:{paddingLeft:"12px"}},
-            "· "+nm+l4+" — "+rt.rate_pct+"%"+cap));
-        });
+        renderRateRows(out,rates,mccCatCandidates(s.mcc,[s.category]),"12px",8);
       }else{
         out.appendChild(h("p",{className:"hint",style:{paddingLeft:"12px"}},"chưa có thẻ cashback"));
       }
