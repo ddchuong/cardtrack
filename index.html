@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202611020819';</script>
+<script>window.CT_BUILD='v202611020824';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2135,7 +2135,22 @@ function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.t
   save("ct7-cardmeta",state.cardMeta);save("ct7-promos",state.promos);
   save("ct7-catoverride",state.catOverride||{});
   save("ct7-assets",state.assets||[]);save("ct7-assetdraft",state.assetDraft||null);
-  try{if(window.ctSync)ctSync.markAllDirty()}catch(e){}}
+  try{if(window.ctSync)ctSync.markAllDirty()}catch(e){}
+  schedulePushSync();}
+// Tự đẩy lên cloud ~4s sau lần lưu cuối (nhập/sửa GD, đổi cài đặt...) để máy kia thấy sớm.
+// Bỏ qua khi đang rehydrate/render sau sync (tránh vòng lặp) hoặc khi chưa đăng nhập.
+let _pushSyncTimer=null;
+function schedulePushSync(){
+  try{
+    if(window.__ctInSync||!window.ctSync||!ctSync.syncOnce)return;
+    if(_pushSyncTimer)clearTimeout(_pushSyncTimer);
+    _pushSyncTimer=setTimeout(function fire(){
+      _pushSyncTimer=null;
+      if(window.__ctSyncBusy){_pushSyncTimer=setTimeout(fire,3000);return}
+      ctSync.syncOnce();
+    },4000);
+  }catch{}
+}
 // Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
 function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
 function toggleCardEvt(id){state.noEvt=cardEvtOn(id)?[...(state.noEvt||[]),id]:(state.noEvt||[]).filter(x=>x!==id);persist();render()}
@@ -6381,7 +6396,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   async function syncOnce(){
     if(inflight)return;if(!session){log("no session");return}
     if(!navigator.onLine){setStatus("error:offline");return}
-    inflight=true;setStatus("syncing");
+    inflight=true;window.__ctSyncBusy=true;setStatus("syncing");
     try{
       // PUSH FIRST so local data is safe on cloud before we merge remote in.
       // (Old order pull→push wiped local when remote was empty.)
@@ -6394,14 +6409,19 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       setStatus("ok");
       log("sync ok");
       // Rehydrate in-memory state from localStorage AFTER pull — otherwise render() shows stale in-memory data
+      window.__ctInSync=true;
       try{window.rehydrateState&&window.rehydrateState()}catch(e){log("rehydrate err",e)}
-      try{window.render&&render()}catch{}
+      // Không render khi đang gõ vào ô nhập (tránh mất focus/dữ liệu đang nhập); lần render kế tiếp sẽ hiện dữ liệu mới
+      try{const ae=document.activeElement,typing=ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+        if(!typing)window.render&&render()}catch{}
+      window.__ctInSync=false;
     }catch(e){
+      window.__ctInSync=false;
       log("sync err",e);
       // setStatus already called with per-table detail inside push/pull; only set generic if not
       const cur=localStorage.getItem("ct7-sync-status")||"";
       if(!cur.startsWith("error:"))setStatus("error:"+((e&&e.message)||e));
-    }finally{inflight=false}
+    }finally{inflight=false;window.__ctSyncBusy=false}
   }
 
   async function afterSignIn(){
@@ -6430,7 +6450,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   try{document.addEventListener("visibilitychange",()=>{
     if(document.visibilityState!=="visible"||!session)return;
     const last=localStorage.getItem("ct7-sync-last");
-    if(!last||Date.now()-new Date(last).getTime()>5*60000)setTimeout(()=>syncOnce(),800);
+    if(!last||Date.now()-new Date(last).getTime()>60000)setTimeout(()=>syncOnce(),800);
   })}catch{}
 
   function renderOverlay(){
