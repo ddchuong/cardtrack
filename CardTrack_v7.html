@@ -6157,7 +6157,8 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   // Các key cấu hình dạng map/list (chi tiêu từng kỳ, hạn mức, sao kê, đã thanh toán, nhắc...) đồng bộ qua bảng shared_kv,
   // 1 dòng cho mỗi "entry" (vd 'ct7-afspend|hdb-4497'), last-write-wins theo từng entry. Tài sản (ct7-assets) KHÔNG chia sẻ.
   const KV_MAP_KEYS=["ct7-afspend","ct7-cbactual","ct7-cbpost","ct7-stmts","ct7-limits","ct7-membertier","ct7-fxfees","ct7-budgets","ct7-points","ct7-cardmeta","ct7-catoverride"];
-  const KV_LIST_KEYS=["ct7-paid","ct7-noevt","ct7-events"];
+  // ct7-noevt (tắt nhắc theo thẻ) là cài đặt RIÊNG từng người, đi theo settings blob — không chia sẻ
+  const KV_LIST_KEYS=["ct7-paid","ct7-events"];
   function h32(str){let h=5381;for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return String(h>>>0)}
   function canon(v){
     if(Array.isArray(v))return "["+v.map(canon).join(",")+"]";
