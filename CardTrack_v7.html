@@ -2858,6 +2858,19 @@ function renderCardDetail(){
   card.cashbackCategories.forEach(cb=>{w.appendChild(renderCbRow(card,ct,cb,shared,ts,true))});
   if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtTight(shared.total)} / ${fmtK(shared.max)}`));
   if(card.note)w.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+  // Ưu đãi đang chạy của thẻ (vd UOB "Chi tiêu hết ý") — kèm tiến độ nếu ưu đãi có cấu hình prog
+  activePromos(card).forEach(p=>{
+    const box=h("div",{className:"card-note",style:{borderLeft:"3px solid var(--accent)"}},
+      h("div",{style:{fontWeight:"600"}},"🏷️ "+p.title),
+      h("div",{className:"hint"},(p.start?fmtDateVi(p.start):"…")+" → "+(p.end?fmtDateVi(p.end):"…")),
+      promoProgNode(p));
+    if(p.note){
+      let open=false;const nt=h("div",{className:"hint",style:{display:"none",marginTop:"4px"}},p.note);
+      box.appendChild(h("button",{className:"chip",style:{marginTop:"4px"},onClick:e=>{open=!open;nt.style.display=open?"block":"none";e.target.textContent=open?"Ẩn điều kiện":"Xem điều kiện"}},"Xem điều kiện"));
+      box.appendChild(nt);
+    }
+    w.appendChild(box);
+  });
 
   w.appendChild(h("div",{style:{margin:"12px 0 4px"}},h("button",{className:"submit",style:{background:"var(--accent2)",fontSize:"14px"},onClick:()=>setState({tab:"add",addMode:"txn",editTxnId:null,addCardId:card.id,addCategory:card.cashbackCategories[0]?.category||"",addShop:"",detailCardId:null})},"＋ Thêm giao dịch cho thẻ này")));
 
@@ -5684,9 +5697,20 @@ function stPromoForm() {
 // Seed 1 lần: chương trình UOB "Chi tiêu hết ý – Tiền hoàn đầy ví" (Group B của anh, 3 giai đoạn). Id cố định → không trùng khi sync.
 function seedUobYec(){
   try{
+    // v2: bỏ câu nhắc đăng ký khỏi ghi chú các ưu đãi đã seed trước đó (anh đã đăng ký)
+    if(!localStorage.getItem("ct7-seed-uob-yec-2026-v2")){
+      let ch=false;
+      state.promos=(state.promos||[]).map(x=>{
+        if(!/^promo-uob-yec-2026-p\d$/.test(x.id||"")||!x.note)return x;
+        const nn=x.note.replace(/mã đăng ký SG21446674 — ĐĂNG KÝ trước 17\/12\/2026 \(đăng ký 1 lần, trễ giai đoạn nào thì GD giai đoạn đó không tính\)\./,"đã đăng ký.");
+        if(nn!==x.note){ch=true;return {...x,note:nn}}return x;
+      });
+      if(ch)persist();
+      localStorage.setItem("ct7-seed-uob-yec-2026-v2","1");
+    }
     if(localStorage.getItem("ct7-seed-uob-yec-2026"))return;
     if(!ALL_CARDS.find(c=>c.id==="uob-5021"))return;
-    const note="UOB Group B · mã đăng ký SG21446674 — ĐĂNG KÝ trước 17/12/2026 (đăng ký 1 lần, trễ giai đoạn nào thì GD giai đoạn đó không tính). "
+    const note="UOB Group B · đã đăng ký. "
       +"Hoàn 20% trên phần chi vượt mốc 5tr (tối đa 700K, đạt tối đa khi chi 8.5tr), tính chung mọi thẻ UOB, hoàn vào thẻ chi nhiều nhất. "
       +"Không tính: hoàn tiền/hủy, trả góp, thanh toán hóa đơn/định kỳ/tự động, phí/lãi, MCC 4111/4900/4816/5541 (app không lọc MCC — tự trừ). "
       +"Kèm ưu đãi hoàn 100% phí GD nước ngoài (tối đa 300K nếu chi ngoại tệ ≥3tr). Đủ ngân sách là hết.";
