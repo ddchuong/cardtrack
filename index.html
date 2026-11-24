@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202611242306';</script>
+<script>window.CT_BUILD='v202611242321';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -1508,10 +1508,10 @@ function maxCardCb(card){
   return t;
 }
 // Estimate marginal cashback for spending `amt` in `cat` on `card` right now
-function estTxnCb(card,cat,amt){
+function estTxnCb(card,cat,amt,excludeId){
   const def=card.cashbackCategories.find(c=>c.category===cat);
   if(!def)return{has:false,cb:0};
-  const ct0=getCycleTxns(card);
+  const ct0=excludeId?getCycleTxns(card).filter(t=>t.id!==excludeId):getCycleTxns(card);
   // Ngữ cảnh đánh giá rate/cap PHẢI bao gồm chính giao dịch đang xét: một giao dịch 12tr
   // tự nó đẩy kỳ lên bậc cao, trước đây bị báo giá theo bậc thấp → tư vấn sai thẻ.
   const ct=amt>0?[...ct0,{id:"tx-est",cardId:card.id,category:cat,amount:amt,date:toLocalDateStr(new Date())}]:ct0;
@@ -2013,11 +2013,11 @@ function sanitizeTxns(arr){
   (Array.isArray(arr)?arr:[]).forEach(t=>{
     const amt=typeof t?.amount==="number"?t.amount:parseAmount(t?.amount);
     const valid=t&&typeof t.id==="string"&&typeof t.cardId==="string"
-      &&/^\d{4}-\d{2}-\d{2}$/.test(t.date||"")&&isFinite(amt)&&amt>0
+      &&/^\d{4}-\d{2}-\d{2}$/.test(t.date||"")&&isFinite(amt)&&amt!==0
       &&typeof t.category==="string"&&t.category&&!ids.has(t.id);
     if(!valid){bad.push(t);return}
     ids.add(t.id);
-    ok.push({id:t.id,cardId:t.cardId,date:t.date,amount:amt,category:t.category,shop:String(t.shop||"")});
+    ok.push({...t,amount:amt,shop:String(t.shop||"")});   // giữ mcc/fx/insId/recId/provKey; amount âm = hoàn tiền
   });
   return{ok,bad};
 }
@@ -2212,6 +2212,7 @@ function schedulePushSync(){
     },4000);
   }catch{}
 }
+window.state=state;   // ctRef.mergeCloudCards cần để bỏ thẻ đã prune khỏi selectedCardIds
 // Per-card auto-event switch (default ON). state.noEvt holds ids with reminders OFF.
 function cardEvtOn(id){return !(state.noEvt||[]).includes(id)}
 function toggleCardEvt(id){state.noEvt=cardEvtOn(id)?[...(state.noEvt||[]),id]:(state.noEvt||[]).filter(x=>x!==id);persist();render()}
@@ -2255,7 +2256,9 @@ function purgeOldTxns(){
   const now=new Date(),keep=[],drop=[];
   state.transactions.forEach(tx=>{
     const c=ALL_CARDS.find(c=>c.id===tx.cardId);
-    if(!c){drop.push(tx);return}
+    // Thẻ chưa có trong ALL_CARDS (vd thẻ chỉ có trên cloud, cache chưa merge lúc khởi động) → GIỮ, không archive.
+    // Trước đây bị đẩy vào kho lưu trữ rồi pull lại → trùng id, CB/chi tiêu bị cộng đôi.
+    if(!c){keep.push(tx);return}
     (parseLocalDate(tx.date)>=cycleStart(c,now)?keep:drop).push(tx);
   });
   // Prune paid-due markers whose date has passed (bỏ qua marker VIB dạng cardId|vibq|date)
@@ -2266,7 +2269,7 @@ function purgeOldTxns(){
   if(drop.length||pdChanged)persist();
 }
 // Toàn bộ giao dịch đã biết (kỳ hiện tại + kho lưu trữ) — dùng cho tab GD, CSV, đối chiếu
-function allTxns(){return state.transactions.concat(state.txnArchive||[])}
+function allTxns(){const live=new Set(state.transactions.map(t=>t.id));return state.transactions.concat((state.txnArchive||[]).filter(t=>!live.has(t.id)))}  // bỏ bản archive trùng id với GD đang sống
 function selectedCards(){return ALL_CARDS.filter(c=>state.selectedCardIds.includes(c.id))}
 // Giao dịch thuộc kỳ đang xét: cs <= date <= cycleEnd.
 // Trước đây chỉ có chặn dưới nên giao dịch ghi ngày tương lai ăn cap của cả kỳ này lẫn kỳ sau.
@@ -2296,7 +2299,7 @@ function getAutoEvents(){
     if(c.memberTiers){const ts=afNextDate(c);if(ts){
       const rem=new Date(ts.getFullYear(),ts.getMonth(),ts.getDate()-21); // 21 ngày trước
       const td=Math.ceil((rem-now)/864e5),tkey=c.id+"|vibq|"+toLocalDateStr(ts);
-      if(td>=0&&td<=14&&!(state.paidDues||[]).includes(tkey))
+      if(ts>=new Date(now.getFullYear(),now.getMonth(),now.getDate())&&td<=14&&!(state.paidDues||[]).includes(tkey))
         evts.push({id:"vibq-"+c.id,isAuto:true,dueKey:tkey,date:toLocalDateStr(rem),
           title:`PTN + đổi hạng HV: ${c.name} ${c.cardNum||"****"+c.last4}`,
           sub:`Trước ngày charge ${ts.getDate()}/${ts.getMonth()+1} — đóng PTN${c.annualFee?" ~"+fmtK(c.annualFee):""} & chọn lại hạng ở tab Thẻ`,
@@ -2709,7 +2712,7 @@ function render(){
     case"home":content.appendChild(state.detailCardId?renderCardDetail():renderHomeTab());break;
     case"advice":content.appendChild(renderAdviceTab());break;
     case"txns":content.appendChild(renderTxnTab());break;
-    case"alerts":content.appendChild(state.ptnCardId?renderPTNDetail(ALL_CARDS.find(c=>c.id===state.ptnCardId)):renderAlertsTab());break;
+    case"alerts":{const pc=state.ptnCardId?ALL_CARDS.find(c=>c.id===state.ptnCardId):null;if(state.ptnCardId&&!pc)state.ptnCardId=null;content.appendChild(pc?renderPTNDetail(pc):renderAlertsTab());break;}
     case"assets":content.appendChild(renderAssetsTab());break;
     case"add":content.appendChild(renderAddTab());break;
     default:state.tab="home";content.appendChild(renderHomeTab());
@@ -2758,7 +2761,7 @@ function renderTabBar(){
 }
 function renderFab(){
   return h("button",{className:"fab","aria-label":"Thêm giao dịch",
-    onClick:()=>{buzz(10);setState({tab:"add",addMode:"txn",editTxnId:null,detailCardId:null,sheet:null})}},"＋");
+    onClick:()=>{buzz(10);setState({tab:"add",addMode:"txn",editTxnId:null,detailCardId:null,sheet:null,addDate:toLocalDateStr(new Date()),addMcc:""})}},"＋");
 }
 
 // ═══ SELECT TAB ═══
@@ -3067,7 +3070,16 @@ function addOneToCal(e){downloadICS([{...e,key:evKeyOf(e)}])}
 // Reminder banner: nudge user to add pending events (e.g. new cycle at start of month).
 // Signature = pending keys; dismiss stores it, so a new due next month re-shows the banner.
 function pendingSig(){return pendingCalEvents().map(e=>e.key).sort().join(",")}
-function showCalBanner(){return state.tab!=="events"&&pendingCalEvents().length>0&&state.calDismiss!==pendingSig()}
+function showCalBanner(){
+  if(state.calDismiss==="off")return false;                       // đã bấm ✕ → không hiện nữa
+  if(state.tab==="events"||!pendingCalEvents().length||state.calDismiss===pendingSig())return false;
+  try{                                                             // tự ẩn sau 7 ngày kể từ lần đầu hiện
+    let f=localStorage.getItem("ct7-calbanner-first");
+    if(!f){f=String(Date.now());localStorage.setItem("ct7-calbanner-first",f)}
+    if(Date.now()-(+f)>7*864e5)return false;
+  }catch{}
+  return true;
+}
 function renderCalBanner(){
   const n=pendingCalEvents().length;
   return h("div",{className:"cal-banner"},
@@ -3076,7 +3088,7 @@ function renderCalBanner(){
       h("div",{style:{fontWeight:800,fontSize:"13px"}},`${n} nhắc chưa thêm vào Lịch iPhone`),
       h("div",{style:{fontSize:"11px",color:"var(--text3)"}},"Có nhắc kỳ mới — thêm vào Lịch để khỏi quên")),
     h("button",{className:"cal-banner-btn",onClick:()=>{buzz(10);setState({tab:"events",detailCardId:null,calPicker:true,calPick:pendingCalEvents().map(e=>e.key)})}},"Thêm"),
-    h("button",{className:"cal-banner-x",onClick:()=>{buzz(6);setState({calDismiss:pendingSig()})}},"✕"));
+    h("button",{className:"cal-banner-x","aria-label":"Ẩn vĩnh viễn",onClick:()=>{buzz(6);setState({calDismiss:"off"});showToast("Đã ẩn — vẫn thêm vào Lịch được ở tab Nhắc")}},"✕"));
 }
 
 // ═══ EVENTS TAB ═══
@@ -3609,6 +3621,31 @@ function renderHomeTab(){
     h("div",{className:"hero-foot"},
       h("span",null,"Đã chi ",h("b",null,money(sumSp))),
       h("span",null,h("b",null,rawCards.length)," thẻ"))));
+
+  // ── Ưu đãi đang chạy (UOB, Lộc Việt…) + tiến độ — bấm để mở trang thẻ ──
+  const _hp=(state.promos||[]).filter(p=>state.selectedCardIds.includes(p.cardId)&&(!p.start||p.start<=toLocalDateStr(new Date()))&&(!p.end||p.end>=toLocalDateStr(new Date())));
+  if(_hp.length){
+    const box=h("div",{className:"card-note",style:{borderLeft:"3px solid var(--accent)",margin:"var(--s3) 0"}},
+      h("div",{style:{fontWeight:"700",marginBottom:"4px"}},"🏷️ Ưu đãi đang chạy"));
+    _hp.forEach(p=>{
+      const c=ALL_CARDS.find(x=>x.id===p.cardId);if(!c)return;
+      const row=h("div",{style:{cursor:"pointer",padding:"6px 0",borderTop:"1px solid var(--border)"},onClick:()=>setState({detailCardId:c.id})},
+        h("div",{style:{fontWeight:"600",fontSize:"13px"}},p.title),
+        h("div",{className:"hint"},c.name+(p.end?" · đến "+fmtDateVi(p.end):"")));
+      const prog=promoProgNode(p);
+      if(prog)row.appendChild(prog);
+      else{ // ưu đãi không có cấu hình prog → dùng CB kỳ này của thẻ so với tối đa
+        const cb=calcTotalCb(c,getCycleTxns(c)),mx=maxCardCb(c);
+        if(mx>0){const pct=Math.min(cb/mx*100,100);
+          row.appendChild(h("div",{style:{margin:"6px 0"}},
+            h("div",{style:{height:"6px",borderRadius:"3px",background:"var(--bg4)",overflow:"hidden"}},
+              h("div",{style:{width:pct+"%",height:"100%",background:cb>=mx?"var(--accent2)":"var(--accent)"}})),
+            h("div",{className:"hint",style:{marginTop:"2px"}},cb>=mx?`✓ Đã đạt tối đa ${fmtK(mx)}₫ kỳ này`:`CB kỳ này ${fmtK(cb)}₫ / ${fmtK(mx)}₫`)));}
+      }
+      box.appendChild(row);
+    });
+    w.appendChild(box);
+  }
 
   // ── First-run nudge: đã chọn thẻ nhưng chưa có giao dịch nào ──
   if(!allTxns().length){
@@ -4795,7 +4832,7 @@ function txnFeedbackNode(){
   if(_txaRefund)return txaRefundFeedback(fb,selCard,pAmt);
   // Dùng CHUNG estTxnCb với tab Tư vấn — trước đây form Thêm có bộ estimate riêng
   // (không cap luỹ kế, không cảnh báo min-spend) nên hai chỗ báo hai số khác nhau.
-  const e=estTxnCb(selCard,state.addCategory,pAmt);
+  const e=estTxnCb(selCard,state.addCategory,pAmt,state.editTxnId);
   const warn=t=>fb.appendChild(h("div",{className:"no-cb",style:{marginBottom:"12px"}},t));
   if(!e.has){
     fb.appendChild(h("div",{className:"cb-preview",style:{background:"var(--bg3)",borderColor:"var(--border)"}},
@@ -4834,12 +4871,15 @@ function renderAddTxn(){
   const w=h("div",null);
   const rawCards=selectedCards();
   if(!rawCards.length)return h("p",{className:"empty"},"// chưa chọn thẻ nào");
-  if(state.editTxnId)w.appendChild(h("div",{className:"edit-banner"},h("span",null,"✏️ Đang sửa giao dịch"),h("span",{style:{cursor:"pointer",textDecoration:"underline"},onClick:()=>{txaResetForm();setState({editTxnId:null,addShop:"",addAmount:""})}},"Huỷ")));
+  if(state.editTxnId)w.appendChild(h("div",{className:"edit-banner"},h("span",null,"✏️ Đang sửa giao dịch"),h("span",{style:{cursor:"pointer",textDecoration:"underline"},onClick:()=>{txaResetForm();setState({editTxnId:null,addShop:"",addAmount:"",addMcc:"",addDate:toLocalDateStr(new Date())})}},"Huỷ")));
   const cards=[...rawCards].sort((a,b)=>{
     const ba=bankKeyOf(a),bb=bankKeyOf(b);
     if(ba!==bb)return ba.localeCompare(bb);
     return a.name.localeCompare(b.name,"vi");
   });
+  if(state.editTxnId&&state.addCardId&&!cards.find(c=>c.id===state.addCardId)){
+    const ec=ALL_CARDS.find(c=>c.id===state.addCardId);if(ec)cards.push(ec);   // giữ thẻ gốc của GD đang sửa
+  }
   if(!state.addCardId||!cards.find(c=>c.id===state.addCardId))state.addCardId=cards[0].id;
   const selCard=ALL_CARDS.find(c=>c.id===state.addCardId);
   if(selCard){
@@ -4871,12 +4911,12 @@ function renderAddTxn(){
   w.appendChild(qa);
 
   // ── 2. THẺ ──
-  const cs=h("select",{id:"add-card-sel",onChange:e=>{const nc=ALL_CARDS.find(c=>c.id===e.target.value);_txaMccTouched=false;setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:"",addMcc:""})}});
+  const cs=h("select",{id:"add-card-sel",onChange:e=>{const nc=ALL_CARDS.find(c=>c.id===e.target.value);_txaMccTouched=false;setState(state.editTxnId?{addCardId:e.target.value}:{addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:"",addMcc:""})}});
   cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ${c.cardNum||"****"+c.last4}`)));cs.value=state.addCardId;
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl",htmlFor:"add-card-sel"},"Thẻ"),cs));
 
   // ── 3. LĨNH VỰC ──
-  const catS=h("select",{id:"add-cat-sel",onChange:e=>setState({addCategory:e.target.value,addShop:""})});
+  const catS=h("select",{id:"add-cat-sel",onChange:e=>setState(state.editTxnId?{addCategory:e.target.value}:{addCategory:e.target.value,addShop:""})});
   if(selCard){
     selCard.cashbackCategories.forEach(c=>catS.appendChild(h("option",{value:c.category},`${CAT_ICONS[c.category]||""} ${c.label||c.category} (${fmtRate(c.rate)})`)));
     catS.appendChild(h("option",{value:"",disabled:"true"},"───── Khác ─────"));
@@ -4934,6 +4974,7 @@ function renderAddTxn(){
 }
 // Luồng lưu: (1) chưa rõ MCC mà thẻ có loại trừ → hỏi xác nhận; (2) ngày ngoài kỳ → hỏi; (3) lưu.
 function _txaSubmit(amt,mccOk){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(state.addDate||"")){showToast("Chọn ngày giao dịch trước đã");return}
     const mCard=ALL_CARDS.find(c=>c.id===state.addCardId);
     if(!mccOk&&!_txaRefund&&exclRulesFor(mCard,state.addDate).length&&!txaEffMcc().mcc){
       const all=[...new Set(exclRulesFor(mCard,state.addDate).flatMap(r=>r.mccs))];
@@ -4970,7 +5011,7 @@ function _saveTxn(amt,outOfCycle){
       if(fx)tx.fx=fx;else delete tx.fx;
       if(/^\d{4}$/.test(state.addMcc||""))tx.mcc=state.addMcc;else delete tx.mcc;
     }
-    state.editTxnId=null;state.addShop="";state.addAmount="";state.addMcc="";
+    state.editTxnId=null;state.addShop="";state.addAmount="";state.addMcc="";state.addDate=toLocalDateStr(new Date());
     txaResetForm();
     persist();buzz(18);
     showToast(outOfCycle?"✓ Đã lưu — GD nằm ở Lịch sử":"✓ Đã lưu thay đổi");render();return;
@@ -5119,13 +5160,13 @@ function alDeleteIns(id){
       state.transactions=(state.transactions||[]).filter(t=>t.insId!==id);
       state.txnArchive=(state.txnArchive||[]).filter(t=>t.insId!==id);
       state.installments=(state.installments||[]).filter(i=>i.id!==id);
-      try{if(window.ctSync){ctSync.tombstone("ct7-ins",id);remTx.forEach(t=>t.id&&ctSync.tombstone("ct7-txns",t.id))}}catch{}
+      try{if(window.ctSync){ctSync.tombstone("ct7-ins",id);[...remTx,...remArch].forEach(t=>t.id&&ctSync.tombstone("ct7-txns",t.id))}}catch{}
       persist();buzz(12);render();
       showToastUndo("✓ Đã xoá mục trả góp",()=>{
         state.installments=[...(state.installments||[]),ins];
         state.transactions=[...(state.transactions||[]),...remTx];
         state.txnArchive=[...(state.txnArchive||[]),...remArch];
-        try{if(window.ctSync){ctSync.untombstone("ct7-ins",id);remTx.forEach(t=>t.id&&ctSync.untombstone("ct7-txns",t.id))}}catch{}
+        try{if(window.ctSync){ctSync.untombstone("ct7-ins",id);[...remTx,...remArch].forEach(t=>t.id&&ctSync.untombstone("ct7-txns",t.id))}}catch{}
         persist();buzz(8);render();showToast("↶ Đã hoàn tác");
       });
     }
@@ -5233,13 +5274,13 @@ function alDeleteRec(id){
       state.transactions=(state.transactions||[]).filter(t=>t.recId!==id);
       state.txnArchive=(state.txnArchive||[]).filter(t=>t.recId!==id);
       state.recurring=(state.recurring||[]).filter(r=>r.id!==id);
-      try{if(window.ctSync){ctSync.tombstone("ct7-rec",id);remTx.forEach(t=>t.id&&ctSync.tombstone("ct7-txns",t.id))}}catch{}
+      try{if(window.ctSync){ctSync.tombstone("ct7-rec",id);[...remTx,...remArch].forEach(t=>t.id&&ctSync.tombstone("ct7-txns",t.id))}}catch{}
       persist();buzz(12);render();
       showToastUndo("✓ Đã xoá định kỳ",()=>{
         state.recurring=[...(state.recurring||[]),rec];
         state.transactions=[...(state.transactions||[]),...remTx];
         state.txnArchive=[...(state.txnArchive||[]),...remArch];
-        try{if(window.ctSync){ctSync.untombstone("ct7-rec",id);remTx.forEach(t=>t.id&&ctSync.untombstone("ct7-txns",t.id))}}catch{}
+        try{if(window.ctSync){ctSync.untombstone("ct7-rec",id);[...remTx,...remArch].forEach(t=>t.id&&ctSync.untombstone("ct7-txns",t.id))}}catch{}
         persist();buzz(8);render();showToast("↶ Đã hoàn tác");
       });
     }
@@ -5894,7 +5935,7 @@ function stPromoEditRow(p, cards) {
 function promoProgNode(p){
   const g=p&&p.prog;if(!g||!p.start||!p.end)return null;
   const ids=promoCardIds(g),ex=(g.excludeMcc||[]).map(String);
-  const inP=allTxns().filter(t=>ids.includes(t.cardId)&&t.date>=p.start&&t.date<=p.end);
+  const inP=allTxns().filter(t=>ids.includes(t.cardId)&&t.date>=p.start&&t.date<=p.end&&!t.insId&&!t.recId&&!t.provKey);  // KM thường loại trả góp/định kỳ
   const exTx=inP.filter(t=>{const m=txMcc(t);return m&&ex.includes(m)});
   const spend=Math.max(inP.filter(t=>!exTx.includes(t)).reduce((s,t)=>s+t.amount,0),0);
   const exAmt=exTx.reduce((s,t)=>s+t.amount,0);
@@ -6382,7 +6423,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   };
   // Ephemeral/UI keys never synced
   const SKIP_KEYS=new Set(["ct7-sync-last","ct7-sync-status","ct7-sync-dirty","ct7-sync-migrated","ct7-cloud-skip","ct7-lasttab","ct7-tombstones","ct7-assetdraft","ct7-rowhash","ct7-kvhash"]);
-  const isEphemeral=k=>SKIP_KEYS.has(k)||k.startsWith("ct7-cache-")||k.startsWith("ct7-pwa-")||k.startsWith("ct7-mig-");
+  const isEphemeral=k=>SKIP_KEYS.has(k)||k.startsWith("ct7-cache-")||k.startsWith("ct7-pwa-")||k.startsWith("ct7-mig-")||k.startsWith("ct7-ref-")||k.startsWith("ct7-calbanner-");
 
   let client=null,session=null,inflight=false;
   function log(){try{console.log.apply(console,["[ctSync]"].concat([].slice.call(arguments)))}catch{}}
@@ -6893,7 +6934,8 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   })}catch{}
 
   // On module load, merge whatever's already cached — so ALL_CARDS is populated before first pull.
-  try{const cached=refRead(REF_KEYS.cards);if(cached&&cached.length)setTimeout(()=>{try{mergeCloudCards(cached);window.bgRender&&bgRender()}catch{}},50)}catch{}
+  // Merge NGAY (đồng bộ) trước render đầu tiên — trước đây chờ 50ms nên purgeOldTxns chạy khi thẻ cloud-only chưa có
+  try{const cached=refRead(REF_KEYS.cards);if(cached&&cached.length){try{mergeCloudCards(cached)}catch{};setTimeout(()=>{try{window.bgRender&&bgRender()}catch{}},50)}}catch{}
 
   // Insert 1 shop mới do user thêm vào ref_shops (shared). Sau khi insert thành công
   // → refPull() để cache local có shop mới. Cần đã đăng nhập & online.
@@ -7314,10 +7356,9 @@ function pwaInstall() {
         setInterval(checkVersionFromNetwork, 5*60*1000);
         // New SW took over — reload once to get latest UI.
         let _reloaded=false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if(_reloaded)return; _reloaded=true;
-          setTimeout(()=>location.reload(), 100);
-        });
+        // SW mới tự kích hoạt (skipWaiting) → KHÔNG reload giữa chừng (mất form đang nhập).
+        // Trang hiện tại vẫn chạy bình thường; lần mở app kế tiếp sẽ là bản mới.
+        navigator.serviceWorker.addEventListener('controllerchange', () => { _reloaded=true; });
       }).catch((e) => {
         console.warn('pwaInstall: SW register lỗi (bình thường nếu sw.js chưa deploy ở gốc repo):', e);
       });

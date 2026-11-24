@@ -1,5 +1,5 @@
 // Bump this on every deploy so old caches get purged and clients pick up new code.
-const CACHE_NAME='cardtrack-v202611242306';
+const CACHE_NAME='cardtrack-v202611242321';
 const APP_SHELL=['./','./index.html'];
 
 self.addEventListener('install',function(e){
@@ -43,8 +43,11 @@ self.addEventListener('fetch',function(e){
       if(res&&res.status===200){cache.put(e.request,res.clone())}
       return res;
     }).catch(function(){return null});
-    if(cached) return cached;                 // có cache → trả ngay, cập nhật nền
+    if(cached){ e.waitUntil(netP); return cached; }   // có cache → trả ngay, cập nhật nền (waitUntil: không bị kill giữa chừng)
     var net=await netP;                       // chưa có cache (lần đầu) → chờ mạng
-    return net || cache.match('./index.html');
+    if(net) return net;
+    // Offline: chỉ trả index.html cho điều hướng trang; tài nguyên khác (icon, manifest) trả lỗi mạng như bình thường
+    if(e.request.mode==='navigate') return (await cache.match('./index.html')) || Response.error();
+    return Response.error();
   })());
 });
