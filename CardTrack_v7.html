@@ -3171,11 +3171,14 @@ function renderAddTab(){
 // Danh sách shop gợi ý của 1 lĩnh vực = seed trong app + shop dùng chung trên cloud (ref_shops, vd shop mới thêm từ máy khác)
 function shopsForCategory(cat){
   if(!cat)return [];
+  // So khớp lĩnh vực không phân biệt dấu/hoa-thường/khoảng trắng thừa (iPhone hay gõ dạng Unicode tổ hợp → "Di chuyển" ≠ "Di chuyển")
+  const nc=x=>String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").replace(/\s+/g," ").trim().toLowerCase();
+  const want=nc(cat);
   const out=[...(SHOP_SUGGESTIONS[cat]||[])],seen=new Set(out.map(x=>String(x).toLowerCase()));
   try{
     const r=window.ctRef;
     (r&&r.getShops?r.getShops():[]).forEach(s=>{
-      const n=s&&s.name;if(!n||s.category!==cat)return;
+      const n=s&&s.name;if(!n||nc(s.category)!==want)return;
       const k=String(n).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(n);
     });
   }catch{}
