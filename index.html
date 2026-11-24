@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202611242244';</script>
+<script>window.CT_BUILD='v202611242254';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -1012,7 +1012,7 @@ let ALL_CARDS=[
       {category:"Beauty",rate:.08,maxCashback:400000,maxSpend:5000000},
       {category:"Khác",rate:.08,maxCashback:400000,maxSpend:5000000}
     ],
-    minSpend:0,calendarMonth:true,flatAll:true,sharedMaxCashback:400000,sharedCats:["Siêu thị", "Ẩm thực", "Du lịch", "Online", "Online Shopee/Tiktok", "Y tế", "Giáo dục", "Nhà sách", "Điện máy", "Thời trang", "Di chuyển", "Giải trí", "Vé Vietjet", "Mua sắm", "Beauty", "Khác"],
+    minSpend:0,calendarMonth:true,flatAll:true,excludeMcc:["6300","5960","4829","6011","6211","6051","7995","7801","5944","5933"],sharedMaxCashback:400000,sharedCats:["Siêu thị", "Ẩm thực", "Du lịch", "Online", "Online Shopee/Tiktok", "Y tế", "Giáo dục", "Nhà sách", "Điện máy", "Thời trang", "Di chuyển", "Giải trí", "Vé Vietjet", "Mua sắm", "Beauty", "Khác"],
     note:"Khuyến mại 05/11/2026–31/03/2027 (thẻ phát hành trong CT): hoàn 8% mọi GD thanh toán hàng hóa/dịch vụ, tối đa 400K/tháng (tháng dương lịch), hoàn tối thiểu 5K. Loại trừ MCC 6300 bảo hiểm, 5960, 4829, 6011, 6211, 6051, 7995, 7801, 5944 trang sức, 5933 cầm đồ. Mỗi KH chỉ xét 1 thẻ Lộc Việt; ngân sách 900tr/kỳ (hết là dừng). Sau 31/03/2027 hết CB. Thẻ nội địa Napas.",
     annualFee:0,afNext:"2027-11",afWaive:"Miễn phí năm đầu (phí năm sau chưa rõ)"},
 
@@ -1376,7 +1376,31 @@ function minSpendMet(card,ct){
 // Giao dịch hoàn tiền có amount ÂM. Ngưỡng minTxnAmount so theo TRỊ TUYỆT ĐỐI để refund của
 // một giao dịch đủ điều kiện vẫn được trừ lại đúng.
 function isRefund(tx){return (tx.amount||0)<0}
-function eligibleTxns(card,ct){return card.minTxnAmount?ct.filter(tx=>Math.abs(tx.amount)>=card.minTxnAmount):ct}
+// ═══ MCC LOẠI TRỪ ═══
+// tx.mcc (người nhập xác nhận) ưu tiên; không có thì lấy MCC của shop trong ref_shops (khớp tên/alias).
+function shopMccOf(name){try{const s=name&&window.ctRef&&ctRef.shopByName?ctRef.shopByName(String(name).trim()):null;return s&&s.mcc?String(s.mcc):""}catch{return ""}}
+function txMcc(tx){return (tx&&tx.mcc)?String(tx.mcc):shopMccOf(tx&&tx.shop)}
+// Các bộ MCC loại trừ áp cho thẻ tại ngày dateStr: của chính thẻ (card.excludeMcc) + của ưu đãi đang chạy có prog.excludeMcc
+function promoCardIds(g){return g.cardIds||ALL_CARDS.filter(c=>c&&c.id&&g.idPrefix&&c.id.startsWith(g.idPrefix)).map(c=>c.id)}
+function exclRulesFor(card,dateStr){
+  const out=[];if(!card)return out;
+  if(Array.isArray(card.excludeMcc)&&card.excludeMcc.length)out.push({src:"CB thẻ "+card.name,mccs:card.excludeMcc.map(String)});
+  const d=dateStr||toLocalDateStr(new Date());
+  (state.promos||[]).forEach(p=>{const g=p&&p.prog;if(!g||!Array.isArray(g.excludeMcc)||!g.excludeMcc.length)return;
+    if(!promoCardIds(g).includes(card.id))return;
+    if((p.start&&d<p.start)||(p.end&&d>p.end))return;
+    out.push({src:p.title,mccs:g.excludeMcc.map(String)});});
+  return out;
+}
+function isCardExcluded(card,tx){
+  if(!Array.isArray(card.excludeMcc)||!card.excludeMcc.length)return false;
+  const m=txMcc(tx);return !!m&&card.excludeMcc.map(String).includes(m);
+}
+function eligibleTxns(card,ct){
+  let r=card.minTxnAmount?ct.filter(tx=>Math.abs(tx.amount)>=card.minTxnAmount):ct;
+  if(Array.isArray(card.excludeMcc)&&card.excludeMcc.length)r=r.filter(tx=>!isCardExcluded(card,tx));  // GD thuộc MCC loại trừ → không tính CB
+  return r;
+}
 function calcCatSpendNet(card,ct,cat){return eligibleTxns(card,ct).filter(tx=>tx.category===cat).reduce((s,t)=>s+t.amount,0)}
 function calcCatSpend(card,ct,cat){return Math.max(calcCatSpendNet(card,ct,cat),0)}
 // CB "tiềm năng" của 1 lĩnh vực: đã tính cap riêng, CHƯA xét điều kiện min-spend của thẻ.
@@ -2051,7 +2075,7 @@ let state={
   txnArchive:load("ct7-txn-archive",[]),   // giao dịch đã rời kỳ hiện tại — giữ để đối chiếu/CSV
   events:load("ct7-events",[]),
   detailCardId:null,addMode:"txn",
-  addCardId:"",addShop:"",addAmount:"",addCategory:"",addDate:toLocalDateStr(new Date()),
+  addCardId:"",addShop:"",addAmount:"",addCategory:"",addMcc:"",addDate:toLocalDateStr(new Date()),
   addEventDate:"",addEventCard:"",addEventNote:"",
   filterCard:"all",filterMonth:new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"),
   shopSearch:"",shopCatFilter:"all",
@@ -2330,7 +2354,7 @@ function deleteEvent(id){
   showToastUndo("✓ Đã xoá nhắc",()=>{state.events.splice(i,0,ev);persist();render()});
 }
 function editTxn(id){const tx=state.transactions.find(t=>t.id===id);if(!tx)return;buzz(6);
-  setState({tab:"add",addMode:"txn",detailCardId:null,editTxnId:id,addCardId:tx.cardId,addCategory:tx.category,addShop:tx.shop,addAmount:String(tx.amount),addDate:tx.date});}
+  setState({tab:"add",addMode:"txn",detailCardId:null,editTxnId:id,addCardId:tx.cardId,addCategory:tx.category,addShop:tx.shop,addAmount:String(tx.amount),addDate:tx.date,addMcc:tx.mcc||""});}
 // Duplicate a transaction with today's date (for recurring spends)
 function dupTxn(id){const tx=state.transactions.find(t=>t.id===id);if(!tx)return;
   state.transactions.unshift({id:newTxnId(),cardId:tx.cardId,shop:tx.shop,amount:tx.amount,category:tx.category,date:toLocalDateStr(new Date())});
@@ -2886,7 +2910,12 @@ function renderCardDetail(){
   if(card.flatAll)w.appendChild(h("div",{className:"hint",style:{margin:"6px 0"}},`Hoàn ${fmtRate(card.cashbackCategories[0]?.rate||0)} mọi lĩnh vực (trừ bảo hiểm, trang sức, cầm đồ, chuyển/rút tiền…) — tổng tối đa ${fmtK(card.sharedMaxCashback||0)}/tháng`+(_cbList.length?"":" · chưa có giao dịch kỳ này")));
   _cbList.forEach(cb=>{w.appendChild(renderCbRow(card,ct,cb,shared,ts,true))});
   if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtTight(shared.total)} / ${fmtK(shared.max)}`));
-  if(card.note)w.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
+  // Ghi chú thẻ: ẩn mặc định, bấm "ℹ Chi tiết thẻ" mới hiện (tránh trùng với khung ưu đãi bên dưới)
+  if(card.note){
+    let open=false;const nt=h("div",{className:"card-note",style:{display:"none"}},card.note);
+    w.appendChild(h("button",{className:"chip",style:{margin:"8px 0 4px"},onClick:e=>{open=!open;nt.style.display=open?"block":"none";e.currentTarget.textContent=open?"ℹ Ẩn chi tiết thẻ":"ℹ Chi tiết thẻ"}},"ℹ Chi tiết thẻ"));
+    w.appendChild(nt);
+  }
   // Ưu đãi đang chạy của thẻ (vd UOB "Chi tiêu hết ý") — kèm tiến độ nếu ưu đãi có cấu hình prog
   activePromos(card).forEach(p=>{
     const box=h("div",{className:"card-note",style:{borderLeft:"3px solid var(--accent)"}},
@@ -2895,7 +2924,7 @@ function renderCardDetail(){
       promoProgNode(p));
     if(p.note){
       let open=false;const nt=h("div",{className:"hint",style:{display:"none",marginTop:"4px"}},p.note);
-      box.appendChild(h("button",{className:"chip",style:{marginTop:"4px"},onClick:e=>{open=!open;nt.style.display=open?"block":"none";e.target.textContent=open?"Ẩn điều kiện":"Xem điều kiện"}},"Xem điều kiện"));
+      box.appendChild(h("button",{className:"chip",style:{marginTop:"4px"},onClick:e=>{open=!open;nt.style.display=open?"block":"none";e.currentTarget.textContent=open?"Ẩn điều kiện":"ℹ Xem điều kiện"}},"ℹ Xem điều kiện"));
       box.appendChild(nt);
     }
     w.appendChild(box);
@@ -4575,6 +4604,7 @@ function txaSyncEdit(){
   const tx=(state.transactions||[]).find(t=>t.id===state.editTxnId)||(state.txnArchive||[]).find(t=>t.id===state.editTxnId);
   if(!tx)return;
   _txaRefund=isRefund(tx);
+  _txaMccTouched=!!(tx.mcc&&tx.mcc!==shopMccOf(tx.shop));   // MCC đã sửa tay lúc trước → giữ nguyên
   // editTxn() (nền) gán addAmount=String(tx.amount) — với hoàn tiền đó là số ÂM, nhưng ô nhập
   // luôn hiện số dương (nhãn đổi thành "Số tiền hoàn"), nên chuẩn hoá lại về trị tuyệt đối.
   if(_txaRefund)state.addAmount=String(Math.abs(tx.amount));
@@ -4587,6 +4617,7 @@ function txaSyncEdit(){
   }
 }
 function txaResetForm(){
+  _txaMccTouched=false;
   _txaRefund=false;_txaFxOpen=false;_txaFx={cur:"",curCustom:"",orig:"",rate:""};_txaEditSyncId=state.editTxnId;
 }
 
@@ -4705,8 +4736,37 @@ function txaShopChips(){
   return list.map(x=>h("button",{className:"chip"+(state.addShop===x?" sel":""),"data-shop":x,
     onClick:()=>{state.addShop=x;const inp=document.querySelector('[data-fid="add-shop"]');if(inp)inp.value=x;buzz(6);txaRecalc()}},x));
 }
+// MCC của form: mặc định tự điền theo shop (kho dùng chung); user gõ tay thì giữ giá trị của user (_txaMccTouched)
+let _txaMccTouched=false;
+function txaAutoMcc(){
+  if(_txaMccTouched)return;
+  const m=shopMccOf(state.addShop);
+  if(m||!state.editTxnId)state.addMcc=m;   // sửa GD cũ chưa có shop trong kho → giữ MCC đã lưu
+  const mi=document.getElementById("add-mcc-input");if(mi&&mi.value!==state.addMcc)mi.value=state.addMcc;
+}
+function txaEffMcc(){
+  const m=(state.addMcc||"").trim();if(!/^\d{4}$/.test(m))return {mcc:"",src:""};
+  const sm=shopMccOf(state.addShop);
+  return {mcc:m,src:(!_txaMccTouched&&sm===m)?"theo shop "+state.addShop.trim():"bạn nhập"};
+}
+function txaMccHint(){
+  const card=ALL_CARDS.find(c=>c.id===state.addCardId);const rules=exclRulesFor(card,state.addDate);
+  const e=txaEffMcc(),st={fontSize:"12px",marginTop:"4px",lineHeight:"1.5"};
+  if(!rules.length)return e.mcc?[h("div",{className:"hint",style:st},`MCC ${e.mcc} (${e.src})`)]:[];
+  if(!e.mcc){
+    const all=[...new Set(rules.flatMap(r=>r.mccs))];
+    return [h("div",{className:"no-cb",style:st},`❓ Chưa rõ MCC. Thẻ/ưu đãi này loại trừ MCC: ${all.join(", ")}. Xem MCC trong app ngân hàng hoặc tool tra MCC rồi nhập vào — bỏ trống thì GD được tính như hợp lệ.`)];
+  }
+  const hit=rules.filter(r=>r.mccs.includes(e.mcc));
+  if(hit.length)return [h("div",{className:"no-cb",style:st},`⛔ MCC ${e.mcc} (${e.src}) bị loại trừ ở: ${hit.map(r=>r.src).join("; ")} — GD vẫn được lưu nhưng KHÔNG tính vào đó.`)];
+  return [h("div",{className:"hint",style:st},`✓ MCC ${e.mcc} (${e.src}) — không thuộc danh sách loại trừ.`)];
+}
 // Patch tại chỗ (echo số tiền + khối CB/hoàn tiền + độ mờ nút Lưu + chip gợi ý cửa hàng) khi đang gõ.
 function txaRecalc(){
+  txaAutoMcc();
+  const mh=document.getElementById("mcc-hint");
+  if(mh){mh.innerHTML="";txaMccHint().forEach(n=>mh.appendChild(n));
+  }
   const fb=document.getElementById("txn-feedback");
   if(fb)fb.replaceWith(txnFeedbackNode());
   const pAmt=parseAmount(state.addAmount);
@@ -4808,7 +4868,7 @@ function renderAddTxn(){
   w.appendChild(qa);
 
   // ── 2. THẺ ──
-  const cs=h("select",{id:"add-card-sel",onChange:e=>{const nc=ALL_CARDS.find(c=>c.id===e.target.value);setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:""})}});
+  const cs=h("select",{id:"add-card-sel",onChange:e=>{const nc=ALL_CARDS.find(c=>c.id===e.target.value);_txaMccTouched=false;setState({addCardId:e.target.value,addCategory:nc?.cashbackCategories[0]?.category||"",addShop:"",addMcc:""})}});
   cards.forEach(c=>cs.appendChild(h("option",{value:c.id},`${c.name} ${c.cardNum||"****"+c.last4}`)));cs.value=state.addCardId;
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl",htmlFor:"add-card-sel"},"Thẻ"),cs));
 
@@ -4832,6 +4892,17 @@ function renderAddTxn(){
   sw.appendChild(h("div",{className:"chip-row",id:"txn-chips"},...txaShopChips()));
   w.appendChild(h("div",{className:"fg"},h("label",{className:"lbl",htmlFor:"add-shop-input"},"Cửa hàng"),sw));
 
+  // ── 4b. MCC — tự điền theo MCC của shop trong kho dùng chung; user sửa được nếu thấy chưa đúng ──
+  txaAutoMcc();
+  w.appendChild(h("div",{className:"fg"},
+    h("label",{className:"lbl",htmlFor:"add-mcc-input"},"MCC"),
+    h("input",{className:"input","data-fid":"add-mcc",id:"add-mcc-input",type:"text",inputmode:"numeric",maxlength:"4",autocomplete:"off",
+      placeholder:"Chưa rõ — xem trong app ngân hàng",value:state.addMcc||"",
+      onInput:e=>{const v=e.target.value.replace(/\D/g,"").slice(0,4);
+        _txaMccTouched=v!=="";               // xoá trắng → quay lại tự điền theo shop
+        setQ({addMcc:v});if(e.target.value!==v)e.target.value=v;txaRecalc()}}),
+    h("div",{id:"mcc-hint"},...txaMccHint())));
+
   // ── 5. NGÀY (mặc định hôm nay; min/max = biên của kỳ) ──
   const cycS=selCard?cycleStart(selCard,new Date()):null;
   const cycE=selCard&&cycS?cycleEndOf(selCard,cycS):null;
@@ -4854,6 +4925,20 @@ function renderAddTxn(){
     const amt=parseAmount(state.addAmount);
     const liveCanS=state.addCardId&&state.addShop.trim()&&state.addAmount&&amt>0&&state.addCategory;
     if(!liveCanS)return;if(isNaN(amt)||amt<=0)return;
+    _txaSubmit(amt,false);
+  }},state.editTxnId?"💾 Lưu thay đổi":(_txaRefund?"↩ Ghi hoàn tiền":"+ Thêm giao dịch")));
+  return w;
+}
+// Luồng lưu: (1) chưa rõ MCC mà thẻ có loại trừ → hỏi xác nhận; (2) ngày ngoài kỳ → hỏi; (3) lưu.
+function _txaSubmit(amt,mccOk){
+    const mCard=ALL_CARDS.find(c=>c.id===state.addCardId);
+    if(!mccOk&&!_txaRefund&&exclRulesFor(mCard,state.addDate).length&&!txaEffMcc().mcc){
+      const all=[...new Set(exclRulesFor(mCard,state.addDate).flatMap(r=>r.mccs))];
+      askConfirm({title:"Chưa rõ MCC",
+        body:`${mCard.name} (hoặc ưu đãi đang chạy) loại trừ các MCC:\n${all.join(", ")}\n\n"${state.addShop.trim()}" chưa có MCC trong kho. Nếu biết MCC (xem trong app ngân hàng), bấm Huỷ và nhập vào ô MCC.\n\nLưu luôn thì GD được tính là hợp lệ.`,
+        okLabel:"Lưu, coi là hợp lệ",onOk:()=>_txaSubmit(amt,true)});
+      return;
+    }
     // Ngày mới có còn nằm trong kỳ hiện tại của thẻ không? Nếu không, GD sẽ bị chuyển vào
     // kho lưu trữ ở lần render kế tiếp — phải nói trước, trước đây nó âm thầm biến mất.
     const tCard=ALL_CARDS.find(c=>c.id===state.addCardId);
@@ -4867,8 +4952,6 @@ function renderAddTxn(){
       }
     }
     _saveTxn(amt);
-  }},state.editTxnId?"💾 Lưu thay đổi":(_txaRefund?"↩ Ghi hoàn tiền":"+ Thêm giao dịch")));
-  return w;
 }
 
 // Lưu giao dịch (tách riêng để confirm-sheet gọi lại được sau khi user đồng ý)
@@ -4882,16 +4965,18 @@ function _saveTxn(amt,outOfCycle){
     if(tx){
       tx.cardId=state.addCardId;tx.shop=state.addShop.trim();tx.amount=signedAmt;tx.category=state.addCategory;tx.date=state.addDate;
       if(fx)tx.fx=fx;else delete tx.fx;
+      if(/^\d{4}$/.test(state.addMcc||""))tx.mcc=state.addMcc;else delete tx.mcc;
     }
-    state.editTxnId=null;state.addShop="";state.addAmount="";
+    state.editTxnId=null;state.addShop="";state.addAmount="";state.addMcc="";
     txaResetForm();
     persist();buzz(18);
     showToast(outOfCycle?"✓ Đã lưu — GD nằm ở Lịch sử":"✓ Đã lưu thay đổi");render();return;
   }
   const newTx={id:newTxnId(),cardId:state.addCardId,shop:state.addShop.trim(),amount:signedAmt,category:state.addCategory,date:state.addDate};
   if(fx)newTx.fx=fx;
+  if(/^\d{4}$/.test(state.addMcc||""))newTx.mcc=state.addMcc;
   state.transactions.unshift(newTx);
-  state.addShop="";state.addAmount="";
+  state.addShop="";state.addAmount="";state.addMcc="";
   txaResetForm();
   persist();buzz(18);
   showToast(outOfCycle?`✓ Đã lưu ${money(amt)} — nằm ở Lịch sử`:(wasRefund?`✓ Đã ghi hoàn tiền ${money(amt)}`:`✓ Đã thêm ${money(amt)}`));
@@ -5751,6 +5836,16 @@ function seedUobYec(){
       if(ch)persist();
       localStorage.setItem("ct7-seed-uob-yec-2026-v2","1");
     }
+    // v3: thêm MCC loại trừ (4111/4900/4816/5541) cho các ưu đãi UOB đã seed
+    if(!localStorage.getItem("ct7-seed-uob-yec-2026-v3")){
+      let ch=false;
+      state.promos=(state.promos||[]).map(x=>{
+        if(!/^promo-uob-yec-2026-p\d$/.test(x.id||"")||!x.prog||x.prog.excludeMcc)return x;
+        ch=true;return {...x,prog:{...x.prog,excludeMcc:["4111","4900","4816","5541"]}};
+      });
+      if(ch)persist();
+      localStorage.setItem("ct7-seed-uob-yec-2026-v3","1");
+    }
     if(localStorage.getItem("ct7-seed-uob-yec-2026"))return;
     if(!ALL_CARDS.find(c=>c.id==="uob-5021"))return;
     const note="UOB Group B · đã đăng ký. "
@@ -5760,7 +5855,7 @@ function seedUobYec(){
     const mk=(n,start,end,post)=>({id:"promo-uob-yec-2026-p"+n,cardId:"uob-5021",
       title:`UOB Chi tiêu hết ý — GĐ${n} (hoàn 20%, tối đa 700K)`,start,end,
       note:note+` GĐ${n}: GD phải được bút toán trước ${post}.`,
-      prog:{idPrefix:"uob-",base:5000000,rate:.2,max:700000}});
+      prog:{idPrefix:"uob-",base:5000000,rate:.2,max:700000,excludeMcc:["4111","4900","4816","5541"]}});
     const list=[mk(1,"2026-11-18","2026-12-17","01/01/2027"),mk(2,"2026-12-18","2027-01-17","01/02/2027"),mk(3,"2027-01-18","2027-02-16","03/03/2027")];
     const have=new Set((state.promos||[]).map(x=>x.id));
     state.promos=[...(state.promos||[]),...list.filter(x=>!have.has(x.id))];
@@ -5794,14 +5889,18 @@ function stPromoEditRow(p, cards) {
 // p.prog={idPrefix|cardIds, base, rate, max}. Chi tiêu = tổng GD (ròng, đã trừ hoàn tiền) của các thẻ trong khoảng start..end.
 function promoProgNode(p){
   const g=p&&p.prog;if(!g||!p.start||!p.end)return null;
-  const ids=g.cardIds||ALL_CARDS.filter(c=>c&&c.id&&g.idPrefix&&c.id.startsWith(g.idPrefix)).map(c=>c.id);
-  const spend=Math.max(allTxns().filter(t=>ids.includes(t.cardId)&&t.date>=p.start&&t.date<=p.end).reduce((s,t)=>s+t.amount,0),0);
+  const ids=promoCardIds(g),ex=(g.excludeMcc||[]).map(String);
+  const inP=allTxns().filter(t=>ids.includes(t.cardId)&&t.date>=p.start&&t.date<=p.end);
+  const exTx=inP.filter(t=>{const m=txMcc(t);return m&&ex.includes(m)});
+  const spend=Math.max(inP.filter(t=>!exTx.includes(t)).reduce((s,t)=>s+t.amount,0),0);
+  const exAmt=exTx.reduce((s,t)=>s+t.amount,0);
   const base=g.base||0,rate=g.rate||0,max=g.max||0;
   const earned=Math.min(Math.max(spend-base,0)*rate,max);
   const fullAt=base+(rate>0?max/rate:0);
   const pct=fullAt>0?Math.min(spend/fullAt*100,100):0;
   const lines=[];
   lines.push(`Đã chi ${fmtK(spend)}₫ · mốc ${fmtK(base)}₫ · tối đa tại ${fmtK(fullAt)}₫`);
+  if(exAmt)lines.push(`⛔ Không tính ${fmtK(exAmt)}₫ (${exTx.length} GD thuộc MCC loại trừ)`);
   if(spend<base)lines.push(`Cần chi thêm ${fmtK(base-spend)}₫ để bắt đầu có hoàn tiền`);
   else if(earned<max)lines.push(`Hoàn ước tính ${fmtK(earned)}₫ — chi thêm ${fmtK(fullAt-spend)}₫ để đạt tối đa ${fmtK(max)}₫`);
   else lines.push(`✓ Đã đạt tối đa ${fmtK(max)}₫`);
