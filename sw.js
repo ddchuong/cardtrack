@@ -1,14 +1,16 @@
 // Bump this on every deploy so old caches get purged and clients pick up new code.
-const CACHE_NAME='cardtrack-v202611242148';
+const CACHE_NAME='cardtrack-v202611242210';
 const APP_SHELL=['./','./index.html'];
 
 self.addEventListener('install',function(e){
   e.waitUntil((async function(){
     var c=await caches.open(CACHE_NAME);
-    await Promise.all(APP_SHELL.map(function(u){return c.add(u).catch(function(){})}));
+    // cache:'reload' → bỏ qua HTTP cache của trình duyệt, tránh nhét index.html CŨ vào cache của bản mới
+    await Promise.all(APP_SHELL.map(function(u){return c.add(new Request(u,{cache:'reload'})).catch(function(){})}));
   })());
-  // Do NOT call self.skipWaiting() here — keep the new SW "waiting" so the user
-  // can dismiss/tap the update toast before the page auto-reloads.
+  // skipWaiting: bản SW mới kích hoạt ngay (không kẹt "waiting" như trước — iPhone từng kẹt bản cũ hàng tuần).
+  // Trang đang mở không bị reload; lần mở app kế tiếp sẽ nhận HTML mới.
+  self.skipWaiting();
 });
 
 self.addEventListener('activate',function(e){
@@ -26,6 +28,8 @@ self.addEventListener('fetch',function(e){
   if(e.request.method!=='GET')return;
   var url=new URL(e.request.url);
   if(url.origin!==self.location.origin)return;
+  // Không can thiệp sw.js (để "Check bản mới" đọc đúng phiên bản trên server)
+  if(/\/sw\.js$/.test(url.pathname))return;
 
   // Stale-while-revalidate: trả bản CACHE NGAY (không chờ mạng → mượt cả khi wifi yếu / chập chờn),
   // đồng thời tải bản mới ở NỀN để cập nhật cache cho lần mở sau. Không lo kẹt bản cũ vì app đã có
