@@ -992,6 +992,30 @@ let ALL_CARDS=[
     note:"Hoàn 5% nhà hàng, 3% du lịch & khách sạn (chưa có mốc/kỳ trong app — chỉ theo dõi phí thường niên).",
     annualFee:1500000,afNext:"2027-01",afWaive:"là Khách hàng Priority"},
 
+  // ── Agribank Lộc Việt (Napas nội địa) — KM 8% mọi GD, max 400K/tháng đến 31/03/2027 ──
+  {id:"agri-2289",name:"Agribank Lộc Việt",network:"Napas",last4:"2289",cardNum:"970405******2289",stmtDay:0,dueDay:0,color:"#AE1C3F",
+    cashbackCategories:[
+      {category:"Siêu thị",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Ẩm thực",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Du lịch",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Online",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Online Shopee/Tiktok",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Y tế",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Giáo dục",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Nhà sách",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Điện máy",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Thời trang",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Di chuyển",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Giải trí",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Vé Vietjet",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Mua sắm",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Beauty",rate:.08,maxCashback:400000,maxSpend:5000000},
+      {category:"Khác",rate:.08,maxCashback:400000,maxSpend:5000000}
+    ],
+    minSpend:0,calendarMonth:true,flatAll:true,sharedMaxCashback:400000,sharedCats:["Siêu thị", "Ẩm thực", "Du lịch", "Online", "Online Shopee/Tiktok", "Y tế", "Giáo dục", "Nhà sách", "Điện máy", "Thời trang", "Di chuyển", "Giải trí", "Vé Vietjet", "Mua sắm", "Beauty", "Khác"],
+    note:"Khuyến mại 05/11/2026–31/03/2027 (thẻ phát hành trong CT): hoàn 8% mọi GD thanh toán hàng hóa/dịch vụ, tối đa 400K/tháng (tháng dương lịch), hoàn tối thiểu 5K. Loại trừ MCC 6300 bảo hiểm, 5960, 4829, 6011, 6211, 6051, 7995, 7801, 5944 trang sức, 5933 cầm đồ. Mỗi KH chỉ xét 1 thẻ Lộc Việt; ngân sách 900tr/kỳ (hết là dừng). Sau 31/03/2027 hết CB. Thẻ nội địa Napas.",
+    annualFee:0,afNext:"2027-11",afWaive:"Miễn phí năm đầu (phí năm sau chưa rõ)"},
+
   // ── VIB Premier Boundless — NEW (không cashback) ──
   {id:"vib-6970",name:"VIB Premier Boundless",network:"MC",last4:"6970",cardNum:"513094****6970",stmtDay:20,dueDay:14,color:"#1B2A4A",
     cashbackCategories:[],minSpend:0,note:"Không có cashback — chỉ theo dõi phí thường niên.",
@@ -1132,7 +1156,7 @@ const SHOP_CARD_MAP=[
 
 
 const CAT_ICONS={"Siêu thị":"🛒","Ẩm thực":"🍽","Du lịch":"✈️","Online":"🛍","Online Shopee/Tiktok":"📲","Bảo hiểm":"🛡","Y tế":"🏥","Giáo dục":"🎓","Nhà sách":"📚","Điện máy":"📺","Thời trang":"👗","Di chuyển":"🚗","Giải trí":"🎬","Vé Vietjet":"🛫","Nước ngoài":"🌏","Mua sắm":"🏬","Beauty":"💄","Risk_MB":"⛔","Khác":"📦"};
-const NET_ICONS={Visa:"VISA",MC:"MC",JCB:"JCB",Amex:"AMEX"};
+const NET_ICONS={Visa:"VISA",MC:"MC",JCB:"JCB",Amex:"AMEX",Napas:"NAPAS"};
 const MONTHS_VI=["Th1","Th2","Th3","Th4","Th5","Th6","Th7","Th8","Th9","Th10","Th11","Th12"];
 
 // ═══ HELPERS ═══
@@ -2718,7 +2742,7 @@ const BANK_DISPLAY = {
   ACB:"ACB", BIDV:"BIDV", SHB:"SHB", CIMB:"CIMB", HDB:"HDBank", HSBC:"HSBC",
   LPB:"LPBank", MB:"MB Bank", MSB:"MSB", Sacom:"Sacombank",
   Seabank:"SeaBank", Shinhan:"Shinhan", TCB:"Techcombank",
-  VIB:"VIB", UOB:"UOB", VPB:"VPBank", Vikki:"Vikki"
+  VIB:"VIB", UOB:"UOB", VPB:"VPBank", Vikki:"Vikki", Agribank:"Agribank"
 };
 const BANK_LOGO_PNG = {
   "ACB":"data:image/png;base64,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",
@@ -2743,6 +2767,7 @@ const BANK_LOGO_PNG = {
 // Màu chọn theo dominant color của favicon thật (đã fetch từ site bank) để đồng bộ với logo.
 const BANK_STYLE = {
   "ACB":        {bg:"#184098",code:"ACB"},
+  "Agribank":   {bg:"#AE1C3F",code:"AGRI"},
   "BIDV":       {bg:"#00954D",code:"BIDV"},
   "SHB":        {bg:"#EE7C1F",code:"SHB"},
   "CIMB":       {bg:"#EF3E42",code:"CIMB"},
@@ -2789,6 +2814,7 @@ function bankKeyOf(card){
   if(id.startsWith("vib"))return"VIB";if(id.startsWith("uob"))return"UOB";
   if(id.startsWith("vpb"))return"VPBank";
   if(id.startsWith("vikki"))return"Vikki";
+  if(id.startsWith("agri"))return"Agribank";
   return"Khác";
 }
 // Build the bank-grouped card list (filtered by state.cardSearch) into `el`.
@@ -2855,7 +2881,10 @@ function renderCardDetail(){
       onClick:()=>{setCatOverride(card,null);render()}},"↺ Xoá chọn thủ công (dùng auto)"));
     w.appendChild(box);
   }
-  card.cashbackCategories.forEach(cb=>{w.appendChild(renderCbRow(card,ct,cb,shared,ts,true))});
+  // Thẻ hoàn đều mọi lĩnh vực (flatAll): chỉ hiện các lĩnh vực đã có chi tiêu trong kỳ, tránh 16 dòng trống
+  const _cbList=card.flatAll?card.cashbackCategories.filter(cb=>calcCatSpendNet(card,ct,cb.category)!==0):card.cashbackCategories;
+  if(card.flatAll)w.appendChild(h("div",{className:"hint",style:{margin:"6px 0"}},`Hoàn ${fmtRate(card.cashbackCategories[0]?.rate||0)} mọi lĩnh vực (trừ bảo hiểm, trang sức, cầm đồ, chuyển/rút tiền…) — tổng tối đa ${fmtK(card.sharedMaxCashback||0)}/tháng`+(_cbList.length?"":" · chưa có giao dịch kỳ này")));
+  _cbList.forEach(cb=>{w.appendChild(renderCbRow(card,ct,cb,shared,ts,true))});
   if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtTight(shared.total)} / ${fmtK(shared.max)}`));
   if(card.note)w.appendChild(h("div",{className:"card-note"},"ℹ "+card.note));
   // Ưu đãi đang chạy của thẻ (vd UOB "Chi tiêu hết ý") — kèm tiến độ nếu ưu đãi có cấu hình prog
@@ -5695,6 +5724,20 @@ function stPromoForm() {
 }
 
 // Seed 1 lần: chương trình UOB "Chi tiêu hết ý – Tiền hoàn đầy ví" (Group B của anh, 3 giai đoạn). Id cố định → không trùng khi sync.
+// Seed 1 lần: KM Agribank Lộc Việt (để app nhắc trước khi hết hạn 31/03/2027)
+function seedAgriLocViet(){
+  try{
+    if(localStorage.getItem("ct7-seed-agri-locviet"))return;
+    if(!ALL_CARDS.find(c=>c.id==="agri-2289"))return;
+    const id="promo-agri-locviet-2026";
+    if(!(state.promos||[]).some(x=>x.id===id)){
+      state.promos=[...(state.promos||[]),{id,cardId:"agri-2289",title:"Lộc Việt — hoàn 8% mọi GD (max 400K/tháng)",start:"2026-11-05",end:"2027-03-31",
+        note:"Thẻ phát hành trong CT: 8% mọi GD thanh toán, tối đa 400K/tháng dương lịch, hoàn tối thiểu 5K. Loại trừ bảo hiểm, chuyển/rút tiền, chứng khoán, ngoại hối, cờ bạc, trang sức, cầm đồ. Ngân sách 900tr/tháng — hết là dừng. Mỗi KH chỉ xét 1 thẻ Lộc Việt."}];
+      persist();
+    }
+    localStorage.setItem("ct7-seed-agri-locviet","1");
+  }catch(e){console.error("seedAgriLocViet",e)}
+}
 function seedUobYec(){
   try{
     // v2: bỏ câu nhắc đăng ký khỏi ghi chú các ưu đãi đã seed trước đó (anh đã đăng ký)
@@ -7187,6 +7230,7 @@ function pwaInstall() {
 // ═══ INIT ═══
 try{ pwaInstall(); }catch(e){ console.error('pwaInstall',e); }
 try{ seedUobYec(); }catch(e){ console.error('seedUobYec',e); }
+try{ seedAgriLocViet(); }catch(e){ console.error('seedAgriLocViet',e); }
 render();
 try{ ctSync.init(); }catch(e){ console.error('ctSync',e); }
 window.addEventListener("ct7-sync-change",()=>{
