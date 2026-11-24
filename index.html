@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202611242321';</script>
+<script>window.CT_BUILD='v202611242333';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -1321,8 +1321,15 @@ function setCatOverride(card,category,ref){
   if(category)m[k]=category;else delete m[k];
   state.catOverride=m;persist();
 }
+// Ngày tham chiếu của 1 tập GD cùng kỳ = ngày GD muộn nhất (kỳ cũ → ngày trong kỳ cũ); rỗng → hôm nay.
+// Dùng để xét KM theo tháng / hạn CB / lĩnh vực chọn tay đúng KỲ đang tính, không theo "hôm nay".
+function refOf(ct){
+  let m="";(ct||[]).forEach(t=>{if(t&&t.date&&t.date>m)m=t.date});
+  return m?parseLocalDate(m):new Date();
+}
 function getActiveCat(card,ct,ref){
   if(!card.firstCatOnly)return null;
+  ref=ref||refOf(ct);
   const ov=getCatOverride(card,ref);
   if(ov)return ov;
   const sorted=[...ct].sort(txOrder);
@@ -1330,9 +1337,9 @@ function getActiveCat(card,ct,ref){
   return first?first.category:null;
 }
 // card.cbUntil="YYYY-MM-DD": hết ngày này thẻ không còn cashback (vd KM Lộc Việt hết 31/03/2027)
-function cardCbExpired(card){return !!(card&&card.cbUntil&&toLocalDateStr(new Date())>card.cbUntil)}
+function cardCbExpired(card,ct){return !!(card&&card.cbUntil&&toLocalDateStr(refOf(ct))>card.cbUntil)}
 function isCatActive(card,ct,category){
-  if(cardCbExpired(card))return false;
+  if(cardCbExpired(card,ct))return false;
   if(!card.firstCatOnly)return true;
   const active=getActiveCat(card,ct);
   if(!active)return true;
@@ -1352,16 +1359,16 @@ function memberTier(card){
   return card.memberTiers.find(t=>t.key===key)||card.memberTiers.find(t=>t.key===card.memberTierDefault)||card.memberTiers[0];
 }
 // Khuyến mãi theo thời gian (vd ACB Privilege x3 điểm T10–T11/2026): card.promoBoost={from:"YYYY-MM",to:"YYYY-MM"}
-// + cb.promoRate/promoMaxCashback/promoMaxSpend + card.promoSharedMax. Xét theo THÁNG HIỆN TẠI.
-function promoOn(card){
+// + cb.promoRate/promoMaxCashback/promoMaxSpend + card.promoSharedMax. Xét theo THÁNG CỦA KỲ đang tính (refOf(ct)).
+function promoOn(card,ct){
   const p=card&&card.promoBoost;if(!p)return false;
-  const n=new Date(),k=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0");
+  const n=refOf(ct),k=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0");
   return k>=p.from&&k<=p.to;
 }
-function effRate(card,ct,cb){const mt=memberTier(card);if(mt)return mt.rate;if(promoOn(card)&&cb.promoRate!=null)return cb.promoRate;return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
-function effMaxCb(card,ct,cb){const mt=memberTier(card);if(mt)return mt.max;if(promoOn(card)&&cb.promoMaxCashback!=null)return cb.promoMaxCashback;return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
-function effMaxSpend(card,ct,cb){const mt=memberTier(card);if(mt)return Math.round(mt.max/mt.rate);if(promoOn(card)&&cb.promoMaxSpend!=null)return cb.promoMaxSpend;return tierHi(card,ct)&&cb.hiMaxSpend!=null?cb.hiMaxSpend:cb.maxSpend}
-function effSharedMax(card,ct){const mt=memberTier(card);if(mt)return mt.max;if(promoOn(card)&&card.promoSharedMax!=null)return card.promoSharedMax;return tierHi(card,ct)&&card.hiSharedMaxCashback!=null?card.hiSharedMaxCashback:card.sharedMaxCashback}
+function effRate(card,ct,cb){const mt=memberTier(card);if(mt)return mt.rate;if(promoOn(card,ct)&&cb.promoRate!=null)return cb.promoRate;return tierHi(card,ct)&&cb.hiRate!=null?cb.hiRate:cb.rate}
+function effMaxCb(card,ct,cb){const mt=memberTier(card);if(mt)return mt.max;if(promoOn(card,ct)&&cb.promoMaxCashback!=null)return cb.promoMaxCashback;return tierHi(card,ct)&&cb.hiMaxCashback!=null?cb.hiMaxCashback:cb.maxCashback}
+function effMaxSpend(card,ct,cb){const mt=memberTier(card);if(mt)return Math.round(mt.max/mt.rate);if(promoOn(card,ct)&&cb.promoMaxSpend!=null)return cb.promoMaxSpend;return tierHi(card,ct)&&cb.hiMaxSpend!=null?cb.hiMaxSpend:cb.maxSpend}
+function effSharedMax(card,ct){const mt=memberTier(card);if(mt)return mt.max;if(promoOn(card,ct)&&card.promoSharedMax!=null)return card.promoSharedMax;return tierHi(card,ct)&&card.hiSharedMaxCashback!=null?card.hiSharedMaxCashback:card.sharedMaxCashback}
 
 // ═══ CASHBACK CALC ═══
 // Điều kiện tổng chi tiêu tối thiểu trong kỳ (Shinhan/MSB/CIMB 3tr, LPB 8tr).
@@ -2201,6 +2208,7 @@ function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.t
 // Tự đẩy lên cloud ~4s sau lần lưu cuối (nhập/sửa GD, đổi cài đặt...) để máy kia thấy sớm.
 // Bỏ qua khi đang rehydrate/render sau sync (tránh vòng lặp) hoặc khi chưa đăng nhập.
 let _pushSyncTimer=null;
+window.schedulePushSync=function(){schedulePushSync()};
 function schedulePushSync(){
   try{
     if(window.__ctInSync||!window.ctSync||!ctSync.syncOnce)return;
@@ -6531,6 +6539,11 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   }
 
   let _pushSnap=null;
+  // Ảnh chụp các key dạng mảng NGAY LÚC push — pull so với ảnh này để biết item nào user sửa/thêm TRONG LÚC đang sync
+  // (những item đó giữ bản local, không bị bản cloud cũ ghi đè, và được đẩy lại ở lượt sau).
+  let _pushArr=null;
+  const ARCH_KEY="ct7-txn-archive";
+  function archCutoffMonth(){const d=new Date();d.setMonth(d.getMonth()-(typeof ARCHIVE_MONTHS==="number"?ARCHIVE_MONTHS:24));return toLocalDateStr(d).slice(0,7)}
   function collectSettings(){
     // everything ct7-* not mapped and not ephemeral -> settings.data
     const data={};
@@ -6552,6 +6565,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   async function pushLocal(){
     if(!session)return;
     const tombs=readTombs();
+    _pushArr={};
     for(const [key,def] of Object.entries(KEY_MAP)){
       let raw;try{raw=JSON.parse(localStorage.getItem(key)||"null")}catch{raw=null}
       let rows=[];
@@ -6559,6 +6573,17 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
         rows=raw.map(item=>{const r=def.toRow(item);if(!item.id)item.id=r.id;return r});
         // write back ids
         localStorage.setItem(key,JSON.stringify(raw));
+        _pushArr[key]=localStorage.getItem(key);
+        // GD đã vào kho lưu trữ (kỳ cũ / ghi lùi ngày) cũng phải lên bảng transactions — trước đây chỉ GD kỳ hiện tại
+        // được đẩy, nên GD ghi lùi ngày không tới máy kia và sửa GD cũ không lên cloud.
+        if(key==="ct7-txns"){
+          let arch;try{arch=JSON.parse(localStorage.getItem(ARCH_KEY)||"[]")}catch{arch=[]}
+          if(Array.isArray(arch)){
+            const liveIds=new Set(raw.map(x=>x&&x.id));
+            arch.forEach(item=>{if(item&&item.id&&!liveIds.has(item.id))rows.push(def.toRow(item))});
+          }
+          _pushArr[ARCH_KEY]=localStorage.getItem(ARCH_KEY);
+        }
       }else if(def.kind==="map"&&raw&&typeof raw==="object"){
         rows=Object.entries(raw).map(([k,v])=>def.toRow(k,v));
       }
@@ -6591,8 +6616,12 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
           log("tomb applied",def.table,t.id,"rows:",n);
           if(n===0){log("tomb warn",def.table,t.id,"no matching row on cloud — id not there yet or wrong user_id")}
         }
-        delete tombs[key];
-        writeTombs(tombs);
+        // Đọc LẠI tombstone mới nhất rồi chỉ bỏ những id vừa áp dụng — trước đây ghi đè bằng bản chụp cũ
+        // nên tombstone tạo ra trong lúc đang sync bị mất → GD đã xoá sống lại.
+        const applied=new Set(tks.map(t=>t.id));
+        const fresh=readTombs();
+        if(fresh[key]){fresh[key]=fresh[key].filter(x=>!applied.has(x.id));if(!fresh[key].length)delete fresh[key]}
+        writeTombs(fresh);
       }
     }
     // settings
@@ -6626,20 +6655,58 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
         let local=[];try{local=JSON.parse(localStorage.getItem(key)||"[]")||[]}catch{local=[]}
         if(!Array.isArray(local))local=[];
         const localIds=new Set(local.filter(x=>x&&x.id).map(x=>x.id));
+        // Item user sửa/thêm TRONG LÚC sync (khác ảnh chụp lúc push) → giữ bản local, không để bản cloud cũ ghi đè
+        const changedIds=new Set();
+        const snapStr=_pushArr&&_pushArr[key];
+        if(snapStr!=null){
+          let snap=[];try{snap=JSON.parse(snapStr)||[]}catch{snap=[]}
+          const sm={};snap.forEach(x=>{if(x&&x.id)sm[x.id]=JSON.stringify(x)});
+          local.forEach(x=>{if(x&&x.id&&sm[x.id]!==JSON.stringify(x))changedIds.add(x.id)});
+        }
+        // Tombstone còn chờ (xoá trong lúc sync) → không cho bản cloud làm sống lại
+        const pendTomb=new Set(((readTombs()[key])||[]).map(t=>t.id));
+        // Riêng GD: id đang nằm trong kho lưu trữ → cập nhật bản lưu trữ, KHÔNG nhét lại vào danh sách kỳ hiện tại
+        let arch=null,archById=null,archChanged=false,cutM=null;const archLocalChanged=new Set();
+        if(key==="ct7-txns"){
+          try{arch=JSON.parse(localStorage.getItem(ARCH_KEY)||"[]")}catch{arch=[]}
+          if(!Array.isArray(arch))arch=[];
+          archById={};arch.forEach((x,i)=>{if(x&&x.id)archById[x.id]=i});
+          const as=_pushArr&&_pushArr[ARCH_KEY];
+          if(as!=null){let snapA=[];try{snapA=JSON.parse(as)||[]}catch{};const sa={};snapA.forEach(x=>{if(x&&x.id)sa[x.id]=JSON.stringify(x)});
+            arch.forEach(x=>{if(x&&x.id&&sa[x.id]!==JSON.stringify(x))archLocalChanged.add(x.id)})}
+          cutM=archCutoffMonth();
+        }
         const byId={};
         local.forEach(x=>{if(x&&x.id)byId[x.id]=x});
-        let nNew=0,nUpd=0;
-        live.forEach(x=>{if(x&&x.id){if(localIds.has(x.id))nUpd++;else nNew++;byId[x.id]=x}});
-        // Tombstones from remote — drop soft-deleted
+        let nNew=0,nUpd=0,nArch=0;
+        live.forEach(x=>{
+          if(!x||!x.id||pendTomb.has(x.id)||changedIds.has(x.id))return;
+          if(archById&&!localIds.has(x.id)){
+            if(x.id in archById){
+              if(!archLocalChanged.has(x.id)&&JSON.stringify(arch[archById[x.id]])!==JSON.stringify(x)){arch[archById[x.id]]=x;archChanged=true;nArch++}
+              return;
+            }
+            if(String(x.date||"").slice(0,7)<cutM)return;   // quá hạn lưu trữ → bỏ qua (tránh nạp lại rồi purge mãi)
+          }
+          if(localIds.has(x.id))nUpd++;else nNew++;byId[x.id]=x;
+        });
+        // Tombstones from remote — drop soft-deleted (cả bản trong kho lưu trữ)
         let nDel=0;
-        remote.filter(r=>r.deleted_at).forEach(r=>{if(byId[r.id]){nDel++;delete byId[r.id]}});
+        remote.filter(r=>r.deleted_at).forEach(r=>{
+          if(byId[r.id]&&!changedIds.has(r.id)){nDel++;delete byId[r.id]}
+          if(archById&&(r.id in archById)&&arch[archById[r.id]]){arch[archById[r.id]]=null;archChanged=true}
+        });
+        pendTomb.forEach(id=>{delete byId[id]});
         const merged=Object.values(byId);
-        log("pull merged",def.table,"+"+nNew,"~"+nUpd,"-"+nDel);
+        log("pull merged",def.table,"+"+nNew,"~"+nUpd,"-"+nDel,"arch~"+nArch,"keepLocal:"+changedIds.size);
+        if(changedIds.size||archLocalChanged.size)window.__ctResyncNeeded=true;
         try{
           const RH=readJSONLS("ct7-rowhash",{});RH[key]=RH[key]||{};
           remote.forEach(r=>{
             if(r.deleted_at){delete RH[key][r.id];return}
-            const it=def.fromRow(r);if(it&&it.id)RH[key][it.id]=h32(JSON.stringify(def.toRow(it)));
+            const it=def.fromRow(r);
+            // Không ghi hash cho item đang giữ bản local → lượt push sau sẽ đẩy bản local lên
+            if(it&&it.id&&!changedIds.has(it.id)&&!archLocalChanged.has(it.id))RH[key][it.id]=h32(JSON.stringify(def.toRow(it)));
           });
           localStorage.setItem("ct7-rowhash",JSON.stringify(RH));
         }catch(e){log("rowhash err",e)}
@@ -6647,6 +6714,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
         if(merged.length||local.length===0){
           localStorage.setItem(key,JSON.stringify(merged));
         }
+        if(archChanged){try{localStorage.setItem(ARCH_KEY,JSON.stringify(arch.filter(Boolean)))}catch{}}
       }else if(def.kind==="map"){
         const remoteMap=def.applyRows(remote);
         let local={};try{local=JSON.parse(localStorage.getItem(key)||"{}")||{}}catch{local={}}
@@ -6692,6 +6760,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       // Không render khi đang gõ vào ô nhập (tránh mất focus/dữ liệu đang nhập); lần render kế tiếp sẽ hiện dữ liệu mới
       try{window.bgRender&&bgRender()}catch{}
       window.__ctInSync=false;
+      if(window.__ctResyncNeeded){window.__ctResyncNeeded=false;try{window.schedulePushSync&&window.schedulePushSync()}catch{}}
     }catch(e){
       window.__ctInSync=false;
       log("sync err",e);
