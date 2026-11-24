@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202611020824';</script>
+<script>window.CT_BUILD='v202611242142';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -2100,6 +2100,16 @@ let state={
 let _shopTimer=null;
 let _addInputTimer=null;
 let _lastView="";
+// Render nền (sync / kéo dữ liệu tham chiếu / cache): KHÔNG dựng lại DOM khi người dùng đang tương tác
+// với ô nhập hoặc danh sách chọn (<select>) — trên iPhone render lúc đó làm đóng picker / nhảy form.
+function bgRender(){
+  try{
+    const ae=document.activeElement;
+    if(ae&&(/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)||ae.isContentEditable))return;
+    render();
+  }catch{}
+}
+window.bgRender=bgRender;
 function setState(p){Object.assign(state,p);render();persist()}
 function setQ(p){Object.assign(state,p)}
 function rehydrateState(){
@@ -3158,8 +3168,21 @@ function renderAddTab(){
 // Used both at first render and for live in-place updates while typing, so the
 // amount/shop inputs are never destroyed mid-keystroke.
 // Gợi ý cửa hàng: lọc theo chữ đang gõ (không phân biệt dấu/hoa-thường), tối đa 6.
+// Danh sách shop gợi ý của 1 lĩnh vực = seed trong app + shop dùng chung trên cloud (ref_shops, vd shop mới thêm từ máy khác)
+function shopsForCategory(cat){
+  if(!cat)return [];
+  const out=[...(SHOP_SUGGESTIONS[cat]||[])],seen=new Set(out.map(x=>String(x).toLowerCase()));
+  try{
+    const r=window.ctRef;
+    (r&&r.getShops?r.getShops():[]).forEach(s=>{
+      const n=s&&s.name;if(!n||s.category!==cat)return;
+      const k=String(n).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(n);
+    });
+  }catch{}
+  return out.sort((a,b)=>String(a).localeCompare(String(b),"vi"));
+}
 function shopSuggestNodes(){
-  const all=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
+  const all=shopsForCategory(state.addCategory);
   const norm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
   const q=norm(state.addShop);
   const list=(q?all.filter(x=>norm(x).includes(q)):all).slice(0,6);
@@ -4629,7 +4652,7 @@ function txaSegNode(){
 // Gợi ý cửa hàng cho form Thêm GD — bản riêng của fragment này (không gọi shopSuggestNodes/recalcTxnUI
 // của nền vì hai hàm đó không biết cập nhật khối hoàn tiền/FX mới thêm).
 function txaShopChips(){
-  const all=state.addCategory?(SHOP_SUGGESTIONS[state.addCategory]||[]):[];
+  const all=shopsForCategory(state.addCategory);
   const norm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
   const q=norm(state.addShop);
   const list=(q?all.filter(x=>norm(x).includes(q)):all).slice(0,6);
@@ -5655,6 +5678,26 @@ function stPromoForm() {
     }, "＋ Thêm ưu đãi"));
 }
 
+// Seed 1 lần: chương trình UOB "Chi tiêu hết ý – Tiền hoàn đầy ví" (Group B của anh, 3 giai đoạn). Id cố định → không trùng khi sync.
+function seedUobYec(){
+  try{
+    if(localStorage.getItem("ct7-seed-uob-yec-2026"))return;
+    if(!ALL_CARDS.find(c=>c.id==="uob-5021"))return;
+    const note="UOB Group B · mã đăng ký SG21446674 — ĐĂNG KÝ trước 17/12/2026 (đăng ký 1 lần, trễ giai đoạn nào thì GD giai đoạn đó không tính). "
+      +"Hoàn 20% trên phần chi vượt mốc 5tr (tối đa 700K, đạt tối đa khi chi 8.5tr), tính chung mọi thẻ UOB, hoàn vào thẻ chi nhiều nhất. "
+      +"Không tính: hoàn tiền/hủy, trả góp, thanh toán hóa đơn/định kỳ/tự động, phí/lãi, MCC 4111/4900/4816/5541 (app không lọc MCC — tự trừ). "
+      +"Kèm ưu đãi hoàn 100% phí GD nước ngoài (tối đa 300K nếu chi ngoại tệ ≥3tr). Đủ ngân sách là hết.";
+    const mk=(n,start,end,post)=>({id:"promo-uob-yec-2026-p"+n,cardId:"uob-5021",
+      title:`UOB Chi tiêu hết ý — GĐ${n} (hoàn 20%, tối đa 700K)`,start,end,
+      note:note+` GĐ${n}: GD phải được bút toán trước ${post}.`,
+      prog:{idPrefix:"uob-",base:5000000,rate:.2,max:700000}});
+    const list=[mk(1,"2026-11-18","2026-12-17","01/01/2027"),mk(2,"2026-12-18","2027-01-17","01/02/2027"),mk(3,"2027-01-18","2027-02-16","03/03/2027")];
+    const have=new Set((state.promos||[]).map(x=>x.id));
+    state.promos=[...(state.promos||[]),...list.filter(x=>!have.has(x.id))];
+    persist();
+    localStorage.setItem("ct7-seed-uob-yec-2026","1");
+  }catch(e){console.error("seedUobYec",e)}
+}
 function stPromoEditRow(p, cards) {
   return h("div", { className: "st-promo-card" },
     h("select", {
@@ -5677,6 +5720,26 @@ function stPromoEditRow(p, cards) {
     h("button", { className: "st-btn", onClick: () => { _st2EditPromoId = null; render(); } }, "✓ Xong"));
 }
 
+// Tiến độ ưu đãi dạng "hoàn X% trên phần chi VƯỢT mốc, tối đa M" (vd UOB "Chi tiêu hết ý").
+// p.prog={idPrefix|cardIds, base, rate, max}. Chi tiêu = tổng GD (ròng, đã trừ hoàn tiền) của các thẻ trong khoảng start..end.
+function promoProgNode(p){
+  const g=p&&p.prog;if(!g||!p.start||!p.end)return null;
+  const ids=g.cardIds||ALL_CARDS.filter(c=>c&&c.id&&g.idPrefix&&c.id.startsWith(g.idPrefix)).map(c=>c.id);
+  const spend=Math.max(allTxns().filter(t=>ids.includes(t.cardId)&&t.date>=p.start&&t.date<=p.end).reduce((s,t)=>s+t.amount,0),0);
+  const base=g.base||0,rate=g.rate||0,max=g.max||0;
+  const earned=Math.min(Math.max(spend-base,0)*rate,max);
+  const fullAt=base+(rate>0?max/rate:0);
+  const pct=fullAt>0?Math.min(spend/fullAt*100,100):0;
+  const lines=[];
+  lines.push(`Đã chi ${fmtK(spend)}₫ · mốc ${fmtK(base)}₫ · tối đa tại ${fmtK(fullAt)}₫`);
+  if(spend<base)lines.push(`Cần chi thêm ${fmtK(base-spend)}₫ để bắt đầu có hoàn tiền`);
+  else if(earned<max)lines.push(`Hoàn ước tính ${fmtK(earned)}₫ — chi thêm ${fmtK(fullAt-spend)}₫ để đạt tối đa ${fmtK(max)}₫`);
+  else lines.push(`✓ Đã đạt tối đa ${fmtK(max)}₫`);
+  return h("div",{style:{margin:"6px 0"}},
+    h("div",{className:"bar-track",style:{height:"6px",borderRadius:"3px",background:"var(--bg4)",overflow:"hidden"}},
+      h("div",{style:{width:pct+"%",height:"100%",background:earned>=max?"var(--accent2)":"var(--accent)",opacity:spend<base?.5:1}})),
+    ...lines.map(t=>h("div",{className:"hint",style:{marginTop:"2px"}},t)));
+}
 function stPromoRow(p) {
   const cards = selectedCards();
   if (_st2EditPromoId === p.id) return stPromoEditRow(p, cards.length ? cards : ALL_CARDS);
@@ -5694,6 +5757,7 @@ function stPromoRow(p) {
         : expired ? h("span", { className: "badge badge-muted" }, "Hết hạn") : null),
     h("div", { className: "st-promo-meta" },
       (p.start || p.end) ? (p.start ? fmtDateVi(p.start) : "…") + " → " + (p.end ? fmtDateVi(p.end) : "…") : "Không có hạn cụ thể"),
+    promoProgNode(p),
     p.note ? h("p", { className: "hint" }, p.note) : null,
     h("div", { className: "st-promo-actions" },
       h("button", { className: "del", "aria-label": "Sửa ưu đãi " + p.title, onClick: () => { _st2EditPromoId = p.id; render(); } }, "✎"),
@@ -6412,8 +6476,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       window.__ctInSync=true;
       try{window.rehydrateState&&window.rehydrateState()}catch(e){log("rehydrate err",e)}
       // Không render khi đang gõ vào ô nhập (tránh mất focus/dữ liệu đang nhập); lần render kế tiếp sẽ hiện dữ liệu mới
-      try{const ae=document.activeElement,typing=ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
-        if(!typing)window.render&&render()}catch{}
+      try{window.bgRender&&bgRender()}catch{}
       window.__ctInSync=false;
     }catch(e){
       window.__ctInSync=false;
@@ -6438,7 +6501,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     }
     autoSync();
     try{window.ctRef&&window.ctRef.autoSync()}catch(e){log("ref autoSync err",e)}
-    try{window.render&&render()}catch{}
+    try{window.bgRender&&bgRender()}catch{}
   }
 
   function autoSync(){
@@ -6637,7 +6700,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
       // Merge cloud-only cards into ALL_CARDS so the app sees them everywhere.
       try{mergeCloudCards(rc.data||[])}catch(e){refLog("merge err",e)}
       try{window.dispatchEvent(new CustomEvent("ct7-ref-change"))}catch{}
-      try{window.render&&render()}catch{}
+      try{window.bgRender&&bgRender()}catch{}
       return true;
     }catch(e){refLog("err",e);return false}
   }
@@ -6657,7 +6720,7 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
   })}catch{}
 
   // On module load, merge whatever's already cached — so ALL_CARDS is populated before first pull.
-  try{const cached=refRead(REF_KEYS.cards);if(cached&&cached.length)setTimeout(()=>{try{mergeCloudCards(cached);window.render&&render()}catch{}},50)}catch{}
+  try{const cached=refRead(REF_KEYS.cards);if(cached&&cached.length)setTimeout(()=>{try{mergeCloudCards(cached);window.bgRender&&bgRender()}catch{}},50)}catch{}
 
   // Insert 1 shop mới do user thêm vào ref_shops (shared). Sau khi insert thành công
   // → refPull() để cache local có shop mới. Cần đã đăng nhập & online.
@@ -7096,13 +7159,12 @@ function pwaInstall() {
 
 // ═══ INIT ═══
 try{ pwaInstall(); }catch(e){ console.error('pwaInstall',e); }
+try{ seedUobYec(); }catch(e){ console.error('seedUobYec',e); }
 render();
 try{ ctSync.init(); }catch(e){ console.error('ctSync',e); }
 window.addEventListener("ct7-sync-change",()=>{
   // Đừng rebuild toàn DOM khi user đang gõ (mất focus / lag iPhone).
-  const ae=document.activeElement;
-  if(ae&&(ae.tagName==="INPUT"||ae.tagName==="TEXTAREA"||ae.isContentEditable))return;
-  try{render()}catch{}
+  bgRender();
 });
 </script>
 </body>
