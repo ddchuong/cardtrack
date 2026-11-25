@@ -2208,7 +2208,7 @@ function persist(){save("ct7-sel",state.selectedCardIds);save("ct7-txns",state.t
 // Tự đẩy lên cloud ~4s sau lần lưu cuối (nhập/sửa GD, đổi cài đặt...) để máy kia thấy sớm.
 // Bỏ qua khi đang rehydrate/render sau sync (tránh vòng lặp) hoặc khi chưa đăng nhập.
 let _pushSyncTimer=null;
-window.schedulePushSync=function(){schedulePushSync()};
+// (function khai báo ở top-level đã là window.schedulePushSync — KHÔNG gán lại, sẽ đệ quy vô hạn)
 function schedulePushSync(){
   try{
     if(window.__ctInSync||!window.ctSync||!ctSync.syncOnce)return;
