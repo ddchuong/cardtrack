@@ -1036,7 +1036,7 @@ window.RISK_MB_MCC=RISK_MB_MCC;
 const SHOP_SUGGESTIONS={
   "Siêu thị":["KingFood","TopsMarket","Coop","MegaM","Emart","AnNam","BHX","BigC","Glam Beautique","Muji","Winmart"],
   "Ẩm thực":["ShopeeFood","BE AN 1","Changkangkung","Clemence","CoffeeHouse","Domino","Golden Gate","GongCha","Highlands","Hoang Yen","Hokkaido","Katinat","KFC","KoiThe","Manwah","McDonalds","Paris Baguette","Petit Spearl","PheLa","Phuc Long","Pizza4Ps","Starbucks","Takashimaya","ThreeOClock","TrungNguyen","WarningZone","Wrap n Roll"],
-  "Y tế":["Choray","HaiYen","Pharmacity","TMH SG","Victoria HC","Vinmec","VNVC","YDuoc","Á Châu"],
+  "Y tế":["Choray","HaiYen","Pharmacity","TMH SG","Victoria HC","Vinmec","VNVC","YDuoc","Nhà thuốc Á Châu"],
   "Giáo dục":["ReadingQ","SSC"],
   "Nhà sách":["Fahasa","MyKingdom","NS NguyenHue","NS PhuongNam"],
   "Điện máy":["CellphoneS","DMX","FPT Shop","HHMobile","Nguyen Kim","ShopDunk","TGDD","Viettel Store","DM Cho Lon"],
@@ -1124,7 +1124,7 @@ const SHOP_CARD_MAP=[
   {shop:"Vinmec",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"VNVC",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
   {shop:"YDuoc",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936","bidv-3761"]},
-  {shop:"Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936"]},
+  {shop:"Nhà thuốc Á Châu",category:"Y tế",cardIds:["mb-4887","mb-8026","shb-7936"]},
   // ── Giáo dục ──
   {shop:"Fahasa",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
   {shop:"MyKingdom",category:"Nhà sách",cardIds:["mb-4887","mb-8026","shb-7936","shinhan-8149"]},
@@ -3801,7 +3801,7 @@ function advMaybeAutoFocus(){
 }
 
 // Bỏ dấu tiếng Việt để tìm "sieu thi" ra "Siêu thị".
-function advNorm(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()}
+function advNorm(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/đ/g,"d")}
 
 function renderAdviceTab(){
   const w=h("div",null);
@@ -6263,7 +6263,10 @@ function renderMccOut(out,q){
     }
   }else{
     const ql=q.toLowerCase();
-    const shops=allShops.filter(s=>s.name.toLowerCase().includes(ql));
+    // Không phân biệt dấu/hoa-thường, tìm cả trong tên gọi khác (aliases): "a chau" → "Nhà thuốc Á Châu"
+    const nv=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/\s+/g," ").trim();
+    const qn=nv(q);
+    const shops=allShops.filter(s=>nv(s.name).includes(qn)||(s.aliases||[]).some(a=>nv(a).includes(qn)));
     if(!shops.length){out.appendChild(h("p",{className:"hint"},"Không tìm thấy shop khớp \""+q+"\"."));return}
     shops.slice(0,10).forEach(s=>{
       const rates=r.cardsForMcc(s.mcc);
@@ -7056,7 +7059,11 @@ function ctRelTime(iso){try{if(!iso)return "chưa bao giờ";const t=new Date(is
     getRates:()=>refRead(REF_KEYS.rates)||[],
     ratesFor:(cardId)=>{const r=refRead(REF_KEYS.rates)||[];return r.filter(x=>x.card_id===cardId)},
     cardsForMcc:(mcc)=>{const r=refRead(REF_KEYS.rates)||[];return r.filter(x=>x.mcc===mcc).sort((a,b)=>(b.rate_pct||0)-(a.rate_pct||0))},
-    shopByName:(name)=>{const s=refRead(REF_KEYS.shops)||[];const n=String(name||"").toLowerCase();return s.find(x=>x.name.toLowerCase()===n||(x.aliases||[]).some(a=>a.toLowerCase()===n))},
+    // Khớp tên/alias KHÔNG phân biệt dấu, hoa-thường, khoảng trắng thừa (gõ "a chau" vẫn ra MCC của "Nhà thuốc Á Châu"/"Á Châu")
+    shopByName:(name)=>{const s=refRead(REF_KEYS.shops)||[];
+      const nv=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/\s+/g," ").trim();
+      const n=nv(name);if(!n)return undefined;
+      return s.find(x=>nv(x.name)===n||(x.aliases||[]).some(a=>nv(a)===n))},
     hasSession:()=>!!session,
     addShop:refAddShop,
     lastSync:()=>localStorage.getItem(REF_KEYS.last),
