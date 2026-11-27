@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="CardTrack">
 <meta name="theme-color" content="#07090f">
 <title>CardTrack v11</title>
-<script>window.CT_BUILD='v202611270823';</script>
+<script>window.CT_BUILD='v202611271636';</script>
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwYzE0Ii8+PHRleHQgeD0iOTAiIHk9IjEwNSIgZm9udC1zaXplPSI3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzYwYTVmYSI+4peIPC90ZXh0Pjwvc3ZnPg==">
 <!-- Google Fonts đã được inline offline qua @font-face base64 trong <style> (Phase 5/pwa). Bỏ link blocking để chạy được khi mất mạng. -->
 <style>
@@ -819,15 +819,19 @@ let ALL_CARDS=[
   // ── TCB Spark (calendar month; tổng CB max 500K chung; đổi danh mục 1 lần/ngày) ──
   {id:"tcb-6661",name:"TCB Spark",network:"MC",last4:"6661",cardNum:"510164****6661",stmtDay:20,dueDay:4,color:"#E8112D",
     cashbackCategories:[
-      {category:"Du lịch",rate:.08,maxCashback:500000,maxSpend:6250000},
-      {category:"Thời trang",rate:.08,maxCashback:500000,maxSpend:6250000},
-      {category:"Giải trí",rate:.08,maxCashback:500000,maxSpend:6250000},
-      {category:"Online",rate:.02,maxCashback:500000,maxSpend:25000000},
-      {category:"Ẩm thực",rate:.02,maxCashback:500000,maxSpend:25000000}
+      {category: "Du lịch", rate: 0.08, maxCashback: 500000, maxSpend: 6250000, promoRate: 0.12, promoMaxCashback: 1000000, promoMaxSpend: 8333333},
+      {category: "Thời trang", rate: 0.08, maxCashback: 500000, maxSpend: 6250000, promoRate: 0.12, promoMaxCashback: 1000000, promoMaxSpend: 8333333},
+      {category: "Beauty", rate: 0, maxCashback: 0, maxSpend: 1, promoRate: 0.12, promoMaxCashback: 1000000, promoMaxSpend: 8333333, label: "Làm đẹp / spa / mỹ phẩm (nhóm Thời trang)"},
+      {category: "Siêu thị", rate: 0, maxCashback: 0, maxSpend: 1, promoRate: 0.06, promoMaxCashback: 1000000, promoMaxSpend: 16666667, label: "Siêu thị (Winmart, AEON, Coop, BHX, Lotte, FamilyMart, GO!/BigC, 7-Eleven, Circle K, GS25, Fujimart)"},
+      {category: "Ẩm thực", rate: 0.02, maxCashback: 500000, maxSpend: 25000000, promoRate: 0.06, promoMaxCashback: 1000000, promoMaxSpend: 16666667, label: "Nhà hàng"},
+      {category: "Online", rate: 0.02, maxCashback: 500000, maxSpend: 25000000, promoRate: 0.06, promoMaxCashback: 1000000, promoMaxSpend: 16666667, label: "Chi tiêu trực tuyến"},
+      {category: "Giải trí", rate: 0.08, maxCashback: 500000, maxSpend: 6250000, promoRate: 0, promoMaxCashback: 0, promoMaxSpend: 1}
     ],
     minSpend:0,calendarMonth:true,sharedMaxCashback:500000,
-    note:"Du lịch/Thời trang/Giải trí 8%; Online/Ẩm thực 2%; tổng CB max 500K/kỳ chung; đổi danh mục ưu đãi 1 lần/ngày; chu kỳ tháng lịch",
-    annualFee:900000,afNext:"2027-01",afWaive:"là Khách hàng Inspire"},
+    promoBoost:{from:"2026-12",to:"2099-12"},promoSharedMax:1000000,
+    excludeMcc:["4829", "7631", "6050", "6051", "6010", "6011", "6530", "6211", "6538", "7801", "7802", "7995", "9754", "5960", "6513", "7311", "7999", "7399", "5734", "5966", "5967", "5968", "5969", "4900", "4814", "4816", "8999", "4899", "6540"],
+    note:"Từ 12/2026: LƯƠNG+ ≥40tr/tháng (chuyển về TCB tháng M → hưởng tháng M+1): Du lịch & Thời trang (gồm làm đẹp/spa/mỹ phẩm/trang sức) 12%; Siêu thị (danh sách chuỗi), Nhà hàng, Chi tiêu trực tuyến 6%; lĩnh vực khác 0.1% (app không tính); tối đa 1.000.000 U-Point/tháng (1 điểm ≈ 1đ). Thẻ chỉ áp dụng cho NHÓM ĐANG CHỌN (đổi 1 lần/ngày trên app TCB) — app giả định anh đã chọn đúng nhóm trước khi quẹt. MCC loại trừ (online & khác): chuyển tiền, rút tiền, chứng khoán, cờ bạc, 5734, 4900, 4814, 4816, 4899, 6513, 7999, 7399, 8999, nạp ví… Đến 11/2026: Du lịch/Thời trang/Giải trí 8%, Online/Ẩm thực 2%, max 500K. PTN 699K từ 15/11/2026.",
+    annualFee:699000,afNext:"2027-01",afWaive:"là Khách hàng Inspire (Priority/Inspire Max miễn trọn đời; hoặc chi 120tr/năm)"},
 
   // ── VPB JCB Z (thay LPB JCB Ultimate đã bỏ theo dõi) ──
   {id:"vpb-0277",name:"VPB JCB Z",network:"JCB",last4:"0277",cardNum:"356772****0277",stmtDay:27,dueDay:10,color:"#8B0F1F",
@@ -1508,10 +1512,11 @@ function calcTotalCbSeq(card,list,full){
 function maxCardCb(card){
   const mt=card.memberTiers?memberTier(card):null;
   if(mt)return mt.max;
-  const smax=card.hiSharedMaxCashback||card.sharedMaxCashback;
+  const pOn=promoOn(card,[]);   // KM đang chạy (vd Spark LƯƠNG+ max 1tr) → trần theo KM
+  const smax=(pOn&&card.promoSharedMax!=null)?card.promoSharedMax:(card.hiSharedMaxCashback||card.sharedMaxCashback);
   const inShared=smax?(card.sharedCats||card.cashbackCategories.map(c=>c.category)):[];
   let t=smax||0;
-  card.cashbackCategories.forEach(x=>{if(!inShared.includes(x.category))t+=(x.hiMaxCashback||x.maxCashback)});
+  card.cashbackCategories.forEach(x=>{if(!inShared.includes(x.category))t+=((pOn&&x.promoMaxCashback!=null)?x.promoMaxCashback:(x.hiMaxCashback||x.maxCashback))});
   return t;
 }
 // Estimate marginal cashback for spending `amt` in `cat` on `card` right now
@@ -2920,7 +2925,8 @@ function renderCardDetail(){
     w.appendChild(box);
   }
   // Thẻ hoàn đều mọi lĩnh vực (flatAll): chỉ hiện các lĩnh vực đã có chi tiêu trong kỳ, tránh 16 dòng trống
-  const _cbList=card.flatAll?card.cashbackCategories.filter(cb=>calcCatSpendNet(card,ct,cb.category)!==0):card.cashbackCategories;
+  const _cbList=card.cashbackCategories.filter(cb=>card.flatAll?calcCatSpendNet(card,ct,cb.category)!==0
+    :(effRate(card,ct,cb)>0||calcCatSpendNet(card,ct,cb.category)!==0));   // ẩn lĩnh vực 0% (vd Giải trí của Spark từ 12/2026)
   if(card.flatAll)w.appendChild(h("div",{className:"hint",style:{margin:"6px 0"}},`Hoàn ${fmtRate(card.cashbackCategories[0]?.rate||0)} mọi lĩnh vực (trừ bảo hiểm, trang sức, cầm đồ, chuyển/rút tiền…) — tổng tối đa ${fmtK(card.sharedMaxCashback||0)}/tháng`+(_cbList.length?"":" · chưa có giao dịch kỳ này")));
   _cbList.forEach(cb=>{w.appendChild(renderCbRow(card,ct,cb,shared,ts,true))});
   if(shared)w.appendChild(h("div",{className:"shared-info"},`Tổng CB: ${fmtTight(shared.total)} / ${fmtK(shared.max)}`));
@@ -4926,7 +4932,9 @@ function renderAddTxn(){
   // ── 3. LĨNH VỰC ──
   const catS=h("select",{id:"add-cat-sel",onChange:e=>setState(state.editTxnId?{addCategory:e.target.value}:{addCategory:e.target.value,addShop:""})});
   if(selCard){
-    selCard.cashbackCategories.forEach(c=>catS.appendChild(h("option",{value:c.category},`${CAT_ICONS[c.category]||""} ${c.label||c.category} (${fmtRate(c.rate)})`)));
+    const _ctS=getCycleTxns(selCard);
+    selCard.cashbackCategories.filter(c=>effRate(selCard,_ctS,c)>0||c.category===state.addCategory)
+      .forEach(c=>catS.appendChild(h("option",{value:c.category},`${CAT_ICONS[c.category]||""} ${c.label||c.category} (${fmtRate(effRate(selCard,_ctS,c))})`)));
     catS.appendChild(h("option",{value:"",disabled:"true"},"───── Khác ─────"));
     CATEGORIES.filter(c=>!selCard.cashbackCategories.find(cb=>cb.category===c)).forEach(c=>catS.appendChild(h("option",{value:c},`${CAT_ICONS[c]||""} ${c}`)));
   }else CATEGORIES.forEach(c=>catS.appendChild(h("option",{value:c},(CAT_ICONS[c]||"")+" "+c)));
